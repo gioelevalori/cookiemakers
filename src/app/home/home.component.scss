@@ -23,7 +23,7 @@ h3 { margin: 0 0 16px; font-size: 16px; font-weight: 500; }
 .rectangle { width: 106px; height: 70px; border-radius: 6px; }
 .circle { border-radius: 50%; }
 .square { border-radius: 6px; }
-.hexagon { clip-path: polygon(25% 0, 75% 0, 100% 50%, 75% 100%, 25% 100%, 0 50%); }
+.hexagon { height: 74.478185px; clip-path: polygon(25% 0, 75% 0, 100% 50%, 75% 100%, 25% 100%, 0 50%); }
 .heart { clip-path: polygon(50% 94%, 7% 52%, 3% 45%, 0 35%, 1% 23%, 5% 14%, 12% 7%, 22% 3%, 32% 4%, 41% 8%, 50% 17%, 59% 8%, 68% 4%, 78% 3%, 88% 7%, 95% 14%, 99% 23%, 100% 35%, 97% 45%, 93% 52%); }
 .gallery-section { background: #fff; border-top: 1px solid #dde6e0; padding: 40px 24px 56px; }
 .gallery-section > * { max-width: 1152px; margin-left: auto; margin-right: auto; }

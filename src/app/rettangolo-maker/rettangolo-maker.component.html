@@ -41,7 +41,7 @@
       </section>
       <div class="text-position-actions" *ngIf="editorMode === 'text' && (testoInput || testoDueInput || testoTreInput)">
         <button mat-button [disabled]="isGenerating" [attr.aria-pressed]="textMoveActive" (click)="textMoveActive = !textMoveActive; previewMode = '2d'; textMoveActive && cookiePreview.scrollIntoView({ behavior: 'smooth', block: 'center' })"><mat-icon>{{ textMoveActive ? 'check' : 'open_with' }}</mat-icon>{{ textMoveActive ? 'Fatto' : 'Sposta testo' }}</button>
-        <button mat-icon-button [disabled]="isGenerating" (click)="textPosition = { x: 0, y: 0 }" aria-label="Ripristina posizione testo" title="Ripristina posizione testo"><mat-icon>filter_center_focus</mat-icon></button>
+        <button mat-button [disabled]="isGenerating" (click)="textPosition = { x: 0, y: 0 }" aria-label="Ripristina posizione testo"><mat-icon>restart_alt</mat-icon>Ripristina posizione</button>
       </div>
       <div class="order-action">
         <button class="reset-design" mat-button [disabled]="isGenerating" (click)="resetPage()" aria-label="Azzera personalizzazione"><mat-icon>delete_outline</mat-icon>Azzera personalizzazione</button>

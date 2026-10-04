@@ -26,13 +26,15 @@ async function main() {
   const errors = [];
   fs.mkdirSync('artifacts', { recursive: true });
   try {
-    for (const width of [390, 1440]) {
-      const page = await browser.newPage({ viewport: { width, height: 950 }, hasTouch: width === 390 });
+    for (const width of [320, 390, 1440]) {
+      const page = await browser.newPage({ viewport: { width, height: 950 }, hasTouch: width <= 390 });
       page.on('pageerror', error => errors.push(error.message));
       await page.route('**/*', route => new URL(route.request().url()).origin === new URL(base).origin || route.request().url().startsWith('data:') ? route.continue() : route.abort());
       const response = await page.goto(base);
       assert.equal(response.status(), 200);
       await page.locator('.shape-link').first().waitFor();
+      const homeHexagon = await page.locator('.cookie-shape.hexagon').boundingBox();
+      assert.ok(Math.abs(homeHexagon.width / homeHexagon.height - 2 / Math.sqrt(3)) < 0.002);
       await page.evaluate(() => document.fonts.ready);
       assert.match(await page.locator('h1').evaluate(el => getComputedStyle(el).fontFamily), /Fraunces/);
       await page.locator('.shape-link[href$="/quadrato"]').click();
@@ -49,7 +51,7 @@ async function main() {
       const initialBoundary = await page.locator('.example-boundary').boundingBox();
       const target = await handle.boundingBox();
       const x = target.x + target.width / 2, y = target.y + target.height / 2;
-      if (width === 390) {
+      if (width <= 390) {
         const session = await page.context().newCDPSession(page);
         await session.send('Input.dispatchTouchEvent', { type: 'touchStart', touchPoints: [{ x, y }] });
         for (let step = 1; step <= 8; step++) {
@@ -70,7 +72,9 @@ async function main() {
       assert.equal(await page.locator('.text-selection').count(), 0, 'Finishing movement hides the selection');
       await page.getByRole('button', { name: 'Sposta testo', exact: true }).click();
       await page.waitForTimeout(700);
-      await page.getByRole('button', { name: 'Ripristina posizione testo', exact: true }).click();
+      const resetPosition = page.getByRole('button', { name: 'Ripristina posizione testo', exact: true });
+      assert.match(await resetPosition.textContent(), /Ripristina posizione/);
+      await resetPosition.click();
       const centered = await page.locator('.example-box').boundingBox();
       const centeredBoundary = await page.locator('.example-boundary').boundingBox();
       assert.ok(Math.abs(centered.x - centeredBoundary.x - initial.x + initialBoundary.x) < 1 && Math.abs(centered.y - centeredBoundary.y - initial.y + initialBoundary.y) < 1);
@@ -90,7 +94,9 @@ async function main() {
       await handle.waitFor({ state: 'visible' });
       await page.getByRole('button', { name: '3D', exact: true }).click();
       await canvas.waitFor({ timeout: 30000 });
-      assert.equal(await page.evaluate(() => document.documentElement.scrollWidth > innerWidth + 1), false);
+      await page.screenshot({ path: 'artifacts/position-controls-' + width + '.png', fullPage: true });
+      const overflowing = await page.evaluate(() => Array.from(document.querySelectorAll('body *')).filter(el => { const b = el.getBoundingClientRect(); return b.width && b.right > innerWidth + 1 && b.left >= 0; }).map(el => ({ tag: el.tagName, className: el.className, width: el.getBoundingClientRect().width })));
+      assert.equal(await page.evaluate(() => document.documentElement.scrollWidth > innerWidth + 1), false, JSON.stringify(overflowing));
       await page.screenshot({ path: 'artifacts/pages-3d-' + width + '.png', fullPage: true });
       await page.getByRole('button', { name: 'Sposta testo', exact: true }).click();
       await handle.waitFor({ state: 'visible' });
@@ -116,6 +122,16 @@ async function main() {
       const contactResponse = await page.reload();
       assert.equal(contactResponse.status(), 200);
       await page.getByRole('button', { name: 'Invia messaggio' }).waitFor();
+      await page.goto(base + '#/esagono');
+      const hexagon = page.locator('.cookie-shape.hexagon');
+      await hexagon.waitFor();
+      const bounds = await hexagon.boundingBox();
+      assert.ok(Math.abs(bounds.width / bounds.height - 2 / Math.sqrt(3)) < 0.002, 'Regular hexagon proportions');
+      assert.equal(await hexagon.evaluate(el => getComputedStyle(el).clipPath), 'polygon(25% 0px, 75% 0px, 100% 50%, 75% 100%, 25% 100%, 0px 50%)', 'Original flat-top orientation');
+      await page.screenshot({ path: 'artifacts/hexagon-2d-' + width + '.png', fullPage: true });
+      await page.getByRole('button', { name: '3D', exact: true }).click();
+      await page.locator('canvas[data-ready=true]').waitFor({ timeout: 30000 });
+      await page.screenshot({ path: 'artifacts/hexagon-3d-' + width + '.png', fullPage: true });
       await page.close();
     }
     assert.deepEqual(errors, []);

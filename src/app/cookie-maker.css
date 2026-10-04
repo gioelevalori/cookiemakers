@@ -27,6 +27,7 @@ h1 { font: 600 36px/1.2 "Fraunces", serif; margin: 0; overflow-wrap: anywhere; }
 .circle { border-radius: 50%; }
 .square { border-radius: 8px; }
 .hexagon { clip-path: polygon(25% 0, 75% 0, 100% 50%, 75% 100%, 25% 100%, 0 50%); }
+.cookie-shape.hexagon { inset: 19.68911% 15%; }
 .heart { clip-path: polygon(50% 94%, 7% 52%, 3% 45%, 0 35%, 1% 23%, 5% 14%, 12% 7%, 22% 3%, 32% 4%, 41% 8%, 50% 17%, 59% 8%, 68% 4%, 78% 3%, 88% 7%, 95% 14%, 99% 23%, 100% 35%, 97% 45%, 93% 52%); }
 .heart .cookie-icing, .heart .cookie-image, .hexagon .cookie-icing, .hexagon .cookie-image { clip-path: inherit; }
 .example-box { position: absolute; top: 37%; left: 20%; width: 60%; min-height: 30px; text-align: center; z-index: 2; }
@@ -36,7 +37,7 @@ h1 { font: 600 36px/1.2 "Fraunces", serif; margin: 0; overflow-wrap: anywhere; }
 .text-move-handle { position: absolute; right: -1px; bottom: 100%; width: 44px; height: 44px; display: grid; place-items: center; background: #fff; color: #205a48; border: 1px solid #205a48; border-radius: 4px 4px 0 0; pointer-events: auto; cursor: grab; touch-action: none; }
 .text-move-handle mat-icon { font-size: 22px; width: 22px; height: 22px; pointer-events: none; }
 .cdk-drag-dragging, .cdk-drag-dragging .text-move-handle { cursor: grabbing; }
-.text-position-actions { display: flex; align-items: center; justify-content: space-between; margin-top: 12px; color: #205a48; }
+.text-position-actions { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; justify-content: space-between; margin-top: 12px; color: #205a48; }
 .text-position-actions button { min-height: 44px; }
 .shape-options { border: 0; margin: 0 0 24px; padding: 0; min-width: 0; }
 .shape-option-grid { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 8px; }
@@ -46,6 +47,7 @@ h1 { font: 600 36px/1.2 "Fraunces", serif; margin: 0; overflow-wrap: anywhere; }
 .mini-cookie { display: block; width: 25px; height: 25px; background: #e1cb9d url("../assets/cookie-texture.jpg") center / cover; }
 .mini-cookie.rectangle { width: 32px; height: 22px; border-radius: 3px; }
 .mini-cookie.square { border-radius: 3px; }
+.mini-cookie.hexagon { height: 21.650635px; }
 .editor-tabs { display: flex; border-bottom: 1px solid #dde6e0; margin-bottom: 24px; }
 .editor-tabs button { flex: 1; display: flex; align-items: center; justify-content: center; gap: 8px; min-height: 44px; background: transparent; border: 0; border-bottom: 2px solid transparent; color: #61766a; font-size: 14px; }
 .editor-tabs button.active { color: #205a48; border-bottom-color: #205a48; }
@@ -61,7 +63,7 @@ h1 { font: 600 36px/1.2 "Fraunces", serif; margin: 0; overflow-wrap: anywhere; }
   .maker-page { padding: 20px 20px 40px; }
   .workflow ol { gap: 20px; font-size: 12px; }
   .maker-layout { grid-template-columns: minmax(0, 1fr); gap: 28px; }
-  .preview-column { position: static; max-width: 440px; width: 100%; margin: auto; }
+  .preview-column { position: relative; top: auto; max-width: 440px; width: 100%; margin: auto; }
   .example-boundary { max-height: 340px; width: min(100%, 340px); margin: auto; }
   h1 { font-size: 30px; }
 }

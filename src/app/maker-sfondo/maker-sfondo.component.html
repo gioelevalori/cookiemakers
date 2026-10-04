@@ -1,0 +1,10 @@
+<section class="editor-panel" [class.embedded]="embedded" aria-label="Immagine e colore del biscotto">
+  <header *ngIf="!embedded"><h2>Colore e immagine</h2><button mat-icon-button (click)="close()" aria-label="Chiudi" title="Chiudi"><mat-icon>close</mat-icon></button></header>
+  <label class="upload-zone"><mat-icon>add_photo_alternate</mat-icon><span>{{ croppedImage ? 'Sostituisci immagine' : 'Carica un\'immagine' }}</span><input class="file-input" type="file" aria-label="Immagine del biscotto" [disabled]="disabled" accept="image/jpeg,image/png,image/gif" (change)="fileChangeEvent($event)" /></label>
+  <p *ngIf="imageError" class="error-message" role="alert">{{ imageError }}</p>
+  <image-cropper [imageChangedEvent]="imageChangedEvent" [maintainAspectRatio]="true" format="jpeg" (imageCropped)="imageCropped($event)" (imageLoaded)="imageLoaded()" (loadImageFailed)="imageLoadFailed()" [style.display]="cropperReady ? null : 'none'"></image-cropper>
+  <img *ngIf="croppedImage && !cropperReady" class="image-preview" [src]="croppedImage" alt="Immagine selezionata" />
+  <button *ngIf="croppedImage" mat-button [disabled]="disabled" (click)="removeImage()"><mat-icon>delete_outline</mat-icon> Rimuovi immagine</button>
+  <fieldset class="swatches"><legend>Colore sfondo</legend><button type="button" class="color-swatch natural-swatch" [disabled]="disabled" [class.selected]="!selectedColorSfondo" aria-label="Biscotto naturale" [attr.aria-pressed]="!selectedColorSfondo" title="Biscotto naturale" (click)="selectedColorSfondo = ''; sendColorSfondoMessage()"></button><button *ngFor="let color of colors; let i = index" type="button" class="color-swatch" [disabled]="disabled" [style.background-color]="color" [class.selected]="selectedColorSfondo === color" [attr.aria-label]="nameColors[i]" [attr.aria-pressed]="selectedColorSfondo === color" [title]="nameColors[i]" (click)="selectedColorSfondo = color; sendColorSfondoMessage()"></button></fieldset>
+  <button *ngIf="!embedded" mat-flat-button color="primary" (click)="sendImageSfondoMessage(); close()">Fatto <mat-icon>check</mat-icon></button>
+</section>

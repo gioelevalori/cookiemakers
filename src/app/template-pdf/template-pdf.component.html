@@ -1,0 +1,18 @@
+<main class="pdf-page">
+  <a mat-button routerLink="/checkout"><mat-icon>arrow_back</mat-icon> Il tuo ordine</a>
+  <section #contentToConvert class="design-sheet">
+    <p class="brand">My Cookie Delight</p>
+    <h1>Scheda biscotto</h1>
+    <img *ngIf="imageData" [src]="imageData" alt="Biscotto personalizzato" />
+    <dl>
+      <ng-container *ngIf="selectedShape"><dt>Forma</dt><dd>{{ selectedShape | titlecase }}</dd></ng-container>
+      <ng-container *ngIf="message"><dt>Messaggio</dt><dd>{{ message }}</dd></ng-container>
+      <ng-container *ngIf="selectedFont"><dt>Carattere</dt><dd>{{ selectedFont }}</dd></ng-container>
+      <ng-container *ngIf="selectedColor"><dt>Colore testo</dt><dd>{{ selectedColor }}</dd></ng-container>
+      <ng-container *ngIf="selectedColorSfondo"><dt>Colore sfondo</dt><dd>{{ selectedColorSfondo }}</dd></ng-container>
+    </dl>
+    <p *ngIf="!imageData">Nessun biscotto selezionato.</p>
+  </section>
+  <button mat-flat-button color="primary" (click)="downloadPdf()" [disabled]="!imageData || exporting"><mat-icon>download</mat-icon>{{ exporting ? 'Preparazione...' : 'Scarica PDF' }}</button>
+  <p *ngIf="exportError" class="error-message" role="alert">{{ exportError }}</p>
+</main>

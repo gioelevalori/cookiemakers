@@ -1,0 +1,49 @@
+<main class="maker-page">
+  <nav class="workflow" aria-label="Percorso ordine"><ol>
+    <li><a routerLink="/"><mat-icon>check_circle</mat-icon> Forma</a></li>
+    <li aria-current="step"><span class="step-number">2</span> Personalizza</li>
+    <li><span class="step-number">3</span> Ordine</li>
+  </ol></nav>
+  <header class="maker-heading"><p class="eyebrow">Il tuo biscotto</p><h1>Cerchio personalizzato</h1></header>
+  <div class="maker-layout">
+    <div class="preview-column">
+      <div class="preview-heading"><span>Anteprima</span><div class="preview-modes" role="group" aria-label="Vista anteprima"><button [class.active]="previewMode === '2d'" [attr.aria-pressed]="previewMode === '2d'" (click)="previewMode = '2d'">2D</button><button [class.active]="previewMode === '3d'" [attr.aria-pressed]="previewMode === '3d'" (click)="previewMode = '3d'">3D</button></div></div>
+      <app-cookie-3d *ngIf="previewMode === '3d'" [source]="cookiePreview" shape="circle"></app-cookie-3d>
+      <div class="example-boundary" [class.preview-source-hidden]="previewMode === '3d'" #cookiePreview>
+        <div class="cookie-shape circle">
+          <div class="cookie-icing" [style.background-color]="selectedColorSfondo || 'transparent'"></div>
+          <img *ngIf="croppedImage" class="cookie-image" [src]="croppedImage" alt="Immagine personalizzata" />
+        </div>
+        <div class="example-box" cdkDragBoundary=".example-boundary" cdkDrag [cdkDragDisabled]="isGenerating" [cdkDragFreeDragPosition]="textPosition" (cdkDragEnded)="textPosition = $event.source.getFreeDragPosition()">
+          <p [style.font-size.px]="fontSize" [style.font-family]="selectedFontFamily" [style.color]="selectedColor || '#202925'">{{ testoInput }}<br *ngIf="testoDueInput" />{{ testoDueInput }}<br *ngIf="testoTreInput" />{{ testoTreInput }}</p>
+        </div>
+      </div>
+    </div>
+    <section class="maker-controls" aria-label="Personalizzazione">
+      <fieldset class="shape-options"><legend>Forma</legend>
+        <div class="shape-option-grid">
+        <a *ngFor="let item of cookieShapes" [routerLink]="item.route" [class.selected]="item.route === '/cerchio'" [attr.aria-current]="item.route === '/cerchio' ? 'page' : null" [attr.aria-label]="'Forma ' + item.title">
+          <span class="mini-cookie" [ngClass]="item.shape" aria-hidden="true"></span><span>{{ item.title }}</span>
+        </a>
+        </div>
+      </fieldset>
+      <div class="editor-tabs" role="tablist" aria-label="Personalizzazione biscotto">
+        <button id="text-tab" role="tab" [attr.aria-selected]="editorMode === 'text'" aria-controls="text-panel" [class.active]="editorMode === 'text'" (click)="editorMode = 'text'"><mat-icon>edit</mat-icon> Testo</button>
+        <button id="background-tab" role="tab" [attr.aria-selected]="editorMode === 'background'" aria-controls="background-panel" [class.active]="editorMode === 'background'" (click)="editorMode = 'background'"><mat-icon>image</mat-icon> Sfondo</button>
+      </div>
+      <section id="text-panel" class="editor-content" role="tabpanel" aria-labelledby="text-tab" [hidden]="editorMode !== 'text'">
+        <app-maker-text [embedded]="true" [disabled]="isGenerating" [message]="testoInput" [message2]="testoDueInput" [message3]="testoTreInput" [font]="selectedFontFamily" [fontSize]="fontSize" [selectedColor]="selectedColor"
+          (messageSent)="testoInput = $event" (messageSecondSent)="testoDueInput = $event" (messageThirdSent)="testoTreInput = $event" (fontSent)="selectedFontFamily = $event" (textSize)="fontSize = $event" (colorSent)="selectedColor = $event"></app-maker-text>
+      </section>
+      <section id="background-panel" class="editor-content" role="tabpanel" aria-labelledby="background-tab" [hidden]="editorMode !== 'background'">
+        <app-maker-sfondo [embedded]="true" [resetVersion]="resetVersion" [disabled]="isGenerating" [selectedColorSfondo]="selectedColorSfondo" [croppedImage]="croppedImage" (colorSfondoSent)="selectedColorSfondo = $event" (imageSfondo)="croppedImage = $event"></app-maker-sfondo>
+      </section>
+      <div class="order-action">
+        <button class="reset-design" mat-button [disabled]="isGenerating" (click)="resetPage()" aria-label="Azzera personalizzazione"><mat-icon>delete_outline</mat-icon>Azzera personalizzazione</button>
+        <p class="order-label"><span>Ordine minimo · 10 biscotti</span><strong>{{ 15 | currency:'EUR' }}</strong></p>
+        <button mat-flat-button color="primary" [disabled]="isGenerating" (click)="generateImage()">{{ isGenerating ? 'Preparazione...' : 'Continua con l\'ordine' }}<mat-icon>arrow_forward</mat-icon></button>
+        <p *ngIf="captureError" class="error-message" role="alert">{{ captureError }}</p>
+      </div>
+    </section>
+  </div>
+</main>

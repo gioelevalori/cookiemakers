@@ -1,0 +1,45 @@
+<main class="checkout-page">
+  <header><a mat-button routerLink="/"><mat-icon>arrow_back</mat-icon> Biscotti</a><h1>Il tuo ordine</h1></header>
+  <div *ngIf="!imageData" class="empty-order">
+    <mat-icon>cookie</mat-icon>
+    <h2>Una dolce idea da creare</h2>
+    <a mat-flat-button color="primary" routerLink="/">Scegli un biscotto</a>
+  </div>
+  <div *ngIf="imageData" class="checkout-layout">
+    <section class="design-summary" aria-label="Il tuo biscotto">
+      <img [src]="imageData" class="preview" alt="Anteprima del biscotto personalizzato" />
+      <dl>
+        <ng-container *ngIf="selectedShape"><dt>Forma</dt><dd>{{ selectedShape | titlecase }}</dd></ng-container>
+        <ng-container *ngIf="message"><dt>Testo</dt><dd>{{ message }}</dd></ng-container>
+        <ng-container *ngIf="selectedFont"><dt>Carattere</dt><dd>{{ selectedFont }}</dd></ng-container>
+        <ng-container *ngIf="selectedColor"><dt>Colore testo</dt><dd><span class="swatch" [style.background]="selectedColor"></span>{{ selectedColor }}</dd></ng-container>
+        <ng-container *ngIf="selectedColorSfondo"><dt>Sfondo</dt><dd><span class="swatch" [style.background]="selectedColorSfondo"></span>{{ selectedColorSfondo }}</dd></ng-container>
+      </dl>
+      <a mat-button routerLink="/template"><mat-icon>description</mat-icon> Scheda biscotto</a>
+      <a *ngIf="selectedShape" mat-button [routerLink]="'/' + selectedShape"><mat-icon>edit</mat-icon> Modifica biscotto</a>
+    </section>
+    <section class="order-summary" aria-label="Riepilogo ordine">
+      <h2>Riepilogo</h2>
+      <form [formGroup]="firstFormGroup">
+        <div class="quantity">
+          <button mat-icon-button type="button" (click)="decrement()" [disabled]="countBiscuits <= 10" aria-label="Riduci quantita" title="Riduci quantita"><mat-icon>remove</mat-icon></button>
+          <mat-form-field appearance="outline">
+            <mat-label>Quantit&agrave;</mat-label>
+            <input matInput type="number" min="10" step="1" formControlName="firstCtrl" />
+            <mat-error>Inserisci almeno 10 biscotti, in numero intero.</mat-error>
+          </mat-form-field>
+          <button mat-icon-button type="button" (click)="increment()" aria-label="Aumenta quantita" title="Aumenta quantita"><mat-icon>add</mat-icon></button>
+        </div>
+      </form>
+      <p class="price-note">10 biscotti: {{ 15 | currency:'EUR' }}. Ogni biscotto aggiuntivo: {{ 5 | currency:'EUR' }}.</p>
+      <dl class="totals" *ngIf="firstFormGroup.valid">
+        <dt>Biscotti</dt><dd>{{ counter | currency:'EUR' }}</dd>
+        <dt>Spedizione</dt><dd>{{ shipping | currency:'EUR' }}</dd>
+        <dt class="grand-total">Totale</dt><dd class="grand-total">{{ counter + shipping | currency:'EUR' }}</dd>
+      </dl>
+      <button class="pay-button" mat-flat-button color="primary" [disabled]="firstFormGroup.invalid || isPaying || !stripeService.configured" (click)="makePayment()"><mat-icon>lock</mat-icon>{{ isPaying ? 'Attendi...' : 'Vai al pagamento' }}</button>
+      <p *ngIf="!stripeService.configured" class="payment-notice" role="status">Il pagamento online &egrave; temporaneamente non disponibile. <a routerLink="/contatti">Contattaci per il tuo ordine.</a></p>
+      <p *ngIf="paymentError" class="error-message" role="alert">{{ paymentError }}</p>
+    </section>
+  </div>
+</main>

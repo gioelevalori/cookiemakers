@@ -1,0 +1,22 @@
+:host { display: block; }
+.site-header { background: #fff; border-bottom: 1px solid #e5ebe7; }
+.site-nav { max-width: 1200px; min-height: 116px; margin: auto; padding: 24px; display: flex; align-items: center; justify-content: space-between; gap: 32px; }
+.brand { display: block; flex-shrink: 0; padding: 8px 0; }
+.logo-window { display: block; width: 172px; aspect-ratio: 827 / 293; overflow: hidden; position: relative; }
+/* The original square PNG has transparent padding around the wordmark. */
+.logo-window img { position: absolute; width: 120.92%; height: auto; max-width: none; left: -10.88%; top: -99.66%; }
+.nav-links { display: flex; align-items: center; gap: 36px; }
+.nav-links a { display: flex; align-items: center; min-height: 44px; color: #61766a; font-size: 14px; border-bottom: 1px solid transparent; }
+.nav-links a:hover { color: #253b33; border-bottom-color: #b4c9bc; }
+.nav-links a.active { color: #253b33; }
+.brand:focus-visible, .nav-links a:focus-visible { outline: 2px solid #205a48; outline-offset: 5px; }
+.menu-toggle { display: none; }
+@media (max-width: 600px) {
+  .site-nav { min-height: 104px; padding: 20px; gap: 16px; flex-wrap: wrap; }
+  .logo-window { width: 140px; }
+  .brand { padding: 6px 0; }
+  .menu-toggle { display: inline-flex; color: #253b33; }
+  .nav-links { display: none; flex-basis: 100%; gap: 0; border-top: 1px solid #e5ebe7; padding-top: 8px; }
+  .nav-links.open { display: flex; flex-direction: column; align-items: stretch; }
+  .nav-links a { min-height: 48px; border: 0; }
+}

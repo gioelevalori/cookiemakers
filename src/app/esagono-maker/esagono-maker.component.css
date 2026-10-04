@@ -1,0 +1,189 @@
+.example-box {
+  cursor: move;
+  display: inline-flex;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  position: absolute;
+  z-index: 3;
+}
+
+.example-boundary {
+  width: 400px;
+  height: 400px;
+  max-width: 100%;
+  background-color: bisque;
+  border-radius: 20px;
+}
+
+.center {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+}
+
+.centerdue {
+position: absolute;
+top: 30%;
+left: 50%;
+transform: translate(-50%, -50%);
+margin-top: 400px;
+display: flex;
+}
+
+.centertre {
+position: absolute;
+top: 40%;
+left: 50%;
+transform: translate(-50%, -50%);
+margin-top: 400px;
+}
+
+.mat-color-panel {
+border-radius: 0;
+}
+
+.mat-color-preview {
+border-radius: 50%;
+}
+
+.wrapper {
+  width: 270px; /* This is the only value you need to change */
+}
+
+.container {
+  position: relative; 
+  width: 100%;
+  padding-bottom: 86.6%; /* This sets the height of the div to 86% of its width */
+}
+
+.hexagon {
+  position: absolute;
+  left: 25%;
+  width: 50%;
+  height: 100%;
+  top: 35%;
+  left: 50%;
+  background-image: url("https://t3.ftcdn.net/jpg/01/30/90/52/360_F_130905291_6fk1AOoepIocVh3y9MNS4k8rCsJmJZUG.jpg");
+  background-color: #e1cb9d;
+  box-shadow: 20px 20px 20px rosybrown;
+  z-index: 1; /* Imposta un valore di z-index maggiore */
+}
+
+.hexagon:before,
+.hexagon:after {
+  display: block;
+  position: absolute; 
+  top: 0;
+  content: '';
+  width: 100%;
+  height: 100%;
+  background-image: inherit;
+  z-index: -1; 
+  background-color: inherit;
+}
+
+.hexagon:before {
+  transform: rotate(60deg);
+}
+
+.hexagon:after {
+  transform: rotate(120deg);
+}
+
+.hexagondue {
+  position: absolute;
+  width: 40%; 
+  height: 80%; 
+  top: 10%;
+  z-index: 2;
+}
+
+.hexagondue:before,
+.hexagondue:after {
+  display: block;
+  position: absolute;
+  top: 0;
+  content: '';
+  width: 100%;
+  height: 100%;
+  background-color: inherit;
+}
+
+.hexagondue:before {
+  transform: rotate(60deg);
+}
+
+.hexagondue:after {
+  transform: rotate(120deg);
+}
+
+
+.hexagontre {
+  position: absolute;
+  height: 80%; 
+  top: 10%;
+  z-index: 2;
+  right: 40%;
+  clip-path: polygon(25% 0%, 75% 0%, 100% 50%, 75% 100%, 25% 100%, 0% 50%);
+}
+
+.hexagontre:before,
+.hexagontre:after {
+  display: block;
+  position: absolute;
+  top: 0;
+  content: '';
+  width: 100%;
+  height: 100%;
+  background-color: inherit;
+}
+
+.hexagontre:before {
+  transform: rotate(60deg);
+}
+
+.hexagontre:after {
+  transform: rotate(120deg);
+}
+
+@media only screen and (min-width: 1600px) {
+  .centerdue {
+    top: 40%;
+  }
+  .centertre {
+    top: 45%!important;
+  }
+}
+
+@media only screen and (max-width: 800px) {
+  .centerdue {
+    top: 40%;
+  }
+  .centertre {
+    top: 45%!important;
+  }
+}
+
+@media only screen and (max-width: 400px) {
+  .example-boundary {
+    width: 350px;
+  }
+
+  .centerdue {
+    top: 35%;
+  }
+
+  .hexagon {
+    left: 40%;
+  }
+}
+
+a {
+  font-family: InkFree;
+}
+
+p{
+  font-family: CocoGothic;
+}

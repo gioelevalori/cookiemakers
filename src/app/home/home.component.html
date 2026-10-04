@@ -1,0 +1,41 @@
+<main class="home-page">
+  <header class="intro">
+    <p class="eyebrow">Creazioni su misura</p>
+    <h1>Biscotti personalizzati</h1>
+    <p class="intro-copy">Per compleanni, cerimonie e momenti da ricordare.</p>
+  </header>
+  <section class="shape-section" aria-labelledby="shape-title">
+    <div class="section-heading">
+      <h2 id="shape-title">Scegli la forma</h2>
+      <span class="section-note">Da {{ 15 | currency:'EUR' }} per 10 biscotti</span>
+    </div>
+    <div class="shape-grid">
+      <article class="shape-card" *ngFor="let item of cookieShapes">
+        <a class="shape-link" [routerLink]="item.route" [attr.aria-label]="'Personalizza un biscotto ' + item.title.toLowerCase()">
+        <div class="shape-preview" aria-hidden="true"><div class="cookie-shape" [ngClass]="item.shape"></div></div>
+        <h3>{{ item.title }}</h3>
+        <span class="shape-action">Personalizza <mat-icon>arrow_forward</mat-icon></span>
+        </a>
+      </article>
+    </div>
+  </section>
+  <section id="creazioni" class="gallery-section" aria-labelledby="gallery-title">
+    <div class="section-heading">
+      <div><p class="eyebrow">Dalla nostra galleria</p><h2 id="gallery-title">Piccole dolci storie</h2></div>
+      <a mat-button routerLink="/contatti">Parliamone <mat-icon>arrow_forward</mat-icon></a>
+    </div>
+    <div class="gallery">
+      <figure class="gallery-item" *ngFor="let image of galleryImages; let i = index">
+        <img class="gallery-image" [src]="'assets/' + image" [alt]="'Biscotti personalizzati, creazione ' + (i + 1)" width="1024" height="1024" [attr.loading]="i < 3 ? 'eager' : 'lazy'" />
+      </figure>
+    </div>
+  </section>
+  <footer class="policy-links">
+    <span>My Cookie Delight</span>
+    <nav aria-label="Link legali">
+      <a href="https://www.iubenda.com/privacy-policy/33833374">Privacy Policy</a>
+      <a href="https://www.iubenda.com/privacy-policy/33833374/cookie-policy">Cookie Policy</a>
+      <a href="https://www.iubenda.com/termini-e-condizioni/33833374">Termini e Condizioni</a>
+    </nav>
+  </footer>
+</main>

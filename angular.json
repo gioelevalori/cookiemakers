@@ -3,81 +3,107 @@
   "version": 1,
   "newProjectRoot": "projects",
   "projects": {
-    "demo": {
+    "cookieMaker": {
+      "projectType": "application",
+      "schematics": {},
       "root": "",
       "sourceRoot": "src",
-      "projectType": "application",
       "prefix": "app",
-      "schematics": {},
       "architect": {
         "build": {
-          "builder": "@angular-devkit/build-angular:browser",
+          "builder": "@angular/build:application",
           "options": {
-            "outputPath": "dist/demo",
+            "outputPath": "dist/cookie-maker",
             "index": "src/index.html",
-            "main": "src/main.ts",
-            "assets": [],
-            "styles": ["src/global_styles.css"],
+            "browser": "src/main.ts",
+            "allowedCommonJsDependencies": ["html2pdf.js", "canvg", "html2canvas"],
+            "polyfills": [
+              "zone.js"
+            ],
+            "tsConfig": "tsconfig.app.json",
+            "assets": [
+              "src/favicon.ico",
+              "src/assets"
+            ],
+            "styles": [
+              "node_modules/bootstrap/dist/css/bootstrap.min.css",
+              "node_modules/@fontsource/material-icons/index.css",
+              "src/custom-theme.scss",
+              "src/styles.css"
+            ],
             "scripts": []
           },
           "configurations": {
-            "production": {
+            "github-pages": {
               "fileReplacements": [
+                { "replace": "src/app/environment.ts", "with": "src/app/environment.pages.ts" }
+              ]
+            },
+            "production": {
+              "optimization": { "scripts": true, "styles": true, "fonts": false },
+              "budgets": [
                 {
-                  "replace": "src/environments/environment.ts",
-                  "with": "src/environments/environment.prod.ts"
+                  "type": "initial",
+                  "maximumWarning": "2mb",
+                  "maximumError": "2mb"
+                },
+                {
+                  "type": "anyComponentStyle",
+                  "maximumWarning": "5kb",
+                  "maximumError": "10kb"
                 }
               ],
-              "optimization": true,
-              "outputHashing": "all",
-              "sourceMap": false,
-              "extractCss": true,
-              "namedChunks": false,
-              "aot": true,
-              "extractLicenses": true,
-              "vendorChunk": false,
-              "buildOptimizer": true
+              "outputHashing": "all"
+            },
+            "development": {
+              "optimization": false,
+              "extractLicenses": false,
+              "sourceMap": true
             }
-          }
+          },
+          "defaultConfiguration": "production"
         },
         "serve": {
-          "builder": "@angular-devkit/build-angular:dev-server",
-          "options": {
-            "browserTarget": "demo:build"
-          },
+          "builder": "@angular/build:dev-server",
           "configurations": {
             "production": {
-              "browserTarget": "demo:build:production"
+              "buildTarget": "cookieMaker:build:production"
+            },
+            "development": {
+              "buildTarget": "cookieMaker:build:development"
             }
-          }
+          },
+          "defaultConfiguration": "development"
         },
         "extract-i18n": {
-          "builder": "@angular-devkit/build-angular:extract-i18n",
+          "builder": "@angular/build:extract-i18n",
           "options": {
-            "browserTarget": "demo:build"
+            "buildTarget": "cookieMaker:build"
           }
         },
         "test": {
-          "builder": "@angular-devkit/build-angular:karma",
+          "builder": "@angular/build:karma",
           "options": {
-            "main": "src/test.ts",
-            "polyfills": "src/polyfills.ts",
-            "tsConfig": "src/tsconfig.spec.json",
-            "karmaConfig": "src/karma.conf.js",
-            "styles": ["styles.css"],
-            "scripts": [],
-            "assets": ["src/favicon.ico", "src/assets"]
-          }
-        },
-        "lint": {
-          "builder": "@angular-devkit/build-angular:tslint",
-          "options": {
-            "tsConfig": ["src/tsconfig.app.json", "src/tsconfig.spec.json"],
-            "exclude": ["**/node_modules/**"]
+            "polyfills": [
+              "zone.js",
+              "zone.js/testing"
+            ],
+            "tsConfig": "tsconfig.spec.json",
+            "assets": [
+              "src/favicon.ico",
+              "src/assets"
+            ],
+            "styles": [
+              "@angular/material/prebuilt-themes/indigo-pink.css",
+              "src/styles.css"
+            ],
+            "scripts": []
           }
         }
       }
     }
   },
-  "defaultProject": "demo"
+  "cli": {
+    "analytics": "160a9814-0bbb-43cf-a650-cb9edffaf353"
+  }
 }

@@ -1,0 +1,10 @@
+:host { display: block; }
+.contact-page { max-width: 640px; margin: auto; padding: 48px 24px 64px; color: #253b33; }
+.eyebrow { color: #9d4357; font-size: 12px; text-transform: uppercase; margin-bottom: 12px; }
+h1 { font: 600 44px/1.2 "Fraunces", serif; margin-bottom: 16px; }
+header > p:last-child { color: #61766a; line-height: 1.6; margin-bottom: 32px; }
+form { display: flex; flex-direction: column; gap: 8px; }
+button { min-height: 48px; border-radius: 6px; }
+.success-message { color: #205a48; margin-top: 16px; }
+.error-message { color: #a32e43; margin-top: 16px; }
+@media (max-width: 560px) { .contact-page { padding-top: 32px; } h1 { font-size: 36px; } }

@@ -1,0 +1,13 @@
+<main class="contact-page">
+  <header><p class="eyebrow">Un'occasione speciale?</p><h1>Parliamone</h1><p>Siamo qui per le tue idee, le tue domande e i tuoi ordini.</p></header>
+  <form [formGroup]="form" (ngSubmit)="send()">
+    <mat-form-field appearance="outline"><mat-label>Nome e cognome</mat-label><input matInput formControlName="from_name" autocomplete="name" required /><mat-error>Inserisci il tuo nome.</mat-error></mat-form-field>
+    <mat-form-field appearance="outline"><mat-label>Email</mat-label><input matInput type="email" formControlName="from_email" autocomplete="email" required /><mat-error>Inserisci un indirizzo email valido.</mat-error></mat-form-field>
+    <mat-form-field appearance="outline"><mat-label>Oggetto</mat-label><input matInput formControlName="subject" required /><mat-error>Inserisci un oggetto.</mat-error></mat-form-field>
+    <mat-form-field appearance="outline"><mat-label>Messaggio</mat-label><textarea matInput rows="5" formControlName="message" required></textarea><mat-error>Scrivi il tuo messaggio.</mat-error></mat-form-field>
+    <button mat-flat-button color="primary" type="submit" [disabled]="sending"><mat-icon>send</mat-icon>{{ sending ? 'Invio...' : 'Invia messaggio' }}</button>
+    <p *ngIf="sent" class="success-message" role="status">Messaggio inviato. Grazie per averci scritto!</p>
+    <p *ngIf="error" class="error-message" role="alert">{{ error }}</p>
+  </form>
+</main>
+

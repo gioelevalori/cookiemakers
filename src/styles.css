@@ -1,0 +1,79 @@
+@import '@fontsource/nunito-sans/latin-400.css';
+@import '@fontsource/nunito-sans/latin-600.css';
+@import '@fontsource/fraunces/latin-400.css';
+@import '@fontsource/fraunces/latin-600.css';
+
+html, body { height: 100%; }
+body {
+  margin: 0;
+  font-family: "Nunito Sans", sans-serif;
+  background-color: #f6f8f7;
+  
+}
+button, input, select, textarea { font-family: inherit; }
+.carousel-control-prev {
+  background-color: black!important;
+}
+
+.carousel-control-next{
+  background-color: black!important;
+}
+
+@font-face {
+  font-family: ButterCup;
+  src: url("assets/buttercup_sample.otf");
+  font-display: swap;
+}
+
+@font-face {
+  font-family: CocoGothic;
+  src: url("assets/CocoGothic_trial.ttf");
+  font-display: swap;
+}
+
+@font-face {
+  font-family: BeckMan;
+  src: url("assets/Beckman-Free.otf");
+  font-display: swap;
+}
+
+@font-face {
+  font-family: PhotoShoot;
+  src: url("assets/Photoshoot.otf");
+  font-display: swap;
+}
+
+
+@font-face {
+  font-family: InkFree;
+  src: url("assets/Inkfree.ttf");
+  font-display: swap;
+}
+
+
+.ngx-mat-color-canvas .color-canvas-row:first-of-type {
+  display: none!important;
+}
+
+.ngx-mat-color-canvas .color-canvas-row:nth-of-type(2) {
+  display: none!important;
+}
+
+a {
+  text-decoration: none;
+}
+
+.material-icons {
+  font-family: "Material Icons";
+  font-weight: 400;
+  font-style: normal;
+  font-size: 24px;
+  line-height: 1;
+  letter-spacing: 0;
+  text-transform: none;
+  white-space: nowrap;
+  overflow-wrap: normal;
+  direction: ltr;
+  font-feature-settings: "liga";
+  -webkit-font-smoothing: antialiased;
+}

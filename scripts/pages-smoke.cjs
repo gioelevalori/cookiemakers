@@ -41,6 +41,8 @@ async function main() {
       await page.waitForURL('**/#/quadrato');
       await page.reload();
       await page.getByLabel('Prima riga', { exact: true }).fill('Auguri');
+      const sizeCenters = await page.locator('.font-size > div').evaluate(el => Array.from(el.querySelectorAll('mat-icon, output')).map(node => { const r = node.getBoundingClientRect(); return r.y + r.height / 2; }));
+      assert.ok(Math.max(...sizeCenters) - Math.min(...sizeCenters) < 1, 'Minus, size value and plus are vertically aligned');
       assert.equal(await page.locator('.text-selection').count(), 0, 'Typing does not activate movement');
       assert.equal(await page.locator('app-maker-text').evaluate(el => el.querySelector('.font-size').compareDocumentPosition(el.querySelector('.swatches')) & Node.DOCUMENT_POSITION_FOLLOWING), 4, 'Text size precedes color');
       await page.getByRole('button', { name: 'Sposta testo', exact: true }).click();

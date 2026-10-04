@@ -16,6 +16,9 @@ legend, .file-label { font-size: 14px; margin-bottom: 12px; }
 .color-swatch.selected { outline: 2px solid #205a48; outline-offset: 3px; }
 .color-swatch:focus-visible { outline: 3px solid #9d4357; outline-offset: 3px; }
 .font-size { display: flex; align-items: center; justify-content: space-between; font-size: 14px; margin-bottom: 16px; }
+.font-size > div { display: grid; grid-template-columns: 48px 40px 48px; align-items: center; }
+.font-size button { display: grid; place-items: center; width: 48px; height: 48px; padding: 0; }
+.font-size output { display: grid; place-items: center; height: 24px; line-height: 24px; }
 output { display: inline-block; min-width: 30px; text-align: center; font-variant-numeric: tabular-nums; }
 .editor-actions { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 12px; margin-top: 16px; }
 input[type=file] { width: 100%; font-size: 14px; }

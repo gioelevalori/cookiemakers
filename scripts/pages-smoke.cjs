@@ -129,11 +129,24 @@ async function main() {
       await hexagon.waitFor();
       const bounds = await hexagon.boundingBox();
       assert.ok(Math.abs(bounds.width / bounds.height - 2 / Math.sqrt(3)) < 0.002, 'Regular hexagon proportions');
-      assert.equal(await hexagon.evaluate(el => getComputedStyle(el).clipPath), 'polygon(25% 0px, 75% 0px, 100% 50%, 75% 100%, 25% 100%, 0px 50%)', 'Original flat-top orientation');
+      const hexagonClip = await hexagon.evaluate(el => getComputedStyle(el).clipPath);
+      assert.ok(hexagonClip.startsWith('polygon(') && hexagonClip.split(',').length === 78, 'Six rounded corners with original flat-top orientation');
       await page.screenshot({ path: 'artifacts/hexagon-2d-' + width + '.png', fullPage: true });
       await page.getByRole('button', { name: '3D', exact: true }).click();
       await page.locator('canvas[data-ready=true]').waitFor({ timeout: 30000 });
       await page.screenshot({ path: 'artifacts/hexagon-3d-' + width + '.png', fullPage: true });
+      await page.goto(base + '#/cuore');
+      await page.getByLabel('Prima riga', { exact: true }).fill('Cuore');
+      const heartClip = await page.locator('.cookie-shape.heart').evaluate(el => getComputedStyle(el).clipPath);
+      assert.ok(heartClip.startsWith('polygon(') && heartClip.split(',').length > 100, 'Heart uses a finely sampled curved outline');
+      await page.screenshot({ path: 'artifacts/heart-2d-' + width + '.png', fullPage: true });
+      await page.getByRole('button', { name: '3D', exact: true }).click();
+      await page.locator('canvas[data-ready=true]').waitFor({ timeout: 30000 });
+      await page.screenshot({ path: 'artifacts/heart-3d-' + width + '.png', fullPage: true });
+      await page.getByRole('button', { name: "Continua con l'ordine" }).click();
+      await page.waitForURL('**/#/checkout');
+      await page.locator('.preview').waitFor();
+      await page.locator('.preview').screenshot({ path: 'artifacts/heart-export-' + width + '.png' });
       await page.close();
     }
     assert.deepEqual(errors, []);

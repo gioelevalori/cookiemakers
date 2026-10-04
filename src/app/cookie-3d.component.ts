@@ -1,5 +1,7 @@
 import { AfterViewInit, ChangeDetectionStrategy, Component, ElementRef, Input, NgZone, OnDestroy, ViewChild, inject } from '@angular/core';
 import type * as THREE from 'three';
+import { HEART_CLIP_PATH, HEART_CURVES, HEART_START } from './heart-outline';
+import { HEXAGON_CLIP_PATH, HEXAGON_CORNERS } from './hexagon-outline';
 
 @Component({
   selector: 'app-cookie-3d',
@@ -34,6 +36,7 @@ export class Cookie3dComponent implements AfterViewInit, OnDestroy {
       const renderer = new T.WebGLRenderer({ antialias: true, alpha: true, preserveDrawingBuffer: true });
       renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
       renderer.outputColorSpace = T.SRGBColorSpace;
+      renderer.setClearColor(0x000000, 0);
       Object.assign(renderer.domElement.style, { width: '100%', height: '100%', display: 'block', touchAction: 'none', cursor: 'grab', visibility: 'hidden' });
       host.appendChild(renderer.domElement);
       const scene = new T.Scene();
@@ -123,8 +126,9 @@ export class Cookie3dComponent implements AfterViewInit, OnDestroy {
         const current = ++generation;
         try {
           await Promise.all([document.fonts.ready, baseReady]);
+          await (base.image as HTMLImageElement).decode();
           if (this.destroyed) return;
-          const crop = await this.surfaceTexture();
+          const crop = await this.surfaceTexture(base.image as HTMLImageElement);
           if (this.destroyed || current !== generation) return;
           const texture = new T.CanvasTexture(crop);
           texture.colorSpace = T.SRGBColorSpace;
@@ -181,17 +185,23 @@ export class Cookie3dComponent implements AfterViewInit, OnDestroy {
     if (this.shape === 'circle') {
       shape.absarc(0, 0, 1.15, 0, Math.PI * 2, false);
     } else if (this.shape === 'heart') {
-      const points = [[50,94],[7,52],[3,45],[0,35],[1,23],[5,14],[12,7],[22,3],[32,4],[41,8],[50,17],[59,8],[68,4],[78,3],[88,7],[95,14],[99,23],[100,35],[97,45],[93,52]];
-      points.forEach(([x,y], i) => {
-        if (!i) shape.moveTo((x / 100 - 0.5) * 2.3, (0.5 - y / 100) * 2.3);
-        else shape.lineTo((x / 100 - 0.5) * 2.3, (0.5 - y / 100) * 2.3);
-      });
+      const x = (value: number) => (value / 100 - 0.5) * width;
+      const y = (value: number) => (0.5 - value / 100) * height;
+      shape.moveTo(x(HEART_START[0]), y(HEART_START[1]));
+      for (const [x1, y1, x2, y2, x3, y3] of HEART_CURVES) {
+        shape.bezierCurveTo(x(x1), y(y1), x(x2), y(y2), x(x3), y(y3));
+      }
       shape.closePath();
     } else if (this.shape === 'hexagon') {
-      [[25,0],[75,0],[100,50],[75,100],[25,100],[0,50]].forEach(([x,y], i) => {
-        if (!i) shape.moveTo((x / 100 - 0.5) * width, (0.5 - y / 100) * height);
-        else shape.lineTo((x / 100 - 0.5) * width, (0.5 - y / 100) * height);
-      });
+      const x = (value: number) => (value / 100 - 0.5) * width;
+      const y = (value: number) => (0.5 - value / 100) * height;
+      shape.moveTo(x(HEXAGON_CORNERS[0].entry[0]), y(HEXAGON_CORNERS[0].entry[1]));
+      for (let i = 0; i < HEXAGON_CORNERS.length; i++) {
+        const { control, exit } = HEXAGON_CORNERS[i];
+        shape.quadraticCurveTo(x(control[0]), y(control[1]), x(exit[0]), y(exit[1]));
+        const next = HEXAGON_CORNERS[(i + 1) % HEXAGON_CORNERS.length].entry;
+        shape.lineTo(x(next[0]), y(next[1]));
+      }
       shape.closePath();
     } else {
       const x = width / 2, y = height / 2;
@@ -206,10 +216,12 @@ export class Cookie3dComponent implements AfterViewInit, OnDestroy {
     return shape;
   }
 
-  private async surfaceTexture(): Promise<HTMLCanvasElement> {
+  private async surfaceTexture(baseImage: HTMLImageElement): Promise<HTMLCanvasElement> {
     const dimensions = this.source.getBoundingClientRect();
     const clone = this.source.cloneNode(true) as HTMLElement;
     clone.classList.remove('preview-source-hidden');
+    clone.style.setProperty('--cookie-heart-clip', HEART_CLIP_PATH);
+    clone.style.setProperty('--cookie-hexagon-clip', HEXAGON_CLIP_PATH);
     clone.querySelectorAll('[data-preview-control]').forEach(control => control.remove());
     Object.assign(clone.style, {
       position: 'relative', top: '0', left: '0', opacity: '1',
@@ -227,14 +239,32 @@ export class Cookie3dComponent implements AfterViewInit, OnDestroy {
       const bounds = clone.getBoundingClientRect();
       const cookie = clone.querySelector('.cookie-shape')!.getBoundingClientRect();
       const { toCanvas } = await import('html-to-image');
-      const captured = await toCanvas(clone, {
+      const capture = () => toCanvas(clone, {
         pixelRatio: 2, style: { position: 'relative', left: '0', top: '0' }
       });
+      let captured = await capture();
+      const hasSurface = (image: HTMLCanvasElement) => {
+        const scale = image.width / bounds.width;
+        const x = Math.floor((cookie.left - bounds.left + cookie.width / 2) * scale);
+        const y = Math.floor((cookie.top - bounds.top + cookie.height / 2) * scale);
+        return image.getContext('2d')!.getImageData(x, y, 1, 1).data[3] > 0;
+      };
+      // A cold SVG rasterization can resolve before its foreignObject is painted.
+      if (!hasSurface(captured)) {
+        await new Promise<void>(resolve => requestAnimationFrame(() => resolve()));
+        captured = await capture();
+      }
+      if (!hasSurface(captured)) throw new Error('Cookie capture is empty');
       const canvas = document.createElement('canvas');
       canvas.width = 1024;
       canvas.height = Math.round(1024 * cookie.height / cookie.width);
       const scale = captured.width / bounds.width;
-      canvas.getContext('2d')!.drawImage(captured,
+      const context = canvas.getContext('2d')!;
+      // Opaque base prevents transparent capture pixels becoming black on the mesh.
+      const cover = Math.max(canvas.width / baseImage.naturalWidth, canvas.height / baseImage.naturalHeight);
+      const baseWidth = baseImage.naturalWidth * cover, baseHeight = baseImage.naturalHeight * cover;
+      context.drawImage(baseImage, (canvas.width - baseWidth) / 2, (canvas.height - baseHeight) / 2, baseWidth, baseHeight);
+      context.drawImage(captured,
         (cookie.left - bounds.left) * scale, (cookie.top - bounds.top) * scale,
         cookie.width * scale, cookie.height * scale,
         0, 0, canvas.width, canvas.height);

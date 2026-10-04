@@ -26,9 +26,9 @@ h1 { font: 600 36px/1.2 "Fraunces", serif; margin: 0; overflow-wrap: anywhere; }
 .rectangle { inset: 25% 12%; border-radius: 10px; }
 .circle { border-radius: 50%; }
 .square { border-radius: 8px; }
-.hexagon { clip-path: polygon(25% 0, 75% 0, 100% 50%, 75% 100%, 25% 100%, 0 50%); }
+.hexagon { clip-path: var(--cookie-hexagon-clip); }
 .cookie-shape.hexagon { inset: 19.68911% 15%; }
-.heart { clip-path: polygon(50% 94%, 7% 52%, 3% 45%, 0 35%, 1% 23%, 5% 14%, 12% 7%, 22% 3%, 32% 4%, 41% 8%, 50% 17%, 59% 8%, 68% 4%, 78% 3%, 88% 7%, 95% 14%, 99% 23%, 100% 35%, 97% 45%, 93% 52%); }
+.heart { clip-path: var(--cookie-heart-clip); }
 .heart .cookie-icing, .heart .cookie-image, .hexagon .cookie-icing, .hexagon .cookie-image { clip-path: inherit; }
 .example-box { position: absolute; top: 37%; left: 20%; width: 60%; min-height: 30px; text-align: center; z-index: 2; }
 .example-box.text-moving { cursor: move; touch-action: none; }

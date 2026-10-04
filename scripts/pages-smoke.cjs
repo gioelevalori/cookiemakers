@@ -39,8 +39,10 @@ async function main() {
       await page.waitForURL('**/#/quadrato');
       await page.reload();
       await page.getByLabel('Prima riga', { exact: true }).fill('Auguri');
-      await page.locator('.text-move-handle').waitFor();
+      assert.equal(await page.locator('.text-selection').count(), 0, 'Typing does not activate movement');
+      assert.equal(await page.locator('app-maker-text').evaluate(el => el.querySelector('.font-size').compareDocumentPosition(el.querySelector('.swatches')) & Node.DOCUMENT_POSITION_FOLLOWING), 4, 'Text size precedes color');
       await page.getByRole('button', { name: 'Sposta testo', exact: true }).click();
+      await page.locator('.text-move-handle').waitFor();
       await page.waitForTimeout(700);
       const handle = page.locator('.text-move-handle');
       const initial = await page.locator('.example-box').boundingBox();
@@ -64,6 +66,10 @@ async function main() {
       const moved = await page.locator('.example-box').boundingBox();
       assert.ok(moved.x - initial.x > 20 && moved.y - initial.y > 25, 'Move handle drags text with mouse/touch: ' + JSON.stringify({ initial, moved }));
       await page.screenshot({ path: 'artifacts/text-position-' + width + '.png', fullPage: true });
+      await page.getByRole('button', { name: 'Fatto', exact: true }).click();
+      assert.equal(await page.locator('.text-selection').count(), 0, 'Finishing movement hides the selection');
+      await page.getByRole('button', { name: 'Sposta testo', exact: true }).click();
+      await page.waitForTimeout(700);
       await page.getByRole('button', { name: 'Ripristina posizione testo', exact: true }).click();
       const centered = await page.locator('.example-box').boundingBox();
       const centeredBoundary = await page.locator('.example-boundary').boundingBox();
@@ -86,6 +92,8 @@ async function main() {
       await canvas.waitFor({ timeout: 30000 });
       assert.equal(await page.evaluate(() => document.documentElement.scrollWidth > innerWidth + 1), false);
       await page.screenshot({ path: 'artifacts/pages-3d-' + width + '.png', fullPage: true });
+      await page.getByRole('button', { name: 'Sposta testo', exact: true }).click();
+      await handle.waitFor({ state: 'visible' });
       await page.getByRole('button', { name: "Continua con l'ordine" }).click();
       await page.waitForURL('**/#/checkout');
       await page.locator('.preview').waitFor();

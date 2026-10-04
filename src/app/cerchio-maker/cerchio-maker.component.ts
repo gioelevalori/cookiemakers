@@ -24,6 +24,7 @@ export class CerchioMakerComponent {
   readonly cookieShapes = COOKIE_SHAPES;
   editorMode: 'text' | 'background' = 'text';
   previewMode: '2d' | '3d' = '2d';
+  textMoveActive = false;
 
   ngOnInit(): void {
     if (this.designState.draft) Object.assign(this, this.designState.draft);
@@ -116,6 +117,7 @@ export class CerchioMakerComponent {
   }
 
   resetPage() {
+    this.textMoveActive = false;
     this.resetVersion++;
     this.textPosition = { x: 0, y: 0 };
     this.testoInput = '';

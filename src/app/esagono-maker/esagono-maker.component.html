@@ -7,15 +7,15 @@
   <header class="maker-heading"><p class="eyebrow">Il tuo biscotto</p><h1>Esagono personalizzato</h1></header>
   <div class="maker-layout">
     <div class="preview-column">
-      <div class="preview-heading"><span>Anteprima</span><div class="preview-modes" role="group" aria-label="Vista anteprima"><button [class.active]="previewMode === '2d'" [attr.aria-pressed]="previewMode === '2d'" (click)="previewMode = '2d'">2D</button><button [class.active]="previewMode === '3d'" [attr.aria-pressed]="previewMode === '3d'" (click)="previewMode = '3d'">3D</button></div></div>
+      <div class="preview-heading"><span>Anteprima</span><div class="preview-modes" role="group" aria-label="Vista anteprima"><button [class.active]="previewMode === '2d'" [attr.aria-pressed]="previewMode === '2d'" (click)="previewMode = '2d'">2D</button><button [class.active]="previewMode === '3d'" [attr.aria-pressed]="previewMode === '3d'" (click)="previewMode = '3d'; textMoveActive = false">3D</button></div></div>
       <app-cookie-3d *ngIf="previewMode === '3d'" [source]="cookiePreview" shape="hexagon"></app-cookie-3d>
       <div class="example-boundary" [class.preview-source-hidden]="previewMode === '3d'" #cookiePreview>
         <div class="cookie-shape hexagon">
           <div class="cookie-icing" [style.background-color]="selectedColorSfondo || 'transparent'"></div>
           <img *ngIf="croppedImage" class="cookie-image" [src]="croppedImage" alt="Immagine personalizzata" />
         </div>
-        <div class="example-box" cdkDragBoundary=".example-boundary" cdkDrag [cdkDragDisabled]="isGenerating || !(testoInput || testoDueInput || testoTreInput)" [cdkDragFreeDragPosition]="textPosition" (cdkDragEnded)="textPosition = $event.source.getFreeDragPosition()" title="Trascina il testo per spostarlo">
-          <span *ngIf="testoInput || testoDueInput || testoTreInput" class="text-selection" data-preview-control aria-hidden="true"><span class="text-move-handle"><mat-icon>open_with</mat-icon></span></span>
+        <div class="example-box" [class.text-moving]="textMoveActive" cdkDragBoundary=".example-boundary" cdkDrag [cdkDragDisabled]="isGenerating || !textMoveActive || !(testoInput || testoDueInput || testoTreInput)" [cdkDragFreeDragPosition]="textPosition" (cdkDragEnded)="textPosition = $event.source.getFreeDragPosition()" [attr.title]="textMoveActive ? 'Trascina il testo per spostarlo' : null">
+          <span *ngIf="textMoveActive && (testoInput || testoDueInput || testoTreInput)" class="text-selection" data-preview-control aria-hidden="true"><span class="text-move-handle"><mat-icon>open_with</mat-icon></span></span>
           <p [style.font-size.px]="fontSize" [style.font-family]="selectedFontFamily" [style.color]="selectedColor || '#202925'">{{ testoInput }}<br *ngIf="testoDueInput" />{{ testoDueInput }}<br *ngIf="testoTreInput" />{{ testoTreInput }}</p>
         </div>
       </div>
@@ -40,7 +40,7 @@
         <app-maker-sfondo [embedded]="true" [resetVersion]="resetVersion" [disabled]="isGenerating" [selectedColorSfondo]="selectedColorSfondo" [croppedImage]="croppedImage" (colorSfondoSent)="selectedColorSfondo = $event" (imageSfondo)="croppedImage = $event"></app-maker-sfondo>
       </section>
       <div class="text-position-actions" *ngIf="editorMode === 'text' && (testoInput || testoDueInput || testoTreInput)">
-        <button mat-button [disabled]="isGenerating" (click)="previewMode = '2d'; cookiePreview.scrollIntoView({ behavior: 'smooth', block: 'center' })"><mat-icon>open_with</mat-icon>Sposta testo</button>
+        <button mat-button [disabled]="isGenerating" [attr.aria-pressed]="textMoveActive" (click)="textMoveActive = !textMoveActive; previewMode = '2d'; textMoveActive && cookiePreview.scrollIntoView({ behavior: 'smooth', block: 'center' })"><mat-icon>{{ textMoveActive ? 'check' : 'open_with' }}</mat-icon>{{ textMoveActive ? 'Fatto' : 'Sposta testo' }}</button>
         <button mat-icon-button [disabled]="isGenerating" (click)="textPosition = { x: 0, y: 0 }" aria-label="Ripristina posizione testo" title="Ripristina posizione testo"><mat-icon>filter_center_focus</mat-icon></button>
       </div>
       <div class="order-action">

@@ -136,7 +136,7 @@ export class CerchioMakerComponent {
     try {
       await document.fonts.ready;
       const { toPng } = await import('html-to-image');
-      const image = await toPng(this.cookiePreview.nativeElement, { pixelRatio: 2, style: { opacity: '1', top: '0', left: '0', margin: '0' } });
+      const image = await toPng(this.cookiePreview.nativeElement, { pixelRatio: 2, filter: node => !(node instanceof Element && node.hasAttribute('data-preview-control')), style: { opacity: '1', top: '0', left: '0', margin: '0' } });
       this.imageService.changeImage(image);
       this.colorService.setSelectedShape('cerchio');
 

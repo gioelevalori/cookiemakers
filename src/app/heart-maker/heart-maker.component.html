@@ -14,7 +14,8 @@
           <div class="cookie-icing" [style.background-color]="selectedColorSfondo || 'transparent'"></div>
           <img *ngIf="croppedImage" class="cookie-image" [src]="croppedImage" alt="Immagine personalizzata" />
         </div>
-        <div class="example-box" cdkDragBoundary=".example-boundary" cdkDrag [cdkDragDisabled]="isGenerating" [cdkDragFreeDragPosition]="textPosition" (cdkDragEnded)="textPosition = $event.source.getFreeDragPosition()">
+        <div class="example-box" cdkDragBoundary=".example-boundary" cdkDrag [cdkDragDisabled]="isGenerating || !(testoInput || testoDueInput || testoTreInput)" [cdkDragFreeDragPosition]="textPosition" (cdkDragEnded)="textPosition = $event.source.getFreeDragPosition()" title="Trascina il testo per spostarlo">
+          <span *ngIf="testoInput || testoDueInput || testoTreInput" class="text-selection" data-preview-control aria-hidden="true"><span class="text-move-handle"><mat-icon>open_with</mat-icon></span></span>
           <p [style.font-size.px]="fontSize" [style.font-family]="selectedFontFamily" [style.color]="selectedColor || '#202925'">{{ testoInput }}<br *ngIf="testoDueInput" />{{ testoDueInput }}<br *ngIf="testoTreInput" />{{ testoTreInput }}</p>
         </div>
       </div>
@@ -38,6 +39,10 @@
       <section id="background-panel" class="editor-content" role="tabpanel" aria-labelledby="background-tab" [hidden]="editorMode !== 'background'">
         <app-maker-sfondo [embedded]="true" [resetVersion]="resetVersion" [disabled]="isGenerating" [selectedColorSfondo]="selectedColorSfondo" [croppedImage]="croppedImage" (colorSfondoSent)="selectedColorSfondo = $event" (imageSfondo)="croppedImage = $event"></app-maker-sfondo>
       </section>
+      <div class="text-position-actions" *ngIf="editorMode === 'text' && (testoInput || testoDueInput || testoTreInput)">
+        <button mat-button [disabled]="isGenerating" (click)="previewMode = '2d'; cookiePreview.scrollIntoView({ behavior: 'smooth', block: 'center' })"><mat-icon>open_with</mat-icon>Sposta testo</button>
+        <button mat-icon-button [disabled]="isGenerating" (click)="textPosition = { x: 0, y: 0 }" aria-label="Ripristina posizione testo" title="Ripristina posizione testo"><mat-icon>filter_center_focus</mat-icon></button>
+      </div>
       <div class="order-action">
         <button class="reset-design" mat-button [disabled]="isGenerating" (click)="resetPage()" aria-label="Azzera personalizzazione"><mat-icon>delete_outline</mat-icon>Azzera personalizzazione</button>
         <p class="order-label"><span>Ordine minimo · 10 biscotti</span><strong>{{ 15 | currency:'EUR' }}</strong></p>

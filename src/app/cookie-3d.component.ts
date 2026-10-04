@@ -210,6 +210,7 @@ export class Cookie3dComponent implements AfterViewInit, OnDestroy {
     const dimensions = this.source.getBoundingClientRect();
     const clone = this.source.cloneNode(true) as HTMLElement;
     clone.classList.remove('preview-source-hidden');
+    clone.querySelectorAll('[data-preview-control]').forEach(control => control.remove());
     Object.assign(clone.style, {
       position: 'relative', top: '0', left: '0', opacity: '1',
       width: dimensions.width + 'px', height: dimensions.height + 'px',

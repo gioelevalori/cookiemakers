@@ -10,13 +10,13 @@ describe('CheckoutComponent', () => {
   let fixture: ComponentFixture<CheckoutComponent>;
   beforeEach(async () => {
     localStorage.removeItem('cookie-cart-v1');
-    sessionStorage.removeItem('cookie-cart-editing');
+    sessionStorage.removeItem('cookie-cart-editing'); sessionStorage.removeItem('cookie-direct-order');
     await TestBed.configureTestingModule({ imports: [AppModule] }).compileComponents();
     fixture = TestBed.createComponent(CheckoutComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
   });
-  afterEach(() => { localStorage.removeItem('cookie-cart-v1'); sessionStorage.removeItem('cookie-cart-editing'); });
+  afterEach(() => { localStorage.removeItem('cookie-cart-v1'); sessionStorage.removeItem('cookie-cart-editing'); sessionStorage.removeItem('cookie-direct-order'); });
   it('should create', () => { expect(component).toBeTruthy(); });
   it('rejects past delivery dates and flags requests before the estimate', () => {
     spyOnProperty(component.delivery, 'today', 'get').and.returnValue('2026-10-07');
@@ -59,6 +59,20 @@ describe('CheckoutComponent', () => {
     const checkout = spyOn(component.stripeService, 'createCheckoutSession');
     await component.makePayment();
     expect(checkout).not.toHaveBeenCalled();
+  });
+  it('checks out only the direct design while preserving the cart', async () => {
+    component.cart.add('cerchio', 'data:image/png;base64,cart', draft);
+    component.cart.checkoutDirect('cuore', 'data:image/png;base64,direct', { ...draft, testoInput: 'Luca' });
+    component.direct = true;
+    component.updateQuantity(component.items[0], 12);
+    expect(component.counter).toBe(25);
+    const checkout = spyOn(component.stripeService, 'createCheckoutSession').and.rejectWith(new Error('test'));
+    await component.makePayment();
+    const order = checkout.calls.mostRecent().args[0];
+    expect(order.items.length).toBe(1);
+    expect(order.items[0].message).toBe('Luca');
+    expect(order.items[0].quantity).toBe(12);
+    expect(component.cart.items[0].quantity).toBe(10);
   });
   it('sends every model and its quantity to checkout', async () => {
     component.cart.add('cerchio', 'data:image/png;base64,test', draft);

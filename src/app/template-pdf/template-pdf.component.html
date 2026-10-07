@@ -1,5 +1,5 @@
 <main class="pdf-page">
-  <a mat-button routerLink="/checkout"><mat-icon>arrow_back</mat-icon> Il tuo ordine</a>
+  <a mat-button routerLink="/checkout" [queryParams]="{ direct: direct ? '1' : null }"><mat-icon>arrow_back</mat-icon> Il tuo ordine</a>
   <section #contentToConvert class="design-sheet">
     <header><p class="brand">My Cookie Delight</p><h1>Riepilogo del biscotto</h1><p class="sheet-intro">Anteprima e materiali per la personalizzazione</p></header>
     <ng-container *ngIf="imageData; else emptyDesign">

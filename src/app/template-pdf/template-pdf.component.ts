@@ -18,7 +18,8 @@ export class TemplatePdfComponent {
   readonly delivery = inject(DeliveryService);
   readonly designState = inject(CookieDesignService);
   private readonly cart = inject(CartService);
-  readonly cartItem = this.cart.items.find(item => item.id === inject(ActivatedRoute).snapshot.queryParamMap.get('item'));
+  readonly direct = inject(ActivatedRoute).snapshot.queryParamMap.get('direct') === '1';
+  readonly cartItem = this.direct ? this.cart.directItem : this.cart.items.find(item => item.id === inject(ActivatedRoute).snapshot.queryParamMap.get('item'));
   readonly draft = this.cartItem?.draft || this.designState.draft;
   get quantity(): number { return this.cartItem?.quantity || this.colors.orderQuantity; }
   readonly textLines = [this.draft?.testoInput || '', this.draft?.testoDueInput || '', this.draft?.testoTreInput || ''];

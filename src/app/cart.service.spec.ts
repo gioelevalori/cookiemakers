@@ -8,10 +8,10 @@ const draft: CookieDraft = { testoInput: 'Anna', testoDueInput: '', testoTreInpu
 describe('CartService', () => {
   let cart: CartService;
   beforeEach(() => {
-    localStorage.removeItem('cookie-cart-v1'); sessionStorage.removeItem('cookie-cart-editing');
+    localStorage.removeItem('cookie-cart-v1'); sessionStorage.removeItem('cookie-cart-editing'); sessionStorage.removeItem('cookie-direct-order');
     cart = new CartService(new CookieDesignService());
   });
-  afterEach(() => { localStorage.removeItem('cookie-cart-v1'); sessionStorage.removeItem('cookie-cart-editing'); localStorage.removeItem('cookie-design-v1'); });
+  afterEach(() => { localStorage.removeItem('cookie-cart-v1'); sessionStorage.removeItem('cookie-cart-editing'); sessionStorage.removeItem('cookie-direct-order'); localStorage.removeItem('cookie-design-v1'); });
   it('preserves independent snapshots and quantities after reload', () => {
     const input = { ...draft, textPosition: { x: 0, y: 0 } };
     cart.add('cerchio', 'data:image/png;base64,test', input);
@@ -46,6 +46,18 @@ describe('CartService', () => {
     expect(cart.items.length).toBe(2);
     cart.remove(cart.items[0].id);
     expect(new CartService(new CookieDesignService()).items.length).toBe(1);
+  });
+  it('keeps a direct order separate from the cart and restores its quantity', () => {
+    cart.add('cerchio', 'data:image/png;base64,cart', draft);
+    cart.checkoutDirect('cuore', 'data:image/png;base64,direct', { ...draft, testoInput: 'Luca' });
+    cart.updateDirectQuantity(12);
+    const restored = new CartService(new CookieDesignService());
+    expect(restored.items.length).toBe(1);
+    expect(restored.items[0].draft.testoInput).toBe('Anna');
+    expect(restored.items[0].quantity).toBe(10);
+    expect(restored.directItem!.draft.testoInput).toBe('Luca');
+    expect(restored.directItem!.quantity).toBe(12);
+    expect(restored.total).toBe(15);
   });
   it('reports a storage failure and keeps all models in memory', () => {
     spyOn(Storage.prototype, 'setItem').and.throwError('quota');

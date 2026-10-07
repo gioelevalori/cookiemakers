@@ -1,13 +1,14 @@
 <header class="site-header">
   <nav class="site-nav" aria-label="Navigazione principale">
+    <button class="menu-toggle" mat-icon-button (click)="menuOpen = !menuOpen" [attr.aria-expanded]="menuOpen" aria-controls="header-links" [attr.aria-label]="menuOpen ? 'Chiudi menu' : 'Apri menu'" [title]="menuOpen ? 'Chiudi menu' : 'Apri menu'"><mat-icon>{{ menuOpen ? 'close' : 'menu' }}</mat-icon></button>
     <a class="brand" routerLink="/" (click)="menuOpen = false" aria-label="My Cookie Delight, pagina iniziale">
       <span class="logo-window"><img src="assets/logocookie.png" width="1000" height="1000" alt="My Cookie Delight, biscotti personalizzati" /></span>
     </a>
-    <button class="menu-toggle" mat-icon-button (click)="menuOpen = !menuOpen" [attr.aria-expanded]="menuOpen" aria-controls="header-links" [attr.aria-label]="menuOpen ? 'Chiudi menu' : 'Apri menu'" [title]="menuOpen ? 'Chiudi menu' : 'Apri menu'"><mat-icon>{{ menuOpen ? 'close' : 'menu' }}</mat-icon></button>
+
     <div id="header-links" class="nav-links" [class.open]="menuOpen">
       <a routerLink="/" (click)="menuOpen = false" routerLinkActive="active" ariaCurrentWhenActive="page" [routerLinkActiveOptions]="{ exact: true }">Biscotti</a>
-      <a routerLink="/checkout" (click)="menuOpen = false" routerLinkActive="active" ariaCurrentWhenActive="page"><mat-icon>shopping_cart</mat-icon> Carrello ({{ cart.items.length }})</a>
       <a routerLink="/contatti" (click)="menuOpen = false" routerLinkActive="active" ariaCurrentWhenActive="page">Contatti</a>
     </div>
+    <a class="cart-link" routerLink="/checkout" (click)="menuOpen = false" [attr.aria-label]="'Carrello: ' + cart.items.length + ' modelli'"><mat-icon>shopping_cart</mat-icon><span class="cart-label">Carrello</span><span class="cart-count">{{ cart.items.length }}</span></a>
   </nav>
 </header>

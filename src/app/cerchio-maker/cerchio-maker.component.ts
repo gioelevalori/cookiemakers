@@ -157,7 +157,7 @@ export class CerchioMakerComponent {
     this.captureError = '';
   }
 
-  public async generateImage(): Promise<void> {
+  public async generateImage(destination: 'cart' | 'direct' = 'cart'): Promise<void> {
     if (this.isGenerating) return;
     this.isGenerating = true;
     this.captureError = '';
@@ -172,8 +172,9 @@ export class CerchioMakerComponent {
       this.colorService.setSelectedImage(this.croppedImage);
       this.colorService.setSelectedMessage([this.testoInput, this.testoDueInput, this.testoTreInput].filter(Boolean).join(' '));
       this.designState.save(this, '/' + 'cerchio');
-      this.cart.add('cerchio', image, this.designState.draft!);
-      await this.router.navigate(['/checkout']);
+      if (destination === 'direct') this.cart.checkoutDirect('cerchio', image, this.designState.draft!);
+      else this.cart.add('cerchio', image, this.designState.draft!);
+      await this.router.navigate(['/checkout'], { queryParams: destination === 'direct' ? { direct: '1' } : {} });
     } catch {
       this.captureError = 'Impossibile preparare l\'anteprima. Riprova.';
     } finally {

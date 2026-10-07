@@ -13,6 +13,7 @@ export interface CartItem {
 export class CartService {
   private readonly key = 'cookie-cart-v1';
   items: CartItem[] = [];
+  directItem: CartItem | null = null;
   private currentEditingId: string | null = null;
   get editingId(): string | null { return this.currentEditingId; }
   set editingId(value: string | null) {
@@ -35,6 +36,13 @@ export class CartService {
         Number.isFinite(item.draft.fontSize) && Number.isFinite(item.draft.textPosition?.x) && Number.isFinite(item.draft.textPosition?.y));
     } catch { /* Keep the cart available when storage is unavailable. */ }
     try {
+      const item = JSON.parse(sessionStorage.getItem('cookie-direct-order') || 'null');
+      if (item && typeof item.id === 'string' && COOKIE_SHAPES.some(shape => shape.route === '/' + item.shape) &&
+          typeof item.preview === 'string' && item.preview.startsWith('data:image/png;base64,') && this.validQuantity(item.quantity) &&
+          item.draft && ['testoInput', 'testoDueInput', 'testoTreInput', 'selectedColor', 'selectedColorSfondo', 'croppedImage', 'selectedFontFamily'].every(key => typeof item.draft[key] === 'string') &&
+          Number.isFinite(item.draft.fontSize) && Number.isFinite(item.draft.textPosition?.x) && Number.isFinite(item.draft.textPosition?.y)) this.directItem = item;
+    } catch { /* Keep the direct order available in memory. */ }
+    try {
       const id = sessionStorage.getItem('cookie-cart-editing');
       this.currentEditingId = this.items.some(item => item.id === id) ? id : null;
     } catch { /* Keep editing in memory. */ }
@@ -52,6 +60,25 @@ export class CartService {
     this.items = existing ? this.items.map(value => value.id === existing.id ? item : value) : [...this.items, item];
     this.editingId = null;
     this.persist();
+  }
+
+  checkoutDirect(shape: string, preview: string, draft: CookieDraft): void {
+    this.directItem = { id: 'direct-order', shape, preview, quantity: this.directItem?.quantity || 10,
+      draft: JSON.parse(JSON.stringify(draft)) };
+    this.editingId = null;
+    this.persistDirect();
+  }
+  updateDirectQuantity(quantity: number): void {
+    if (!this.directItem || !this.validQuantity(quantity)) return;
+    this.directItem = { ...this.directItem, quantity };
+    this.persistDirect();
+  }
+  private persistDirect(): void {
+    try { sessionStorage.setItem('cookie-direct-order', JSON.stringify(this.directItem)); this.storageError = ''; }
+    catch {
+      try { sessionStorage.removeItem('cookie-direct-order'); } catch { /* Storage is blocked. */ }
+      this.storageError = "L'ordine resta disponibile in questa pagina, ma non è stato possibile salvarlo sul dispositivo.";
+    }
   }
 
   edit(item: CartItem): void {

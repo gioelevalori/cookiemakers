@@ -18,9 +18,9 @@
 
       <article class="design-summary" *ngFor="let item of items; let i = index">
 
-        <h2>Modello {{ i + 1 }} · {{ item.shape | titlecase }}</h2>
+        <h2>Biscotto {{ i + 1 }} · {{ item.shape | titlecase }}</h2>
 
-        <img [src]="item.preview" class="preview" alt="Anteprima del modello {{ i + 1 }}" />
+        <img [src]="item.preview" class="preview" alt="Anteprima del biscotto {{ i + 1 }}" />
 
         <dl>
 
@@ -36,27 +36,27 @@
 
         <div class="quantity">
 
-          <button mat-icon-button (click)="updateQuantity(item, item.quantity - 1)" [disabled]="item.quantity <= 10" aria-label="Riduci quantità modello {{ i + 1 }}"><mat-icon>remove</mat-icon></button>
+          <button mat-icon-button (click)="updateQuantity(item, item.quantity - 1)" [disabled]="item.quantity <= 10" aria-label="Riduci quantità biscotto {{ i + 1 }}"><mat-icon>remove</mat-icon></button>
 
-          <mat-form-field appearance="outline"><mat-label>Quantità modello {{ i + 1 }}</mat-label>
+          <mat-form-field appearance="outline"><mat-label>Quantità biscotto {{ i + 1 }}</mat-label>
 
             <input matInput type="number" min="10" step="1" [value]="item.quantity" (input)="updateQuantity(item, $any($event.target).value)" [attr.aria-invalid]="quantityErrors.has(item.id)" [attr.aria-describedby]="quantityErrors.has(item.id) ? 'quantity-error-' + item.id : null" /></mat-form-field>
 
-          <button mat-icon-button (click)="updateQuantity(item, item.quantity + 1)" aria-label="Aumenta quantità modello {{ i + 1 }}"><mat-icon>add</mat-icon></button>
+          <button mat-icon-button (click)="updateQuantity(item, item.quantity + 1)" aria-label="Aumenta quantità biscotto {{ i + 1 }}"><mat-icon>add</mat-icon></button>
 
         </div>
 
         <p *ngIf="quantityErrors.has(item.id)" [id]="'quantity-error-' + item.id" class="error-message" role="alert">Inserisci almeno 10 biscotti, in numero intero.</p>
 
-        <p class="model-total">Totale modello: <strong>{{ cart.price(item.quantity) | currency:'EUR' }}</strong></p>
+        <p class="model-total">Totale biscotto: <strong>{{ cart.price(item.quantity) | currency:'EUR' }}</strong></p>
 
         <div class="cart-actions">
 
-          <button mat-button (click)="edit(item)"><mat-icon>edit</mat-icon> Modifica modello {{ i + 1 }}</button>
+          <button mat-button (click)="edit(item)"><mat-icon>edit</mat-icon> Modifica biscotto {{ i + 1 }}</button>
 
-          <a mat-button routerLink="/template" [queryParams]="{ item: item.id, direct: direct ? '1' : null }"><mat-icon>description</mat-icon> Scheda modello {{ i + 1 }}</a>
+          <a mat-button routerLink="/template" [queryParams]="{ item: item.id, direct: direct ? '1' : null }"><mat-icon>description</mat-icon> Scheda biscotto {{ i + 1 }}</a>
 
-          <button *ngIf="!direct" mat-button (click)="remove(item)"><mat-icon>delete_outline</mat-icon> Rimuovi modello {{ i + 1 }}</button>
+          <button *ngIf="!direct" mat-button (click)="remove(item)"><mat-icon>delete_outline</mat-icon> Rimuovi biscotto {{ i + 1 }}</button>
 
         </div>
 
@@ -114,11 +114,11 @@
 
       </div>
 
-      <p class="price-note">Per modello: 10 biscotti a {{ 15 | currency:'EUR' }}; ogni biscotto aggiuntivo a {{ 5 | currency:'EUR' }}. Spedizione unica per l'ordine.</p>
+      <p class="price-note">Per ciascun biscotto personalizzato: 10 pezzi a {{ 15 | currency:'EUR' }}; ogni biscotto aggiuntivo a {{ 5 | currency:'EUR' }}. Spedizione unica per l'ordine.</p>
 
       <dl class="totals">
 
-        <dt>Modelli</dt><dd>{{ items.length }}</dd>
+        <dt>Biscotti diversi</dt><dd>{{ items.length }}</dd>
 
         <dt>Quantità totale</dt><dd>{{ quantity }} biscotti</dd>
 

@@ -99,7 +99,7 @@ async function main() {
         await page.waitForURL('**/checkout');
         await page.locator('.preview').waitFor();
         assert.ok((await page.locator('.preview').getAttribute('src')).startsWith('data:image/png;base64,'));
-        await page.getByRole('button', { name: 'Aumenta quantità modello 1', exact: true }).click();
+        await page.getByRole('button', { name: 'Aumenta quantità biscotto 1', exact: true }).click();
         assert.equal(await page.getByRole('spinbutton').inputValue(), '11');
         assert.match(await page.locator('.grand-total').last().textContent(), /26,00/);
         await page.getByRole('spinbutton').fill('9');
@@ -109,7 +109,7 @@ async function main() {
         await page.getByRole('spinbutton').blur();
         await checkLayout(page);
         await page.screenshot({ path: path.join(artifacts, `checkout-${shape}-${viewport.width}.png`), fullPage: true });
-        await page.getByRole('button', { name: 'Modifica modello 1' }).click();
+        await page.getByRole('button', { name: 'Modifica biscotto 1' }).click();
         await page.getByLabel('Prima riga', { exact: true }).waitFor();
         assert.equal(await page.getByLabel('Prima riga', { exact: true }).inputValue(), 'Auguri');
       }
@@ -130,7 +130,7 @@ async function main() {
     await page.goto(`${baseUrl}/cerchio`);
     await page.getByRole('button', { name: /^(Aggiungi al carrello|Salva modifiche nel carrello)$/ }).click();
     await page.waitForURL('**/checkout');
-    await page.getByRole('link', { name: 'Scheda modello 1' }).click();
+    await page.getByRole('link', { name: 'Scheda biscotto 1' }).click();
     const downloadPromise = page.waitForEvent('download');
     await page.getByRole('button', { name: 'Scarica PDF' }).click();
     const download = await downloadPromise;

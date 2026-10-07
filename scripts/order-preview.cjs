@@ -47,7 +47,7 @@ const base = process.env.COOKIE_URL || 'http://127.0.0.1:4202/cookiemakers/';
         });
         assert.ok(visibleCookie > 0.2, `${shape} ${mode}: missing cookie`);
         assert.doesNotMatch(await page.locator('.design-summary dl').innerText(), /Carattere|Colore testo|Testo/);
-        await page.getByRole('link', { name: 'Scheda modello 1' }).click();
+        await page.getByRole('link', { name: 'Scheda biscotto 1' }).click();
         await page.locator('.final-image').waitFor();
         for (const selector of ['.specifications', '.palette', '.source-photo', '.cropped-photo', '.delivery-details']) {
           assert.equal(await page.locator(selector).count(), 0, `${shape} ${mode}: unused ${selector}`);

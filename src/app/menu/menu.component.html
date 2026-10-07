@@ -9,6 +9,6 @@
       <a routerLink="/" (click)="menuOpen = false" routerLinkActive="active" ariaCurrentWhenActive="page" [routerLinkActiveOptions]="{ exact: true }">Biscotti</a>
       <a routerLink="/contatti" (click)="menuOpen = false" routerLinkActive="active" ariaCurrentWhenActive="page">Contatti</a>
     </div>
-    <a class="cart-link" routerLink="/checkout" (click)="menuOpen = false" [attr.aria-label]="'Carrello: ' + cart.items.length + ' modelli'"><mat-icon>shopping_cart</mat-icon><span class="cart-label">Carrello</span><span class="cart-count">{{ cart.items.length }}</span></a>
+    <a class="cart-link" routerLink="/checkout" (click)="menuOpen = false" [attr.aria-label]="'Carrello: ' + cart.items.length + ' biscotti diversi'"><mat-icon>shopping_cart</mat-icon><span class="cart-label">Carrello</span><span class="cart-count">{{ cart.items.length }}</span></a>
   </nav>
 </header>

@@ -11,7 +11,6 @@ import {
   ChangeDetectionStrategy
 } from '@angular/core';
 import { DomSanitizer, SafeUrl, SafeStyle } from '@angular/platform-browser';
-import { ImageUtils } from './image.utils';
 
 interface MoveStart {
   active: boolean;
@@ -137,7 +136,9 @@ export class ImageCropperComponent implements OnChanges {
       fileReader.onload = (ev: any) => {
           const imageType = event.target.files[0].type;
           if (this.isValidImageType(imageType)) {
-              this.checkExifRotationAndLoadImage(ev.target.result);
+              // HTMLImageElement already applies EXIF orientation, including in drawImage.
+              // Rotating again here turns camera photos a second time.
+              this.loadBase64Image(ev.target.result);
           } else {
               this.loadImageFailed.emit();
           }
@@ -152,24 +153,11 @@ export class ImageCropperComponent implements OnChanges {
           || type === 'image/gif'
   }
 
-  private checkExifRotationAndLoadImage(imageBase64: string) {
-      const exifRotation = ImageUtils.getOrientation(imageBase64);
-      if (exifRotation > 1) {
-          ImageUtils.resetOrientation(
-              imageBase64,
-              exifRotation,
-              (rotatedBase64: string) => this.loadBase64Image(rotatedBase64)
-          );
-      } else {
-          this.loadBase64Image(imageBase64);
-      }
-  }
-
   private loadBase64Image(imageBase64: string) {
       this.originalImage = new Image();
       this.originalImage.onload = () => {
-          this.originalSize.width = this.originalImage.width;
-          this.originalSize.height = this.originalImage.height;
+          this.originalSize.width = this.originalImage.naturalWidth;
+          this.originalSize.height = this.originalImage.naturalHeight;
           this.cd.markForCheck();
       };
       this.originalImage.onerror = () => this.loadImageFailed.emit();

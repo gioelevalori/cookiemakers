@@ -9,7 +9,7 @@
         <p class="caption">Anteprima completa con forma, foto, testo e colori scelti.</p>
         <dl><dt>Forma</dt><dd>{{ selectedShape | titlecase }}</dd><dt>Quantit&agrave;</dt><dd>{{ colors.orderQuantity }} biscotti</dd></dl>
       </section>
-      <section class="sheet-section source-photo">
+      <section class="sheet-section source-photo" *ngIf="draft?.originalImage || selectedImage">
         <h2>2. Immagine originale caricata</h2>
         <ng-container *ngIf="draft?.originalImage; else noOriginal">
           <img class="source-image" [src]="draft!.originalImage" alt="Foto originale prima del ritaglio" />
@@ -23,10 +23,10 @@
         <img class="cropped-image" [src]="selectedImage" alt="Ritaglio della foto usato sul biscotto" />
         <p class="caption">Immagine effettivamente utilizzata, senza testo e senza la sagoma del biscotto.</p>
       </section>
-      <section class="sheet-section specifications">
+      <section class="sheet-section specifications" *ngIf="hasText">
         <h2>Testi e carattere</h2>
         <dl>
-          <ng-container *ngFor="let line of textLines; let i = index"><dt>Riga {{ i + 1 }}</dt><dd class="text-line">{{ line || 'Non utilizzata' }}</dd></ng-container>
+          <ng-container *ngFor="let line of textLines; let i = index"><ng-container *ngIf="line.trim()"><dt>Riga {{ i + 1 }}</dt><dd class="text-line">{{ line }}</dd></ng-container></ng-container>
           <ng-container *ngIf="!draft && message"><dt>Testo</dt><dd>{{ message }}</dd></ng-container>
           <dt>Font</dt><dd>{{ selectedFont || draft?.selectedFontFamily || 'CocoGothic' }}</dd>
           <dt>Dimensione nell'editor</dt><dd>{{ draft?.fontSize || 36 }} px</dd>
@@ -34,12 +34,12 @@
         </dl>
         <p class="caption">Dimensione e posizione sono riferite all'editor; l'anteprima mostra il risultato finale.</p>
       </section>
-      <section class="sheet-section palette">
+      <section class="sheet-section palette" *ngIf="(hasText && selectedColor) || selectedColorSfondo">
         <h2>Colori utilizzati</h2>
-        <div class="color-item"><span class="color-chip" [style.background-color]="selectedColor || '#202925'"></span><div><strong>Testo</strong><p>{{ selectedColor || '#202925' }}</p></div></div>
-        <div class="color-item"><span class="color-chip" [class.natural-color]="!selectedColorSfondo" [style.background-color]="selectedColorSfondo || '#d6ab72'"></span><div><strong>Sfondo</strong><p>{{ selectedColorSfondo || 'Biscotto naturale (nessun colore aggiunto)' }}</p></div></div>
+        <div class="color-item" *ngIf="hasText && selectedColor"><span class="color-chip" [style.background-color]="selectedColor"></span><div><strong>Testo</strong><p>{{ selectedColor }}</p></div></div>
+        <div class="color-item" *ngIf="selectedColorSfondo"><span class="color-chip" [class.natural-color]="!selectedColorSfondo" [style.background-color]="selectedColorSfondo || '#d6ab72'"></span><div><strong>Sfondo</strong><p>{{ selectedColorSfondo || 'Biscotto naturale (nessun colore aggiunto)' }}</p></div></div>
       </section>
-      <section class="sheet-section delivery-details">
+      <section class="sheet-section delivery-details" *ngIf="delivery.requestedDate">
         <h2>Consegna richiesta</h2>
         <p *ngIf="delivery.requestedDate; else noDate">{{ delivery.requestedDate | date:'dd/MM/yyyy' }} <span class="caption">(da confermare)</span></p>
         <ng-template #noDate><p>Data non specificata.</p></ng-template>

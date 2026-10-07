@@ -10,9 +10,9 @@
       <img [src]="imageData" class="preview" alt="Anteprima del biscotto personalizzato" />
       <dl>
         <ng-container *ngIf="selectedShape"><dt>Forma</dt><dd>{{ selectedShape | titlecase }}</dd></ng-container>
-        <ng-container *ngIf="message"><dt>Testo</dt><dd>{{ message }}</dd></ng-container>
-        <ng-container *ngIf="selectedFont"><dt>Carattere</dt><dd>{{ selectedFont }}</dd></ng-container>
-        <ng-container *ngIf="selectedColor"><dt>Colore testo</dt><dd><span class="swatch" [style.background]="selectedColor"></span>{{ selectedColor }}</dd></ng-container>
+        <ng-container *ngIf="message.trim()"><dt>Testo</dt><dd>{{ message }}</dd></ng-container>
+        <ng-container *ngIf="message.trim() && selectedFont"><dt>Carattere</dt><dd>{{ selectedFont }}</dd></ng-container>
+        <ng-container *ngIf="message.trim() && selectedColor"><dt>Colore testo</dt><dd><span class="swatch" [style.background]="selectedColor"></span>{{ selectedColor }}</dd></ng-container>
         <ng-container *ngIf="selectedColorSfondo"><dt>Sfondo</dt><dd><span class="swatch" [style.background]="selectedColorSfondo"></span>{{ selectedColorSfondo }}</dd></ng-container>
       </dl>
       <a mat-button routerLink="/template"><mat-icon>description</mat-icon> Scheda biscotto</a>

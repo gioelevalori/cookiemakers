@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, EventEmitter, Input, Output, inject } from '@angular/core';
+import { ChangeDetectionStrategy, Component, EventEmitter, Input, Output, SimpleChanges, inject } from '@angular/core';
 import { MatBottomSheetRef } from '@angular/material/bottom-sheet';
 import { FormControl } from '@angular/forms';
 import { COOKIE_FONTS } from '../cookie-design.service';
@@ -13,6 +13,14 @@ import { COOKIE_FONTS } from '../cookie-design.service';
 export class MakerTextComponent {
   private readonly sheet = inject(MatBottomSheetRef, { optional: true });
   close(): void { this.sheet?.dismiss(); }
+  @Input() resetVersion = 0;
+  ngOnChanges(changes: SimpleChanges): void {
+    if (changes['resetVersion'] && !changes['resetVersion'].firstChange) {
+      this.inputText2 = false;
+      this.inputText3 = false;
+      this.colorText.reset();
+    }
+  }
   @Input() embedded = false;
   @Input() message = '';
   @Input() message2 = '';

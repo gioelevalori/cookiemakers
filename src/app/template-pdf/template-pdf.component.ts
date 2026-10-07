@@ -26,6 +26,7 @@ export class TemplatePdfComponent {
   selectedColorSfondo = '';
   selectedFont = '';
   selectedImage = '';
+  get hasText(): boolean { return this.textLines.some(line => line.trim()) || Boolean(this.message.trim()); }
   exporting = false;
   exportError = '';
 

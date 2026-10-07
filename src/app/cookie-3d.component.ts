@@ -231,6 +231,7 @@ export class Cookie3dComponent implements AfterViewInit, OnDestroy {
     });
     clone.setAttribute('aria-hidden', 'true');
     clone.querySelector<HTMLElement>('.cookie-shape')!.style.boxShadow = 'none';
+    clone.querySelector<HTMLElement>('.cookie-shadow')?.style.setProperty('filter', 'none');
     const container = document.createElement('div');
     Object.assign(container.style, { position: 'fixed', top: '0', left: '-10000px', width: dimensions.width + 'px', pointerEvents: 'none' });
     container.appendChild(clone);

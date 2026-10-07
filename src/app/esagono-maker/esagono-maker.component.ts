@@ -1,3 +1,4 @@
+import { captureCookiePreview } from '../capture-cookie-preview';
 import { ChangeDetectionStrategy, Component, ElementRef, ViewChild, inject  } from '@angular/core';
 import { Router } from '@angular/router';
 import { COOKIE_SHAPES, CookieDesignService, normalizeCookieFont } from '../cookie-design.service';
@@ -130,6 +131,14 @@ export class EsagonoMakerComponent {
   }
 
   resetPage() {
+    this.previewMode = '2d';
+    this.editorMode = 'text';
+    this.imageService.changeImage('');
+    this.colorService.setSelectedMessage('');
+    this.colorService.setSelectedFont('');
+    this.colorService.setSelectedColor('');
+    this.colorService.setSelectedColorSfondo('');
+    this.colorService.setSelectedImage('');
     this.textMoveActive = false;
     this.resetVersion++;
     this.textPosition = { x: 0, y: 0 };
@@ -151,13 +160,11 @@ export class EsagonoMakerComponent {
     this.isGenerating = true;
     this.captureError = '';
     try {
-      await document.fonts.ready;
-      const { toPng } = await import('html-to-image');
-      const image = await toPng(this.cookiePreview.nativeElement, { pixelRatio: 2, filter: node => !(node instanceof Element && node.hasAttribute('data-preview-control')), style: { opacity: '1', top: '0', left: '0', margin: '0' } });
+      const image = await captureCookiePreview(this.cookiePreview.nativeElement);
       this.imageService.changeImage(image);
       this.colorService.setSelectedShape('esagono');
 
-      this.colorService.setSelectedColor(this.selectedColor || '#202925');
+      this.colorService.setSelectedColor(this.selectedColor);
       this.colorService.setSelectedColorSfondo(this.selectedColorSfondo);
       this.colorService.setSelectedFont(this.selectedFontFamily);
       this.colorService.setSelectedImage(this.croppedImage);

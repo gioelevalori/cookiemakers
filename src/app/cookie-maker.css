@@ -20,7 +20,7 @@ h1 { font: 600 36px/1.2 "Fraunces", serif; margin: 0; overflow-wrap: anywhere; }
 .preview-source-hidden { position: absolute !important; top: 52px; opacity: 0; pointer-events: none; z-index: -1; }
 .order-action > .reset-design { width: auto; margin-bottom: 12px; min-height: 44px; color: #61766a; }
 .example-boundary { position: relative; width: 100%; aspect-ratio: 1; overflow: hidden; background: #f0f3f1; border-radius: 8px; }
-.cookie-shape { position: absolute; inset: 15%; background: #e1cb9d url("../assets/cookie-texture.jpg") center / cover; box-shadow: 0 12px 20px #253b3330; }
+.cookie-shape { position: absolute; inset: 15%; background: #e1cb9d url("../assets/cookie-texture.jpg") center / cover;  }
 .cookie-icing, .cookie-image { position: absolute; inset: 6%; width: 88%; height: 88%; border-radius: inherit; }
 .cookie-image { object-fit: cover; }
 .rectangle { inset: 25% 12%; border-radius: 10px; }
@@ -74,3 +74,5 @@ h1 { font: 600 36px/1.2 "Fraunces", serif; margin: 0; overflow-wrap: anywhere; }
   .shape-options a { font-size: 9px; }
   .order-label { flex-wrap: wrap; }
 }
+
+.cookie-shadow { position: absolute; inset: 0; filter: drop-shadow(0 8px 8px #253b332b); }

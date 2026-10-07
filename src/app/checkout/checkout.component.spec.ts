@@ -22,6 +22,21 @@ describe('CheckoutComponent', () => {
     expect(component).toBeTruthy();
   });
 
+  it('rejects past delivery dates and flags requests before the estimate', () => {
+    spyOnProperty(component.delivery, 'today', 'get').and.returnValue('2026-10-07');
+    const date = component.firstFormGroup.controls.requestedDate;
+    date.setValue('2026-10-06');
+    expect(date.invalid).toBeTrue();
+    date.setValue('2026-10-08');
+    expect(date.valid).toBeTrue();
+    expect(component.dateTooSoon).toBeTrue();
+    date.setValue('2026-10-16');
+    expect(component.dateTooSoon).toBeFalse();
+    date.setValue('');
+    expect(date.valid).toBeTrue();
+    expect(component.dateTooSoon).toBeFalse();
+  });
+
   it('recalculates the price when quantity is edited directly', () => {
     component.firstFormGroup.controls.firstCtrl.setValue(12);
     expect(component.counter).toBe(25);
@@ -46,5 +61,17 @@ describe('CheckoutComponent', () => {
     const checkout = spyOn(component.stripeService, 'createCheckoutSession');
     await component.makePayment();
     expect(checkout).not.toHaveBeenCalled();
+  });
+
+  it('enables the demo button with an order and explains that no charge is made', () => {
+    component.imageData = 'data:image/png;base64,iVBORw0KGgo=';
+    fixture.detectChanges();
+    const button: HTMLButtonElement = fixture.nativeElement.querySelector('.pay-button');
+    expect(button.disabled).toBeFalse();
+    expect(button.textContent).toContain('Prova pagamento Stripe');
+    expect(fixture.nativeElement.querySelector('.payment-notice').textContent).toContain('nessun addebito');
+    component.firstFormGroup.controls.firstCtrl.setValue(9);
+    fixture.detectChanges();
+    expect(button.disabled).toBeTrue();
   });
 });

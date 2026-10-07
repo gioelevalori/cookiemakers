@@ -32,12 +32,18 @@ export class QuadratoMakerComponent {
     this.selectedFontFamily = normalizeCookieFont(this.selectedFontFamily);
   }
 
+  ngDoCheck(): void {
+    this.designState.save(this, '/quadrato');
+  }
+
+  get draftSaveError(): string { return this.designState.saveError; }
+
   ngOnDestroy(): void {
     this.designState.draft = {
       testoInput: this.testoInput, testoDueInput: this.testoDueInput, testoTreInput: this.testoTreInput,
       selectedFontFamily: this.selectedFontFamily, fontSize: this.fontSize,
       selectedColor: this.selectedColor, selectedColorSfondo: this.selectedColorSfondo,
-      croppedImage: this.croppedImage, textPosition: { ...this.textPosition }
+      croppedImage: this.croppedImage, originalImage: this.originalImage, originalImageName: this.originalImageName, textPosition: { ...this.textPosition }
     };
   }
   isGenerating = false;
@@ -60,6 +66,12 @@ export class QuadratoMakerComponent {
   colorText: FormControl = new FormControl(null);
   imageChangedEvent: any = '';
   croppedImage: any = '';
+  originalImage = '';
+  originalImageName = '';
+  setOriginalImage(image: { dataUrl: string; fileName: string }): void {
+    this.originalImage = image.dataUrl;
+    this.originalImageName = image.fileName;
+  }
   cropperReady = false;
   lastMessage = '';
   isLinear = false;
@@ -108,6 +120,7 @@ export class QuadratoMakerComponent {
     const bottomSheetRef = this.bottomSheet.open(MakerSfondoComponent);
     bottomSheetRef.instance.selectedColorSfondo = this.selectedColorSfondo || '#FFFFFF';
     bottomSheetRef.instance.croppedImage = this.croppedImage;
+    bottomSheetRef.instance.originalImageChange.pipe(takeUntil(bottomSheetRef.afterDismissed())).subscribe(image => this.setOriginalImage(image));
 
     bottomSheetRef.instance.colorSfondoSent.pipe(takeUntil(bottomSheetRef.afterDismissed())).subscribe((selectedColorSfondo: string) => {
       this.selectedColorSfondo = selectedColorSfondo;
@@ -130,6 +143,8 @@ export class QuadratoMakerComponent {
     this.selectedColor = '';
     this.selectedColorSfondo = '';
     this.croppedImage = '';
+    this.originalImage = '';
+    this.originalImageName = '';
     this.captureError = '';
   }
 

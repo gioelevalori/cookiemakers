@@ -20,6 +20,15 @@ il fallback delle rotte Angular; questa modifica non esegue alcun deploy.
 
 ## Verifiche
 
+Nel checkout la data desiderata di consegna e facoltativa e viene mantenuta sul
+dispositivo e riportata nella scheda biscotto. La stima usa 5 giorni lavorativi
+di preparazione e 2 di spedizione, configurabili in src/app/delivery.service.ts.
+Il conteggio parte dal giorno successivo all'ordine ed esclude sabato e domenica;
+festivita, disponibilita e conferma ordine possono modificare i tempi. Una data
+troppo vicina mostra un invito a contattare il negozio, senza promettere la consegna.
+Le date passate o non valide bloccano il checkout. La demo pubblica Stripe non
+riceve la data; il futuro endpoint di checkout ricevera requestedDate (YYYY-MM-DD).
+
 ```powershell
 pnpm test -- --watch=false --browsers=ChromeHeadless
 pnpm test:e2e
@@ -35,8 +44,13 @@ email, iscrizioni newsletter o pagamenti.
 
 Il vecchio checkout generava un token Stripe e mostrava una conferma senza
 effettuare un addebito. E stato sostituito con il redirect a una sessione
-Stripe Checkout creata sul server. Il pagamento resta disabilitato finche
-stripe.checkoutEndpoint in src/app/environment.ts non viene configurato.
+Stripe Checkout creata sul server. La configurazione attuale usa stripe.demo=true:
+il pulsante apre https://checkout.stripe.dev/checkout, la demo pubblica ufficiale
+di Stripe, senza addebiti. La demo mostra un ordine di esempio e non riceve
+importo, quantita o personalizzazione del biscotto. Funziona anche su GitHub Pages.
+Per usare il checkout del proprio account, impostare stripe.demo=false e
+configurare stripe.checkoutEndpoint negli environment; senza endpoint il pagamento
+resta disabilitato.
 
 Il server deve ricevere POST JSON con quantity, shape, preview, message,
 textColor, backgroundColor, font e image, validare quantita e dati, calcolare
@@ -76,7 +90,14 @@ di fattura fittizi.
 La texture originale del biscotto e salvata in assets/cookie-texture.jpg.
 Il logo originale viene mostrato senza il margine trasparente del file.
 Testo e sfondo si modificano accanto all'anteprima; la bozza resta disponibile
-passando tra le forme e tornando dal checkout, fino al ricaricamento della pagina.
+passando tra le forme e tornando dal checkout. Testo, colori, carattere, posizione,
+foto ritagliata e ultima forma vengono salvati automaticamente nel localStorage
+del dispositivo e ripristinati dopo un ricaricamento. La home offre "Riprendi il tuo
+biscotto"; "Azzera personalizzazione" salva una bozza vuota. Se lo spazio locale
+non basta, un avviso segnala che la bozza resta solo nella sessione corrente.
+Le foto non vengono inviate a un server per il salvataggio della bozza.
+Un ritaglio con lato minore sotto 600 pixel mostra un consiglio sulla nitidezza;
+si tratta di una soglia indicativa, non di una certificazione della resa di stampa.
 La vista 3D usa Three.js, caricato su richiesta, con rotazione mouse e touch.
 La superficie segue testo, foto e colore del configuratore; lo spessore e
 illustrativo e non rappresenta una misura certificata del prodotto.
@@ -93,4 +114,15 @@ Repository: https://github.com/gioelevalori/cookiemakers.
 GitHub Actions compila e pubblica su Pages a ogni push su main.
 La build Pages usa il base href /cookiemakers/ e rotte hash per consentire
 il ricaricamento delle pagine senza un server Angular.
-I pagamenti e la newsletter restano disabilitati senza gli endpoint backend.
+Su Pages il pagamento apre la demo pubblica Stripe senza addebiti; la newsletter
+resta disabilitata senza un endpoint backend.
+
+## Riepilogo PDF
+
+La scheda PDF separa anteprima finale del biscotto, foto originale caricata,
+ritaglio applicato, tre righe di testo, font, dimensione e posizione nell'editor,
+campioni colore con codici, quantita e consegna richiesta. La foto originale
+viene conservata nella bozza con il nome del file; le vecchie bozze che contengono
+solo il ritaglio indicano esplicitamente che l'originale non e disponibile.
+Le sezioni vengono mantenute integre tra le pagine e le immagini conservano
+le proporzioni. La data resta da confermare; il riepilogo non e una fattura.

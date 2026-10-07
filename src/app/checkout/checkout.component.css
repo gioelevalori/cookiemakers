@@ -18,6 +18,12 @@ dd { margin: 0; text-align: right; overflow-wrap: anywhere; }
 .pay-button { width: 100%; min-height: 48px; margin-bottom: 16px; border-radius: 6px; }
 .payment-notice a { color: #205a48; text-decoration: underline; }
 .error-message { color: #a32e43; }
+.requested-date { width: 100%; margin-top: 16px; }
+.delivery-timing { margin: 16px 0 24px; padding: 16px; background: #f1f6f2; border-radius: 8px; font-size: 14px; line-height: 1.6; }
+.delivery-timing p { margin: 0 0 8px; }
+.delivery-timing p:last-child { margin-bottom: 0; }
+.delivery-timing a { color: #205a48; text-decoration: underline; }
+.date-warning { color: #795019; }
 .empty-order { text-align: center; padding: 48px 0; }
 .empty-order > mat-icon { width: 48px; height: 48px; font-size: 48px; color: #65917c; margin-bottom: 24px; }
 @media (max-width: 960px) {

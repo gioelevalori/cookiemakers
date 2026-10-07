@@ -1,9 +1,10 @@
 import { ChangeDetectionStrategy, Component, DestroyRef, OnInit, inject  } from '@angular/core';
-import { FormBuilder, Validators } from '@angular/forms';
+import { AbstractControl, FormBuilder, Validators } from '@angular/forms';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ImageService } from '../image.service';
 import { ColorService } from '../color.service';
 import { StripeService } from '../stripe.service';
+import { DeliveryService, validRequestedDate } from '../delivery.service';
 
 @Component({
   standalone: false,
@@ -18,6 +19,7 @@ export class CheckoutComponent implements OnInit {
   private readonly colorService = inject(ColorService);
   private readonly destroyRef = inject(DestroyRef);
   readonly stripeService = inject(StripeService);
+  readonly delivery = inject(DeliveryService);
 
   imageData = '';
   selectedColor = '';
@@ -31,13 +33,23 @@ export class CheckoutComponent implements OnInit {
   paymentError = '';
 
   readonly firstFormGroup = this.formBuilder.nonNullable.group({
-    firstCtrl: [10, [Validators.required, Validators.min(10), Validators.pattern(/^[0-9]+$/)]]
+    firstCtrl: [this.colorService.orderQuantity, [Validators.required, Validators.min(10), Validators.pattern(/^[0-9]+$/)]],
+    requestedDate: [this.delivery.requestedDate, (control: AbstractControl) => validRequestedDate(control.value, this.delivery.today) ? null : { requestedDate: true }]
   });
 
   get countBiscuits(): number { return this.firstFormGroup.controls.firstCtrl.value; }
   get counter(): number { return 15 + Math.max(0, this.countBiscuits - 10) * 5; }
+  get dateTooSoon(): boolean {
+    const requested = this.firstFormGroup.controls.requestedDate;
+    const earliest = this.delivery.earliestDate;
+    return requested.valid && Boolean(requested.value && earliest && requested.value < earliest);
+  }
 
   ngOnInit(): void {
+    this.firstFormGroup.controls.firstCtrl.valueChanges.pipe(takeUntilDestroyed(this.destroyRef)).subscribe(value => {
+      if (this.firstFormGroup.controls.firstCtrl.valid) this.colorService.orderQuantity = Number(value);
+    });
+    this.firstFormGroup.controls.requestedDate.valueChanges.pipe(takeUntilDestroyed(this.destroyRef)).subscribe(value => this.delivery.requestedDate = value);
     this.colorService.selectedShape.pipe(takeUntilDestroyed(this.destroyRef)).subscribe(value => this.selectedShape = value);
     this.imageService.currentImage.pipe(takeUntilDestroyed(this.destroyRef)).subscribe(value => this.imageData = value);
     this.colorService.selectedColor.pipe(takeUntilDestroyed(this.destroyRef)).subscribe(value => this.selectedColor = value);
@@ -63,7 +75,8 @@ export class CheckoutComponent implements OnInit {
         textColor: this.selectedColor,
         backgroundColor: this.selectedColorSfondo,
         font: this.selectedFont,
-        image: this.selectedImage
+        image: this.selectedImage,
+        requestedDate: this.firstFormGroup.controls.requestedDate.value
       });
       window.location.assign(url);
     } catch {

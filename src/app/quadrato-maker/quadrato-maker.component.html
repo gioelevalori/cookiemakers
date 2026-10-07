@@ -37,7 +37,7 @@
           (messageSent)="testoInput = $event" (messageSecondSent)="testoDueInput = $event" (messageThirdSent)="testoTreInput = $event" (fontSent)="selectedFontFamily = $event" (textSize)="fontSize = $event" (colorSent)="selectedColor = $event"></app-maker-text>
       </section>
       <section id="background-panel" class="editor-content" role="tabpanel" aria-labelledby="background-tab" [hidden]="editorMode !== 'background'">
-        <app-maker-sfondo [embedded]="true" [resetVersion]="resetVersion" [disabled]="isGenerating" [selectedColorSfondo]="selectedColorSfondo" [croppedImage]="croppedImage" (colorSfondoSent)="selectedColorSfondo = $event" (imageSfondo)="croppedImage = $event"></app-maker-sfondo>
+        <app-maker-sfondo [embedded]="true" [resetVersion]="resetVersion" [disabled]="isGenerating" [selectedColorSfondo]="selectedColorSfondo" [croppedImage]="croppedImage" (colorSfondoSent)="selectedColorSfondo = $event" (originalImageChange)="setOriginalImage($event)" (imageSfondo)="croppedImage = $event"></app-maker-sfondo>
       </section>
       <div class="text-position-actions" *ngIf="editorMode === 'text' && (testoInput || testoDueInput || testoTreInput)">
         <button mat-button [disabled]="isGenerating" [attr.aria-pressed]="textMoveActive" (click)="textMoveActive = !textMoveActive; previewMode = '2d'; textMoveActive && cookiePreview.scrollIntoView({ behavior: 'smooth', block: 'center' })"><mat-icon>{{ textMoveActive ? 'check' : 'open_with' }}</mat-icon>{{ textMoveActive ? 'Fatto' : 'Sposta testo' }}</button>
@@ -47,7 +47,7 @@
         <button class="reset-design" mat-button [disabled]="isGenerating" (click)="resetPage()" aria-label="Azzera personalizzazione"><mat-icon>delete_outline</mat-icon>Azzera personalizzazione</button>
         <p class="order-label"><span>Ordine minimo · 10 biscotti</span><strong>{{ 15 | currency:'EUR' }}</strong></p>
         <button mat-flat-button color="primary" [disabled]="isGenerating" (click)="generateImage()">{{ isGenerating ? 'Preparazione...' : 'Continua con l\'ordine' }}<mat-icon>arrow_forward</mat-icon></button>
-        <p *ngIf="captureError" class="error-message" role="alert">{{ captureError }}</p>
+        <p *ngIf="draftSaveError" class="error-message" role="status">{{ draftSaveError }}</p><p *ngIf="captureError" class="error-message" role="alert">{{ captureError }}</p>
       </div>
     </section>
   </div>

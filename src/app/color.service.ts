@@ -6,6 +6,7 @@ import { BehaviorSubject } from 'rxjs';
   providedIn: 'root',
 })
 export class ColorService {
+  orderQuantity = 10;
   private selectedShapeSubject = new BehaviorSubject<string>('');
   selectedShape = this.selectedShapeSubject.asObservable();
 

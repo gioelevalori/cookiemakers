@@ -2,6 +2,7 @@ import { Injectable } from '@angular/core';
 import { environment } from './environment';
 
 export interface CheckoutOrder {
+  requestedDate?: string;
   quantity: number;
   shape: string;
   preview: string;
@@ -14,9 +15,12 @@ export interface CheckoutOrder {
 
 @Injectable({ providedIn: 'root' })
 export class StripeService {
-  readonly configured = Boolean(environment.stripe.checkoutEndpoint);
+  readonly demo = environment.stripe.demo;
+  readonly configured = this.demo || Boolean(environment.stripe.checkoutEndpoint);
 
   async createCheckoutSession(order: CheckoutOrder): Promise<string> {
+    // The public Stripe demo uses its own sample order and needs no backend or keys.
+    if (this.demo) return 'https://checkout.stripe.dev/checkout';
     if (!this.configured) throw new Error('Pagamento online non disponibile.');
     const response = await fetch(environment.stripe.checkoutEndpoint, {
       method: 'POST',

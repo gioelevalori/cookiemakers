@@ -103,7 +103,7 @@ async function main() {
         assert.match(await page.locator('.grand-total').last().textContent(), /26,00/);
         await page.getByRole('spinbutton').fill('9');
         await page.getByRole('spinbutton').blur();
-        assert.equal(await page.getByRole('button', { name: 'Vai al pagamento' }).isDisabled(), true);
+        assert.equal(await page.getByRole('button', { name: /^(Vai al pagamento|Prova pagamento Stripe)$/ }).isDisabled(), true);
         await page.getByRole('spinbutton').fill('10');
         await page.getByRole('spinbutton').blur();
         await checkLayout(page);

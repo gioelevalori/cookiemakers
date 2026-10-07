@@ -25,3 +25,4 @@ input[type=file] { width: 100%; font-size: 14px; }
 .image-preview { max-width: 180px; max-height: 180px; object-fit: contain; }
 image-cropper { max-height: 280px; }
 .error-message { color: #a32e43; font-size: 14px; }
+.quality-warning { color: #795019; background: #fff5dc; padding: 12px; border-radius: 6px; font-size: 14px; line-height: 1.5; }

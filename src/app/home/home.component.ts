@@ -1,4 +1,5 @@
-import { ChangeDetectionStrategy, Component  } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
+import { CookieDesignService } from '../cookie-design.service';
 
 @Component({
   standalone: false,
@@ -8,6 +9,7 @@ import { ChangeDetectionStrategy, Component  } from '@angular/core';
   styleUrls: ['./home.component.scss']
 })
 export class HomeComponent {
+  readonly designState = inject(CookieDesignService);
   readonly cookieShapes = [
     { title: 'Rettangolo', route: '/rettangolo', shape: 'rectangle' },
     { title: 'Cerchio', route: '/cerchio', shape: 'circle' },

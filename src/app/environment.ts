@@ -3,6 +3,7 @@ export const environment = {
     githubPages: false,
     newsletterEndpoint: '',
     stripe: {
+      demo: true,
       checkoutEndpoint: '',
     }
   };

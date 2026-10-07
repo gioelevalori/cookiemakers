@@ -5,10 +5,33 @@ import { environment } from './environment';
 
 describe('StripeService', () => {
   let service: StripeService;
+  let previousDemo: boolean;
+  let previousEndpoint: string;
 
   beforeEach(() => {
+    previousDemo = environment.stripe.demo;
+    previousEndpoint = environment.stripe.checkoutEndpoint;
+    environment.stripe.demo = false;
+    environment.stripe.checkoutEndpoint = '';
     TestBed.configureTestingModule({});
     service = TestBed.inject(StripeService);
+  });
+
+  afterEach(() => {
+    environment.stripe.demo = previousDemo;
+    environment.stripe.checkoutEndpoint = previousEndpoint;
+  });
+
+  it('opens the official public demo without contacting a payment backend', async () => {
+    environment.stripe.demo = true;
+    environment.stripe.checkoutEndpoint = '/checkout-session';
+    const demoService = new StripeService();
+    const fetchSpy = spyOn(window, 'fetch');
+    expect(demoService.configured).toBeTrue();
+    expect(demoService.demo).toBeTrue();
+    await expectAsync(demoService.createCheckoutSession({ quantity: 10, shape: 'cerchio', preview: '', message: '', textColor: '', backgroundColor: '', font: '', image: '' }))
+      .toBeResolvedTo('https://checkout.stripe.dev/checkout');
+    expect(fetchSpy).not.toHaveBeenCalled();
   });
 
   it('should be created', () => {

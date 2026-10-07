@@ -13,8 +13,14 @@ import { ThemePalette } from '@angular/material/core';
 export class MakerSfondoComponent {
   private readonly sheet = inject(MatBottomSheetRef, { optional: true });
   imageError = '';
+  imageQualityWarning = '';
+  private uploadVersion = 0;
+  @Output() originalImageChange = new EventEmitter<{ dataUrl: string; fileName: string }>();
   close(): void { this.sheet?.dismiss(); }
   removeImage(): void {
+    this.uploadVersion++;
+    this.originalImageChange.emit({ dataUrl: '', fileName: '' });
+    this.imageQualityWarning = '';
     this.croppedImage = '';
     this.imageChangedEvent = null;
     this.cropperReady = false;
@@ -25,6 +31,7 @@ export class MakerSfondoComponent {
   @Input() resetVersion = 0;
   ngOnChanges(changes: SimpleChanges): void {
     if (changes['resetVersion'] && !changes['resetVersion'].firstChange) this.removeImage();
+    if (changes['croppedImage']) this.checkImageQuality(this.croppedImage);
   }
   @Input() disabled = false;
   touchUi = false;
@@ -79,7 +86,20 @@ export class MakerSfondoComponent {
       this.imageError = 'Il file supera 10 MB. Scegli un\'immagine piu piccola.';
       return;
     }
+    if (!['image/jpeg', 'image/jpg', 'image/png', 'image/gif'].includes(file.type)) {
+      this.imageLoadFailed();
+      return;
+    }
     this.imageError = '';
+    const version = ++this.uploadVersion;
+    this.originalImageChange.emit({ dataUrl: '', fileName: '' });
+    const reader = new FileReader();
+    reader.onload = () => {
+      if (version === this.uploadVersion && typeof reader.result === 'string') {
+        this.originalImageChange.emit({ dataUrl: reader.result, fileName: file.name });
+      }
+    };
+    reader.readAsDataURL(file);
     this.cropperReady = false;
     this.croppedImage = '';
     this.imageChangedEvent = { target: { files: [file] } };
@@ -87,14 +107,31 @@ export class MakerSfondoComponent {
   }
   imageCropped(image: string) {
     this.croppedImage = image;
+    this.checkImageQuality(image);
     if (this.embedded) this.imageSfondo.emit(image);
   }
   imageLoaded() {
     this.cropperReady = true;
   }
   imageLoadFailed () {
+    this.uploadVersion++;
+    this.originalImageChange.emit({ dataUrl: '', fileName: '' });
+    this.imageQualityWarning = '';
     this.imageError = 'Immagine non valida. Scegli un file JPEG, PNG o GIF.';
     this.cropperReady = false;
+  }
+
+  private checkImageQuality(source: string): void {
+    this.imageQualityWarning = '';
+    if (!source) return;
+    const image = new Image();
+    image.onload = () => {
+      if (this.croppedImage !== source) return;
+      if (Math.min(image.naturalWidth, image.naturalHeight) < 600) {
+        this.imageQualityWarning = `Il ritaglio è di ${image.naturalWidth} × ${image.naturalHeight} pixel: potrebbe risultare poco nitido in stampa. Scegli una foto più grande o un ritaglio più ampio.`;
+      }
+    };
+    image.src = source;
   }
 
 }

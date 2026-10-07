@@ -3,6 +3,11 @@ import { environment } from './environment';
 
 export interface CheckoutOrder {
   requestedDate?: string;
+  items: CheckoutItem[];
+}
+
+export interface CheckoutItem {
+  requestedDate?: string;
   quantity: number;
   shape: string;
   preview: string;

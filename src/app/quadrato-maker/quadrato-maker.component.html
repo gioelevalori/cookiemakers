@@ -48,7 +48,7 @@
       <div class="order-action">
         <button class="reset-design" mat-stroked-button [disabled]="isGenerating" (click)="resetPage()" aria-label="Ricomincia da zero"><mat-icon>restart_alt</mat-icon>Ricomincia da zero</button>
         <p class="order-label"><span>Ordine minimo · 10 biscotti</span><strong>{{ 15 | currency:'EUR' }}</strong></p>
-        <button mat-flat-button color="primary" [disabled]="isGenerating" (click)="generateImage()">{{ isGenerating ? 'Preparazione...' : 'Continua con l\'ordine' }}<mat-icon>arrow_forward</mat-icon></button>
+        <button mat-flat-button color="primary" [disabled]="isGenerating" (click)="generateImage()">{{ isGenerating ? 'Preparazione...' : (cart.editingId ? 'Salva modifiche nel carrello' : 'Aggiungi al carrello') }}<mat-icon>arrow_forward</mat-icon></button>
         <p *ngIf="draftSaveError" class="error-message" role="status">{{ draftSaveError }}</p><p *ngIf="captureError" class="error-message" role="alert">{{ captureError }}</p>
       </div>
     </section>

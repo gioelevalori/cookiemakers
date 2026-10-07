@@ -1,3 +1,4 @@
+import { CartService } from '../cart.service';
 import { captureCookiePreview } from '../capture-cookie-preview';
 import { ChangeDetectionStrategy, Component, ElementRef, ViewChild, inject  } from '@angular/core';
 import { Router } from '@angular/router';
@@ -23,6 +24,7 @@ export class QuadratoMakerComponent {
   @ViewChild('cookiePreview') cookiePreview!: ElementRef<HTMLElement>;
   private readonly router = inject(Router);
   private readonly designState = inject(CookieDesignService);
+  readonly cart = inject(CartService);
   readonly cookieShapes = COOKIE_SHAPES;
   editorMode: 'text' | 'background' = 'text';
   previewMode: '2d' | '3d' = '2d';
@@ -171,6 +173,8 @@ export class QuadratoMakerComponent {
       this.colorService.setSelectedFont(this.selectedFontFamily);
       this.colorService.setSelectedImage(this.croppedImage);
       this.colorService.setSelectedMessage([this.testoInput, this.testoDueInput, this.testoTreInput].filter(Boolean).join(' '));
+      this.designState.save(this, '/' + 'quadrato');
+      this.cart.add('quadrato', image, this.designState.draft!);
       await this.router.navigate(['/checkout']);
     } catch {
       this.captureError = 'Impossibile preparare l\'anteprima. Riprova.';

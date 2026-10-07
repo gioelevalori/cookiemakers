@@ -31,7 +31,7 @@ const base = process.env.COOKIE_URL || 'http://127.0.0.1:4202/cookiemakers/';
           assert.deepEqual(draft.textPosition, { x: 0, y: 0 });
         }
         if (mode === '3D') await page.getByRole('button', { name: '3D', exact: true }).click();
-        await page.getByRole('button', { name: "Continua con l'ordine" }).click();
+        await page.getByRole('button', { name: "Aggiungi al carrello" }).click();
         await page.locator('.preview').waitFor();
         const visibleCookie = await page.locator('.preview').evaluate(async image => {
           await image.decode();
@@ -47,7 +47,7 @@ const base = process.env.COOKIE_URL || 'http://127.0.0.1:4202/cookiemakers/';
         });
         assert.ok(visibleCookie > 0.2, `${shape} ${mode}: missing cookie`);
         assert.doesNotMatch(await page.locator('.design-summary dl').innerText(), /Carattere|Colore testo|Testo/);
-        await page.getByRole('link', { name: 'Scheda biscotto' }).click();
+        await page.getByRole('link', { name: 'Scheda modello 1' }).click();
         await page.locator('.final-image').waitFor();
         for (const selector of ['.specifications', '.palette', '.source-photo', '.cropped-photo', '.delivery-details']) {
           assert.equal(await page.locator(selector).count(), 0, `${shape} ${mode}: unused ${selector}`);

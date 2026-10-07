@@ -1,0 +1,81 @@
+const assert = require('node:assert/strict');
+const fs = require('node:fs');
+const { chromium } = require('playwright');
+const base = process.env.COOKIE_URL || 'http://127.0.0.1:4202/cookiemakers/';
+fs.mkdirSync('artifacts', { recursive: true });
+(async () => {
+  const browser = await chromium.launch({ channel: 'chrome', headless: true });
+  try {
+    for (const width of [390, 1440]) {
+      const page = await browser.newPage({ viewport: { width, height: 1000 } });
+      const errors = [];
+      page.on('pageerror', error => errors.push(error.message));
+      await page.route('**/*', route => new URL(route.request().url()).origin === new URL(base).origin ? route.continue() : route.abort());
+      await page.goto(`${base}#/cerchio`);
+      await page.getByLabel('Prima riga', { exact: true }).fill('Anna');
+      await page.getByRole('button', { name: 'Rosso', exact: true }).click();
+      await page.getByRole('tab', { name: 'Sfondo', exact: true }).click();
+      await page.locator('input[type=file]').setInputFiles('src/assets/1.jpeg');
+      await page.locator('.cookie-image').waitFor();
+      await page.getByRole('button', { name: 'Aggiungi al carrello', exact: true }).click();
+      await page.locator('.design-summary').waitFor();
+      const firstPreview = await page.locator('.preview').getAttribute('src');
+      await page.getByLabel('Quantità modello 1', { exact: true }).fill('12');
+      await page.getByRole('link', { name: 'Crea un altro biscotto', exact: true }).click();
+      await page.goto(`${base}#/cuore`);
+      assert.equal(await page.getByLabel('Prima riga', { exact: true }).inputValue(), '');
+      await page.getByLabel('Prima riga', { exact: true }).fill('Luca');
+      await page.getByRole('button', { name: '3D', exact: true }).click();
+      await page.getByRole('button', { name: 'Aggiungi al carrello', exact: true }).click();
+      await page.locator('.design-summary').nth(1).waitFor();
+      assert.equal(await page.locator('.design-summary').count(), 2);
+      assert.equal(await page.locator('.preview').first().getAttribute('src'), firstPreview);
+      assert.match(await page.locator('.design-summary').first().innerText(), /Anna/);
+      assert.match(await page.locator('.design-summary').nth(1).innerText(), /Luca/);
+      await page.getByLabel('Quantità modello 2', { exact: true }).fill('13');
+      assert.match(await page.locator('.grand-total').last().innerText(), /61,00/);
+      await page.getByLabel('Quantità modello 2', { exact: true }).fill('9');
+      assert.equal(await page.locator('.pay-button').isDisabled(), true);
+      await page.getByLabel('Quantità modello 2', { exact: true }).fill('13');
+      await page.reload();
+      assert.equal(await page.locator('.design-summary').count(), 2);
+      assert.equal(await page.getByLabel('Quantità modello 1', { exact: true }).inputValue(), '12');
+      assert.equal(await page.getByLabel('Quantità modello 2', { exact: true }).inputValue(), '13');
+      await page.getByRole('link', { name: 'Scheda modello 1', exact: true }).click();
+      await page.locator('.final-image').waitFor();
+      assert.equal(await page.locator('.final-image').getAttribute('src'), firstPreview);
+      assert.match(await page.locator('.specifications').innerText(), /Anna/);
+      assert.doesNotMatch(await page.locator('.specifications').innerText(), /Luca/);
+      assert.match(await page.locator('.final-design').innerText(), /12 biscotti/);
+      assert.equal(await page.locator('.source-image').count(), 1);
+      if (width === 1440) {
+        const download = page.waitForEvent('download');
+        await page.getByRole('button', { name: 'Scarica PDF', exact: true }).click();
+        await (await download).saveAs('artifacts/cart-model.pdf');
+      }
+      await page.goto(`${base}#/checkout`);
+      await page.getByRole('button', { name: 'Modifica modello 1', exact: true }).click();
+      await page.getByLabel('Prima riga', { exact: true }).fill('Sara');
+      await page.getByRole('link', { name: 'Forma Quadrato', exact: true }).click();
+      await page.reload();
+      await page.getByRole('button', { name: 'Salva modifiche nel carrello', exact: true }).click();
+      await page.locator('.design-summary').nth(1).waitFor();
+      assert.equal(await page.locator('.design-summary').count(), 2);
+      assert.match(await page.locator('.design-summary').first().innerText(), /Sara/);
+      assert.match(await page.locator('.design-summary').first().innerText(), /Quadrato/);
+      assert.equal(await page.getByLabel('Quantità modello 1', { exact: true }).inputValue(), '12');
+      assert.match(await page.locator('.design-summary').nth(1).innerText(), /Luca/);
+      assert.equal(await page.evaluate(() => document.documentElement.scrollWidth > innerWidth + 1), false);
+      await page.screenshot({ path: `artifacts/cart-${width}.png`, fullPage: true });
+      await page.getByRole('button', { name: 'Rimuovi modello 1', exact: true }).click();
+      assert.equal(await page.locator('.design-summary').count(), 1);
+      assert.match(await page.locator('.design-summary').innerText(), /Luca/);
+      await page.getByRole('button', { name: 'Rimuovi modello 1', exact: true }).click();
+      await page.reload();
+      await page.getByRole('heading', { name: 'Il carrello è vuoto', exact: true }).waitFor();
+      assert.deepEqual(errors, []);
+      console.log(`PASS ${width}px: independent models, photos, quantities, total, reload, edit without duplicates, selected-model PDF, removal and empty cart.`);
+      await page.close();
+    }
+  } finally { await browser.close(); }
+})().catch(error => { console.error(error); process.exitCode = 1; });

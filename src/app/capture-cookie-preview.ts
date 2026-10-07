@@ -1,42 +1,112 @@
-import { HEART_CLIP_PATH } from './heart-outline';
-import { HEXAGON_CLIP_PATH } from './hexagon-outline';
+import { HEART_CURVES, HEART_START } from './heart-outline';
+import { HEXAGON_CORNERS } from './hexagon-outline';
 
-/** Capture a visible, self-contained copy even while the editor displays 3D. */
+function outline(element: HTMLElement, x: number, y: number, width: number, height: number): Path2D {
+  const path = new Path2D();
+  if (element.classList.contains('heart')) {
+    path.moveTo(x + width * HEART_START[0] / 100, y + height * HEART_START[1] / 100);
+    for (const [a, b, c, d, e, f] of HEART_CURVES) path.bezierCurveTo(x + width * a / 100, y + height * b / 100, x + width * c / 100, y + height * d / 100, x + width * e / 100, y + height * f / 100);
+  } else if (element.classList.contains('hexagon')) {
+    const first = HEXAGON_CORNERS[0].entry;
+    path.moveTo(x + width * first[0] / 100, y + height * first[1] / 100);
+    for (const { entry, control, exit } of HEXAGON_CORNERS) {
+      path.lineTo(x + width * entry[0] / 100, y + height * entry[1] / 100);
+      path.quadraticCurveTo(x + width * control[0] / 100, y + height * control[1] / 100, x + width * exit[0] / 100, y + height * exit[1] / 100);
+    }
+  } else if (element.classList.contains('circle')) {
+    path.ellipse(x + width / 2, y + height / 2, width / 2, height / 2, 0, 0, Math.PI * 2);
+  } else {
+    const radius = Math.min(parseFloat(getComputedStyle(element).borderRadius) || 8, width / 2, height / 2);
+    path.moveTo(x + radius, y);
+    path.lineTo(x + width - radius, y);
+    path.quadraticCurveTo(x + width, y, x + width, y + radius);
+    path.lineTo(x + width, y + height - radius);
+    path.quadraticCurveTo(x + width, y + height, x + width - radius, y + height);
+    path.lineTo(x + radius, y + height);
+    path.quadraticCurveTo(x, y + height, x, y + height - radius);
+    path.lineTo(x, y + radius);
+    path.quadraticCurveTo(x, y, x + radius, y);
+  }
+  path.closePath();
+  return path;
+}
+
+async function loadImage(url: string): Promise<HTMLImageElement> {
+  const image = new Image();
+  image.src = url;
+  await image.decode();
+  return image;
+}
+
+function cover(context: CanvasRenderingContext2D, image: HTMLImageElement, x: number, y: number, width: number, height: number): void {
+  const scale = Math.max(width / image.naturalWidth, height / image.naturalHeight);
+  const drawnWidth = image.naturalWidth * scale, drawnHeight = image.naturalHeight * scale;
+  context.drawImage(image, x + (width - drawnWidth) / 2, y + (height - drawnHeight) / 2, drawnWidth, drawnHeight);
+}
+
+/** Draw the actual design directly, without browser-dependent SVG foreignObject capture. */
 export async function captureCookiePreview(source: HTMLElement): Promise<string> {
   await document.fonts.ready;
   const bounds = source.getBoundingClientRect();
-  const clone = source.cloneNode(true) as HTMLElement;
-  clone.classList.remove('preview-source-hidden');
-  clone.style.setProperty('--cookie-heart-clip', HEART_CLIP_PATH);
-  clone.style.setProperty('--cookie-hexagon-clip', HEXAGON_CLIP_PATH);
-  clone.querySelectorAll('[data-preview-control]').forEach(node => node.remove());
-  Object.assign(clone.style, { position: 'relative', top: '0', left: '0', opacity: '1',
-    width: bounds.width + 'px', height: bounds.height + 'px', maxHeight: 'none',
-    maxWidth: 'none', margin: '0', background: 'transparent' });
-  const container = document.createElement('div');
-  Object.assign(container.style, { position: 'fixed', top: '0', left: '-10000px', pointerEvents: 'none' });
-  container.setAttribute('aria-hidden', 'true');
-  container.appendChild(clone);
-  document.body.appendChild(container);
-  try {
-    const { toCanvas } = await import('html-to-image');
-    await Promise.all(Array.from(clone.querySelectorAll('img')).map(image => image.decode()));
-    const capture = () => toCanvas(clone, { pixelRatio: 2 });
-    let canvas = await capture();
-    const hasCookie = () => canvas.getContext('2d')!.getImageData(
-      Math.floor(canvas.width / 2), Math.floor(canvas.height / 2), 1, 1).data[3] > 0;
-    // Chromium can resolve a cold foreignObject rasterization before it paints.
-    if (!hasCookie()) {
-      await new Promise<void>(resolve => requestAnimationFrame(() => resolve()));
-      canvas = await capture();
-    }
-    if (!hasCookie()) throw new Error('Cookie preview is empty');
-    const context = canvas.getContext('2d')!;
-    context.globalCompositeOperation = 'destination-over';
-    context.fillStyle = '#f0f3f1';
-    context.fillRect(0, 0, canvas.width, canvas.height);
-    return canvas.toDataURL('image/png');
-  } finally {
-    container.remove();
+  if (!bounds.width || !bounds.height) throw new Error('Cookie preview has no size');
+  const canvas = document.createElement('canvas');
+  canvas.width = Math.round(bounds.width * 2);
+  canvas.height = Math.round(bounds.height * 2);
+  const context = canvas.getContext('2d')!;
+  context.scale(2, 2);
+  context.fillStyle = '#f0f3f1';
+  context.fillRect(0, 0, bounds.width, bounds.height);
+  const shape = source.querySelector<HTMLElement>('.cookie-shape')!;
+  const rect = shape.getBoundingClientRect();
+  const x = rect.left - bounds.left, y = rect.top - bounds.top;
+  const path = outline(shape, x, y, rect.width, rect.height);
+  context.save();
+  context.shadowColor = '#253b332b'; context.shadowBlur = 8; context.shadowOffsetY = 8;
+  context.fillStyle = '#e1cb9d'; context.fill(path);
+  context.restore();
+  context.save(); context.clip(path);
+  const textureUrl = getComputedStyle(shape).backgroundImage.match(/url\(["']?(.*?)["']?\)/)?.[1];
+  if (textureUrl) cover(context, await loadImage(textureUrl), x, y, rect.width, rect.height);
+  context.restore();
+  const icing = shape.querySelector<HTMLElement>('.cookie-icing')!;
+  const icingRect = icing.getBoundingClientRect();
+  const ix = icingRect.left - bounds.left, iy = icingRect.top - bounds.top;
+  context.fillStyle = getComputedStyle(icing).backgroundColor;
+  context.fill(outline(shape, ix, iy, icingRect.width, icingRect.height));
+  const photo = shape.querySelector<HTMLImageElement>('.cookie-image');
+  if (photo) {
+    const photoRect = photo.getBoundingClientRect();
+    const px = photoRect.left - bounds.left, py = photoRect.top - bounds.top;
+    context.save(); context.clip(outline(shape, px, py, photoRect.width, photoRect.height));
+    cover(context, await loadImage(photo.src), px, py, photoRect.width, photoRect.height);
+    context.restore();
   }
+  const text = source.querySelector<HTMLElement>('.example-box p');
+  if (text?.textContent?.trim()) {
+    const style = getComputedStyle(text), textRect = text.getBoundingClientRect();
+    const fontSize = parseFloat(style.fontSize), lineHeight = parseFloat(style.lineHeight) || fontSize * 1.25;
+    context.font = `${style.fontStyle} ${style.fontWeight} ${style.fontSize} ${style.fontFamily}`;
+    context.fillStyle = style.color; context.textAlign = 'center'; context.textBaseline = 'alphabetic';
+    const lines = [''];
+    text.childNodes.forEach(node => {
+      if (node.nodeName === 'BR') lines.push('');
+      else if (node.nodeType === Node.TEXT_NODE) lines[lines.length - 1] += node.textContent || '';
+    });
+    let lineIndex = 0;
+    const metrics = context.measureText('Mg');
+    const ascent = metrics.fontBoundingBoxAscent || fontSize * 0.8;
+    const descent = metrics.fontBoundingBoxDescent || fontSize * 0.2;
+    const baseline = textRect.top - bounds.top + (lineHeight - ascent - descent) / 2 + ascent;
+    for (const line of lines) {
+      let wrapped = '';
+      for (const character of line.trim().replace(/\s+/g, ' ')) {
+        if (wrapped && context.measureText(wrapped + character).width > textRect.width) {
+          context.fillText(wrapped, textRect.left - bounds.left + textRect.width / 2, baseline + lineIndex++ * lineHeight);
+          wrapped = character;
+        } else wrapped += character;
+      }
+      context.fillText(wrapped, textRect.left - bounds.left + textRect.width / 2, baseline + lineIndex++ * lineHeight);
+    }
+  }
+  return canvas.toDataURL('image/png');
 }

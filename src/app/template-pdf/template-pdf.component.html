@@ -7,7 +7,7 @@
         <h2>1. Come deve essere il biscotto</h2>
         <img class="final-image" [src]="imageData" alt="Anteprima finale del biscotto" />
         <p class="caption">Anteprima completa con forma, foto, testo e colori scelti.</p>
-        <dl><dt>Forma</dt><dd>{{ selectedShape | titlecase }}</dd><dt>Quantit&agrave;</dt><dd>{{ colors.orderQuantity }} biscotti</dd></dl>
+        <dl><dt>Forma</dt><dd>{{ selectedShape | titlecase }}</dd><dt>Quantit&agrave;</dt><dd>{{ quantity }} biscotti</dd></dl>
       </section>
       <section class="sheet-section source-photo" *ngIf="draft?.originalImage || selectedImage">
         <h2>2. Immagine originale caricata</h2>

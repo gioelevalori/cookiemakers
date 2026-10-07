@@ -1,3 +1,5 @@
+import { ActivatedRoute } from '@angular/router';
+import { CartService } from '../cart.service';
 import { ChangeDetectionStrategy, Component, DestroyRef, ElementRef, ViewChild, inject } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ImageService } from '../image.service';
@@ -15,7 +17,10 @@ import { CookieDesignService } from '../cookie-design.service';
 export class TemplatePdfComponent {
   readonly delivery = inject(DeliveryService);
   readonly designState = inject(CookieDesignService);
-  readonly draft = this.designState.draft;
+  private readonly cart = inject(CartService);
+  readonly cartItem = this.cart.items.find(item => item.id === inject(ActivatedRoute).snapshot.queryParamMap.get('item'));
+  readonly draft = this.cartItem?.draft || this.designState.draft;
+  get quantity(): number { return this.cartItem?.quantity || this.colors.orderQuantity; }
   readonly textLines = [this.draft?.testoInput || '', this.draft?.testoDueInput || '', this.draft?.testoTreInput || ''];
   @ViewChild('contentToConvert') contentToConvert!: ElementRef<HTMLElement>;
   private readonly destroyRef = inject(DestroyRef);
@@ -38,6 +43,15 @@ export class TemplatePdfComponent {
     colors.selectedColorSfondo.pipe(takeUntilDestroyed(this.destroyRef)).subscribe(value => this.selectedColorSfondo = value);
     colors.selectedFont.pipe(takeUntilDestroyed(this.destroyRef)).subscribe(value => this.selectedFont = value);
     colors.selectedImage.pipe(takeUntilDestroyed(this.destroyRef)).subscribe(value => this.selectedImage = value);
+    if (this.cartItem) {
+      this.imageData = this.cartItem.preview;
+      this.selectedShape = this.cartItem.shape;
+      this.message = this.textLines.filter(Boolean).join(' ');
+      this.selectedColor = this.draft!.selectedColor;
+      this.selectedColorSfondo = this.draft!.selectedColorSfondo;
+      this.selectedFont = this.draft!.selectedFontFamily;
+      this.selectedImage = this.draft!.croppedImage;
+    }
   }
 
   async downloadPdf(): Promise<void> {

@@ -1,4 +1,5 @@
-import { ChangeDetectionStrategy, Component  } from '@angular/core';
+import { CartService } from '../cart.service';
+import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
 
 @Component({
   standalone: false,
@@ -8,5 +9,6 @@ import { ChangeDetectionStrategy, Component  } from '@angular/core';
   styleUrls: ['./menu.component.css']
 })
 export class MenuComponent {
+  readonly cart = inject(CartService);
   menuOpen = false;
 }

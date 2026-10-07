@@ -1,27 +1,23 @@
 import { AppModule } from '../app.module';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-
 import { CheckoutComponent } from './checkout.component';
+import { CartService } from '../cart.service';
+import { CookieDraft } from '../cookie-design.service';
 
+const draft: CookieDraft = { testoInput: 'Anna', testoDueInput: '', testoTreInput: '', selectedFontFamily: 'CocoGothic', fontSize: 36, selectedColor: '', selectedColorSfondo: '', croppedImage: '', textPosition: { x: 0, y: 0 } };
 describe('CheckoutComponent', () => {
   let component: CheckoutComponent;
   let fixture: ComponentFixture<CheckoutComponent>;
-
   beforeEach(async () => {
-    await TestBed.configureTestingModule({
-      imports: [AppModule]
-    })
-    .compileComponents();
-
+    localStorage.removeItem('cookie-cart-v1');
+    sessionStorage.removeItem('cookie-cart-editing');
+    await TestBed.configureTestingModule({ imports: [AppModule] }).compileComponents();
     fixture = TestBed.createComponent(CheckoutComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
   });
-
-  it('should create', () => {
-    expect(component).toBeTruthy();
-  });
-
+  afterEach(() => { localStorage.removeItem('cookie-cart-v1'); sessionStorage.removeItem('cookie-cart-editing'); });
+  it('should create', () => { expect(component).toBeTruthy(); });
   it('rejects past delivery dates and flags requests before the estimate', () => {
     spyOnProperty(component.delivery, 'today', 'get').and.returnValue('2026-10-07');
     const date = component.firstFormGroup.controls.requestedDate;
@@ -37,41 +33,42 @@ describe('CheckoutComponent', () => {
     expect(component.dateTooSoon).toBeFalse();
   });
 
-  it('recalculates the price when quantity is edited directly', () => {
-    component.firstFormGroup.controls.firstCtrl.setValue(12);
-    expect(component.counter).toBe(25);
-    expect(component.counter + component.shipping).toBe(31);
-  });
 
-  it('rejects quantities below ten and fractional quantities', () => {
-    component.firstFormGroup.controls.firstCtrl.setValue(9);
-    expect(component.firstFormGroup.invalid).toBeTrue();
-    component.firstFormGroup.controls.firstCtrl.setValue(10.5);
-    expect(component.firstFormGroup.invalid).toBeTrue();
-    component.firstFormGroup.controls.firstCtrl.setValue(10);
-    expect(component.firstFormGroup.valid).toBeTrue();
+  it('prices models separately and applies shipping once', () => {
+    component.cart.add('cerchio', 'data:image/png;base64,test', draft);
+    component.cart.add('cuore', 'data:image/png;base64,test', { ...draft, testoInput: 'Luca' });
+    component.updateQuantity(component.cart.items[0], 12);
+    expect(component.counter).toBe(40);
+    expect(component.counter + component.shipping).toBe(46);
+    expect(component.cart.quantity).toBe(22);
   });
-
-  it('never decrements below the minimum order', () => {
-    component.decrement();
-    expect(component.countBiscuits).toBe(10);
+  it('blocks checkout for invalid quantities without corrupting the saved cart', () => {
+    component.cart.add('cerchio', 'data:image/png;base64,test', draft);
+    const item = component.cart.items[0];
+    component.updateQuantity(item, 9);
+    expect(component.invalidOrder).toBeTrue();
+    expect(component.cart.items[0].quantity).toBe(10);
+    component.updateQuantity(item, 10.5);
+    expect(component.invalidOrder).toBeTrue();
+    component.updateQuantity(item, 12);
+    expect(component.invalidOrder).toBeFalse();
+    component.remove(item);
+    expect(component.invalidOrder).toBeTrue();
   });
-
-  it('does not start a payment without a preview', async () => {
+  it('does not start a payment with an empty cart', async () => {
     const checkout = spyOn(component.stripeService, 'createCheckoutSession');
     await component.makePayment();
     expect(checkout).not.toHaveBeenCalled();
   });
-
-  it('enables the demo button with an order and explains that no charge is made', () => {
-    component.imageData = 'data:image/png;base64,iVBORw0KGgo=';
-    fixture.detectChanges();
-    const button: HTMLButtonElement = fixture.nativeElement.querySelector('.pay-button');
-    expect(button.disabled).toBeFalse();
-    expect(button.textContent).toContain('Prova pagamento Stripe');
-    expect(fixture.nativeElement.querySelector('.payment-notice').textContent).toContain('nessun addebito');
-    component.firstFormGroup.controls.firstCtrl.setValue(9);
-    fixture.detectChanges();
-    expect(button.disabled).toBeTrue();
+  it('sends every model and its quantity to checkout', async () => {
+    component.cart.add('cerchio', 'data:image/png;base64,test', draft);
+    component.cart.add('cuore', 'data:image/png;base64,test', { ...draft, testoInput: '' });
+    const checkout = spyOn(component.stripeService, 'createCheckoutSession').and.rejectWith(new Error('test'));
+    await component.makePayment();
+    const order = checkout.calls.mostRecent().args[0];
+    expect(order.items.length).toBe(2);
+    expect(order.items[0].message).toBe('Anna');
+    expect(order.items[1].font).toBe('');
+    expect(order.items.map(item => item.quantity)).toEqual([10, 10]);
   });
 });

@@ -23,6 +23,7 @@ output { display: inline-block; min-width: 30px; text-align: center; font-varian
 .editor-actions { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 12px; margin-top: 16px; }
 input[type=file] { width: 100%; font-size: 14px; }
 .image-preview { max-width: 180px; max-height: 180px; object-fit: contain; }
+.printing-note { margin: -8px 0 8px; color: #52665b; font-size: 13px; line-height: 1.5; }
 image-cropper { max-height: 280px; }
 .error-message { color: #a32e43; font-size: 14px; }
 .quality-warning { color: #795019; background: #fff5dc; padding: 12px; border-radius: 6px; font-size: 14px; line-height: 1.5; }

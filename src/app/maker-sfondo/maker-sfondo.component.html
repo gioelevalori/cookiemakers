@@ -1,5 +1,7 @@
 <section class="editor-panel" [class.embedded]="embedded" aria-label="Immagine e colore del biscotto">
   <header *ngIf="!embedded"><h2>Colore e immagine</h2><button mat-icon-button (click)="close()" aria-label="Chiudi" title="Chiudi"><mat-icon>close</mat-icon></button></header>
+  <mat-form-field appearance="outline"><mat-label>Copertura dello sfondo</mat-label><mat-select [disabled]="disabled" [value]="covering" (selectionChange)="selectCovering($event.value)"><mat-option value="royal-icing">Ghiaccia reale</mat-option><mat-option value="sugar-paste">Pasta di zucchero</mat-option></mat-select></mat-form-field>
+  <p class="printing-note">La stampa viene realizzata su cialda di zucchero.</p>
   <label class="upload-zone"><mat-icon>add_photo_alternate</mat-icon><span>{{ croppedImage ? 'Sostituisci immagine' : 'Carica un\'immagine' }}</span><input class="file-input" type="file" aria-label="Immagine del biscotto" [disabled]="disabled" accept="image/jpeg,image/png,image/gif" (change)="fileChangeEvent($event)" /></label>
   <p *ngIf="imageError" class="error-message" role="alert">{{ imageError }}</p>
   <p *ngIf="imageQualityWarning" class="quality-warning" role="status">{{ imageQualityWarning }}</p>

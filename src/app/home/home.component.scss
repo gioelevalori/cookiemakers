@@ -60,6 +60,10 @@ h3 { margin: 0 0 16px; font-size: 16px; font-weight: 500; }
 .inspiration-message { position: absolute; top: 50%; left: 8%; width: 84%; translate: 0 -50%; font-size: 18px; line-height: 1.25; text-align: center; overflow-wrap: anywhere; }
 .inspiration-title { font-size: 16px; }
 .gallery-section > * { max-width: 1152px; margin-left: auto; margin-right: auto; }
+.event-intro { display: flex; align-items: center; justify-content: space-between; gap: 24px; border-bottom: 1px solid #dde6e0; padding-bottom: 32px; margin-bottom: 32px; }
+.event-intro p:last-child { max-width: 600px; color: #52665b; line-height: 1.6; margin: 12px 0 0; }
+.event-intro > a { flex-shrink: 0; min-height: 48px; border-radius: 6px; }
+@media (max-width: 760px) { .event-intro { flex-direction: column; align-items: flex-start; } }
 .gallery { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px; }
 .gallery-item { aspect-ratio: 1; margin: 0; overflow: hidden; border-radius: 6px; background: #edf4f0; }
 .gallery-image { display: block; width: 100%; height: 100%; object-fit: contain; }

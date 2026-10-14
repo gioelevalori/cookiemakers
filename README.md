@@ -128,3 +128,30 @@ viene conservata nella bozza con il nome del file; le vecchie bozze che contengo
 solo il ritaglio indicano esplicitamente che l'originale non e disponibile.
 Le sezioni vengono mantenute integre tra le pagine e le immagini conservano
 le proporzioni. La data resta da confermare; il riepilogo non e una fattura.
+
+## Prodotto, eventi e richieste WhatsApp
+
+La palette condivisa di testo e sfondo include il giallo al posto del ciano,
+un grigio distinguibile dal bianco e conserva l'ultimo azzurro.
+Ogni biscotto puo usare l'impasto classico o senza lattosio e una copertura
+di ghiaccia reale o pasta di zucchero. I dati seguono cambi forma, bozze
+salvate, carrello e PDF. La stampa e su cialda di zucchero.
+
+`src/app/cookie-product.ts` contiene palette, numero WhatsApp e sede di ritiro,
+verificata sulla scheda Google Maps di Nonna Delizia a Cepagatti.
+`COOKIE_INGREDIENTS` resta vuoto finche il laboratorio non fornisce le schede
+approvate: non vengono pubblicate ricette o dichiarazioni di allergeni inventate.
+Le parti contrassegnate `allergen: true` vengono mostrate in grassetto;
+le liste possono includere impasto, decorazioni e possibili tracce.
+
+La pagina `/eventi` raccoglie occasione, data, quantita e note per un preventivo.
+Il checkout permette ritiro in sede senza spedizione oppure spedizione a 6 EUR,
+con stime distinte. Nome, indirizzo e note rimangono nel sessionStorage della
+scheda del browser, non nel localStorage persistente delle bozze.
+I link WhatsApp precompilano una richiesta al numero fornito dalla cliente:
+non inviano messaggi automaticamente e non confermano ordini o pagamenti.
+Le immagini non possono essere allegate dal link: il visitatore allega le
+schede PDF in chat. Il pagamento Stripe mantiene la precedente modalita demo.
+
+Test mobile/desktop: `node scripts/product-options-smoke.cjs`.
+Per la build Pages usare `COOKIE_URL` e `COOKIE_ROUTE_MODE=hash`.

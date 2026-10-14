@@ -13,6 +13,7 @@ import { ContattiComponent } from './contatti/contatti.component';
 import { HeartMakerComponent } from './heart-maker/heart-maker.component';
 import { TestComponent } from './test/test.component';
 import { environment } from './environment';
+import { EventiComponent } from './eventi/eventi.component';
 
 const routes: Routes = [
   { path: '', component: HomeComponent },
@@ -25,6 +26,7 @@ const routes: Routes = [
   { path: 'faq', component: FaqComponent },
   { path: 'chisiamo', component: ChiSiamoComponent },
   { path: 'contatti', component: ContattiComponent },
+  { path: 'eventi', component: EventiComponent },
   { path: 'cuore', component: HeartMakerComponent },
   { path: 'test', component: TestComponent },
 ];

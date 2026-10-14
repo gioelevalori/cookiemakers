@@ -3,6 +3,7 @@ import { MatBottomSheetRef } from '@angular/material/bottom-sheet';
 import { FormControl } from '@angular/forms';
 import { COOKIE_FONTS } from '../cookie-design.service';
 import { cookieTextFits } from '../cookie-text-fit';
+import { COOKIE_PALETTE } from '../cookie-product';
 
 @Component({
   standalone: false,
@@ -76,29 +77,9 @@ export class MakerTextComponent implements OnInit, OnDestroy {
 
   readonly fontFamilies = COOKIE_FONTS;
   
-  colors = [
-    '#FFFFFF',
-    '#FF0000',
-    '#00FFFF',
-    '#000000',
-    '#A791D9',
-    '#FC6C05',
-    '#81DB81',
-    '#FAFAFA',
-    '#40C8F5',
-  ];
+  readonly colors = COOKIE_PALETTE.map(value => value.color);
   
-  nameColors = [
-    'Bianco',
-    'Rosso',
-    'Ciano',
-    'Nero',
-    'Lavanda',
-    'Arancione',
-    'Menta',
-    'Grigio Chiaro',
-    'Blu Cielo',
-  ];
+  readonly nameColors = COOKIE_PALETTE.map(value => value.name);
   
 
   increaseFontSize() {

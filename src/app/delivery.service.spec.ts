@@ -1,6 +1,12 @@
 import { addBusinessDays, validRequestedDate, DeliveryService, DELIVERY_TIMES } from './delivery.service';
 
 describe('Delivery timing', () => {
+  it('estimates pickup without adding shipping days', () => {
+    const service = new DeliveryService();
+    spyOnProperty(service, 'today', 'get').and.returnValue('2026-10-09');
+    expect(service.earliestDateFor('pickup')).toBe('2026-10-16');
+    expect(service.earliestDateFor('shipping')).toBe('2026-10-20');
+  });
   it('skips weekends, including a weekend order and a year boundary', () => {
     expect(addBusinessDays('2026-10-09', 7)).toBe('2026-10-20');
     expect(addBusinessDays('2026-10-10', 7)).toBe('2026-10-20');

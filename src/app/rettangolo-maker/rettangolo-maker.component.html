@@ -30,6 +30,7 @@
         </a>
         </div>
       </fieldset>
+      <app-recipe-options [recipe]="recipe" [disabled]="isGenerating || isSaving" (recipeChange)="recipe = $event"></app-recipe-options>
       <div class="editor-tabs" role="tablist" aria-label="Personalizzazione biscotto">
         <button id="text-tab" role="tab" [attr.aria-selected]="editorMode === 'text'" aria-controls="text-panel" [class.active]="editorMode === 'text'" (click)="editorMode = 'text'"><mat-icon>edit</mat-icon> Testo</button>
         <button id="background-tab" role="tab" [attr.aria-selected]="editorMode === 'background'" aria-controls="background-panel" [class.active]="editorMode === 'background'" (click)="editorMode = 'background'"><mat-icon>image</mat-icon> Sfondo</button>
@@ -39,7 +40,7 @@
           (messageSent)="testoInput = $event" (messageSecondSent)="testoDueInput = $event" (messageThirdSent)="testoTreInput = $event" (fontSent)="selectedFontFamily = $event" (textSize)="fontSize = $event" (colorSent)="selectedColor = $event"></app-maker-text>
       </section>
       <section id="background-panel" class="editor-content" role="tabpanel" aria-labelledby="background-tab" [hidden]="editorMode !== 'background'">
-        <app-maker-sfondo [embedded]="true" [resetVersion]="resetVersion" [disabled]="isGenerating || isSaving" [selectedColorSfondo]="selectedColorSfondo" [croppedImage]="croppedImage" (colorSfondoSent)="selectedColorSfondo = $event" (originalImageChange)="setOriginalImage($event)" (imageSfondo)="croppedImage = $event"></app-maker-sfondo>
+        <app-maker-sfondo [covering]="covering" (coveringChange)="covering = $event" [embedded]="true" [resetVersion]="resetVersion" [disabled]="isGenerating || isSaving" [selectedColorSfondo]="selectedColorSfondo" [croppedImage]="croppedImage" (colorSfondoSent)="selectedColorSfondo = $event" (originalImageChange)="setOriginalImage($event)" (imageSfondo)="croppedImage = $event"></app-maker-sfondo>
       </section>
       <div class="text-position-actions" *ngIf="editorMode === 'text' && (testoInput || testoDueInput || testoTreInput)">
         <button mat-button [disabled]="isGenerating || isSaving" [attr.aria-pressed]="textMoveActive" (click)="textMoveActive = !textMoveActive; previewMode = '2d'; textMoveActive && cookiePreview.scrollIntoView({ behavior: 'smooth', block: 'center' })"><mat-icon>{{ textMoveActive ? 'check' : 'open_with' }}</mat-icon>{{ textMoveActive ? 'Fatto' : 'Sposta testo' }}</button>

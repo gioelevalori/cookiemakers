@@ -1,4 +1,5 @@
 import { CartService } from '../cart.service';
+import { CookieRecipe, CookieCovering } from '../cookie-product';
 import { captureCookiePreview } from '../capture-cookie-preview';
 import { ChangeDetectionStrategy, Component, ElementRef, ViewChild, inject  } from '@angular/core';
 import { Router } from '@angular/router';
@@ -55,6 +56,7 @@ export class QuadratoMakerComponent {
 
   private currentDraft(): CookieDraft {
     return {
+      recipe: this.recipe, covering: this.covering,
       testoInput: this.testoInput, testoDueInput: this.testoDueInput, testoTreInput: this.testoTreInput,
       selectedFontFamily: this.selectedFontFamily, fontSize: this.fontSize,
       selectedColor: this.selectedColor, selectedColorSfondo: this.selectedColorSfondo,
@@ -113,6 +115,8 @@ export class QuadratoMakerComponent {
 
   selectedColor = '';
   selectedColorSfondo = '';
+  recipe: CookieRecipe = 'classic';
+  covering: CookieCovering = 'royal-icing';
 
   constructor(private rettangoloWindow: MatBottomSheet,
     private bottomSheet: MatBottomSheet,
@@ -155,6 +159,8 @@ export class QuadratoMakerComponent {
     const bottomSheetRef = this.bottomSheet.open(MakerSfondoComponent);
     bottomSheetRef.instance.selectedColorSfondo = this.selectedColorSfondo || '#FFFFFF';
     bottomSheetRef.instance.croppedImage = this.croppedImage;
+    bottomSheetRef.instance.covering = this.covering;
+    bottomSheetRef.instance.coveringChange.pipe(takeUntil(bottomSheetRef.afterDismissed())).subscribe(value => this.covering = value);
     bottomSheetRef.instance.originalImageChange.pipe(takeUntil(bottomSheetRef.afterDismissed())).subscribe(image => this.setOriginalImage(image));
 
     bottomSheetRef.instance.colorSfondoSent.pipe(takeUntil(bottomSheetRef.afterDismissed())).subscribe((selectedColorSfondo: string) => {
@@ -186,6 +192,8 @@ export class QuadratoMakerComponent {
     this.selectedFontFamily = 'CocoGothic';
     this.selectedColor = '';
     this.selectedColorSfondo = '';
+    this.recipe = 'classic';
+    this.covering = 'royal-icing';
     this.croppedImage = '';
     this.originalImage = '';
     this.originalImageName = '';

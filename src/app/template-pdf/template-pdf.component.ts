@@ -6,6 +6,8 @@ import { ImageService } from '../image.service';
 import { ColorService } from '../color.service';
 import { DeliveryService } from '../delivery.service';
 import { CookieDesignService } from '../cookie-design.service';
+import { COOKIE_BUSINESS, coveringLabel, recipeLabel } from '../cookie-product';
+import { OrderRequestService } from '../order-request.service';
 
 @Component({
   standalone: false,
@@ -17,6 +19,10 @@ import { CookieDesignService } from '../cookie-design.service';
 export class TemplatePdfComponent {
   readonly delivery = inject(DeliveryService);
   readonly designState = inject(CookieDesignService);
+  readonly orderRequest = inject(OrderRequestService);
+  readonly business = COOKIE_BUSINESS;
+  readonly recipeLabel = recipeLabel;
+  readonly coveringLabel = coveringLabel;
   private readonly cart = inject(CartService);
   readonly direct = inject(ActivatedRoute).snapshot.queryParamMap.get('direct') === '1';
   readonly cartItem = this.direct ? this.cart.directItem : this.cart.items.find(item => item.id === inject(ActivatedRoute).snapshot.queryParamMap.get('item'));

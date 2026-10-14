@@ -1,6 +1,7 @@
 import { ChangeDetectionStrategy, Component, inject  } from '@angular/core';
 import { FormBuilder, Validators } from '@angular/forms';
 import emailjs from '@emailjs/browser';
+import { COOKIE_BUSINESS, whatsappUrl } from '../cookie-product';
 
 @Component({
   standalone: false,
@@ -10,6 +11,8 @@ import emailjs from '@emailjs/browser';
   styleUrls: ['./contatti.component.css']
 })
 export class ContattiComponent {
+  readonly business = COOKIE_BUSINESS;
+  readonly whatsapp = whatsappUrl('Ciao! Vorrei informazioni sui biscotti personalizzati My Cookie Delight.');
   private readonly formBuilder = inject(FormBuilder);
   readonly form = this.formBuilder.nonNullable.group({
     from_name: ['', Validators.required],

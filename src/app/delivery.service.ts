@@ -49,8 +49,11 @@ export class DeliveryService {
   get preparationDays(): number | null { return DELIVERY_TIMES.preparationBusinessDays; }
   get shippingDays(): number | null { return DELIVERY_TIMES.shippingBusinessDays; }
   get earliestDate(): string | null {
+    return this.earliestDateFor('shipping');
+  }
+  earliestDateFor(method: 'shipping' | 'pickup'): string | null {
     const preparation = this.preparationDays;
-    const shipping = this.shippingDays;
+    const shipping = method === 'pickup' ? 0 : this.shippingDays;
     if (preparation === null || shipping === null || !Number.isInteger(preparation) || !Number.isInteger(shipping) || preparation < 0 || shipping < 0) return null;
     return addBusinessDays(this.today, preparation + shipping);
   }

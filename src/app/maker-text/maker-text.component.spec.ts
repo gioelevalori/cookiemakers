@@ -34,7 +34,7 @@ describe('MakerTextComponent', () => {
     const emitted = spyOn(component.textSize, 'emit');
     component.fontSize = 43;
     component.increaseFontSize();
-    expect(emitted).toHaveBeenCalledWith(43);
+    expect(emitted).not.toHaveBeenCalled();
     component.fontSize = 30;
     component.decreaseFontSize();
     expect(emitted).toHaveBeenCalledWith(30);

@@ -23,6 +23,9 @@
         <img [src]="item.preview" class="preview" alt="Anteprima del biscotto {{ i + 1 }}" />
 
         <dl>
+          <dt>Impasto</dt><dd>{{ recipeLabel(item.draft.recipe) }}</dd>
+          <ng-container *ngIf="item.draft.selectedColorSfondo"><dt>Copertura</dt><dd>{{ coveringLabel(item.draft.covering) }}</dd></ng-container>
+          <ng-container *ngIf="item.draft.croppedImage || message(item)"><dt>Stampa</dt><dd>Cialda di zucchero</dd></ng-container>
 
           <ng-container *ngIf="message(item)"><dt>Testo</dt><dd>{{ message(item) }}</dd>
 
@@ -33,6 +36,7 @@
           <ng-container *ngIf="item.draft.selectedColorSfondo"><dt>Sfondo</dt><dd><span class="swatch" [style.background]="item.draft.selectedColorSfondo"></span>{{ item.draft.selectedColorSfondo }}</dd></ng-container>
 
         </dl>
+        <app-cookie-ingredients [recipe]="item.draft.recipe || 'classic'"></app-cookie-ingredients>
 
         <div class="quantity">
 
@@ -73,10 +77,17 @@
       <h2>Riepilogo ordine</h2>
 
       <form [formGroup]="firstFormGroup">
+        <fieldset class="delivery-options"><legend>Consegna</legend>
+          <label><input type="radio" formControlName="deliveryMethod" value="pickup" /> <mat-icon>storefront</mat-icon> Ritiro in sede</label>
+          <label><input type="radio" formControlName="deliveryMethod" value="shipping" /> <mat-icon>local_shipping</mat-icon> Spedizione</label>
+        </fieldset>
+        <div *ngIf="firstFormGroup.controls.deliveryMethod.value === 'pickup'" class="pickup-location"><strong>{{ business.pickupName }}</strong><p>{{ business.pickupAddress }}</p><a [href]="business.mapsUrl" target="_blank" rel="noopener noreferrer">Indicazioni <mat-icon>open_in_new</mat-icon></a><p>Ritiro su appuntamento, senza costi di spedizione.</p></div>
+        <mat-form-field appearance="outline" class="order-field"><mat-label>Nome e cognome (facoltativo)</mat-label><input matInput formControlName="customerName" autocomplete="name" maxlength="120" /><mat-error>Massimo 120 caratteri.</mat-error></mat-form-field>
+        <mat-form-field *ngIf="firstFormGroup.controls.deliveryMethod.value === 'shipping'" appearance="outline" class="order-field"><mat-label>Indirizzo di spedizione (facoltativo)</mat-label><textarea matInput formControlName="address" autocomplete="street-address" rows="2" maxlength="300"></textarea><mat-error>Massimo 300 caratteri.</mat-error></mat-form-field>
 
         <mat-form-field appearance="outline" class="requested-date">
 
-          <mat-label>Data desiderata di consegna</mat-label>
+          <mat-label>Data desiderata di {{ firstFormGroup.controls.deliveryMethod.value === 'pickup' ? 'ritiro' : 'consegna' }}</mat-label>
 
           <input matInput type="date" [min]="delivery.today" formControlName="requestedDate" aria-describedby="delivery-timing" />
 
@@ -85,16 +96,17 @@
           <mat-error>Scegli oggi o una data successiva.</mat-error>
 
         </mat-form-field>
+        <mat-form-field appearance="outline" class="order-field"><mat-label>Note e informazioni per l'ordine</mat-label><textarea matInput formControlName="notes" rows="4" maxlength="1000"></textarea><mat-hint align="end">{{ firstFormGroup.controls.notes.value.length }}/1000</mat-hint><mat-error>Massimo 1000 caratteri.</mat-error></mat-form-field>
 
       </form>
 
       <div id="delivery-timing" class="delivery-timing" role="status">
 
-        <ng-container *ngIf="delivery.earliestDate; else timingToConfirm">
+        <ng-container *ngIf="earliestDate; else timingToConfirm">
 
-          <p>Preparazione: {{ delivery.preparationDays }} giorni lavorativi. Spedizione: {{ delivery.shippingDays }} giorni lavorativi.</p>
+          <p>Preparazione: {{ delivery.preparationDays }} giorni lavorativi.<ng-container *ngIf="firstFormGroup.controls.deliveryMethod.value === 'shipping'"> Spedizione: {{ delivery.shippingDays }} giorni lavorativi.</ng-container></p>
 
-          <p>Prima consegna stimata ordinando oggi: <strong>{{ delivery.earliestDate | date:'dd/MM/yyyy' }}</strong>.</p>
+          <p>{{ firstFormGroup.controls.deliveryMethod.value === 'pickup' ? 'Primo ritiro stimato' : 'Prima consegna stimata' }} ordinando oggi: <strong>{{ earliestDate | date:'dd/MM/yyyy' }}</strong>.</p>
 
           <p>La stima esclude sabato e domenica. Festivit&agrave;, disponibilit&agrave; e conferma dell'ordine possono modificare i tempi.</p>
 
@@ -106,7 +118,7 @@
 
         <ng-template #timingToConfirm>
 
-          <p>Tempi di preparazione e spedizione da confermare. <a routerLink="/contatti">Contattaci</a> per verificare la disponibilit&agrave; per il tuo evento.</p>
+          <p>Tempi di preparazione e {{ firstFormGroup.controls.deliveryMethod.value === 'pickup' ? 'ritiro' : 'spedizione' }} da confermare. <a routerLink="/contatti">Contattaci</a> per verificare la disponibilit&agrave; per il tuo evento.</p>
 
           <p *ngIf="firstFormGroup.controls.requestedDate.value && firstFormGroup.controls.requestedDate.valid">Data richiesta: <strong>{{ firstFormGroup.controls.requestedDate.value | date:'dd/MM/yyyy' }}</strong>. La scelta della data non conferma la consegna.</p>
 
@@ -124,13 +136,15 @@
 
         <dt>Biscotti</dt><dd>{{ counter | currency:'EUR' }}</dd>
 
-        <dt>Spedizione</dt><dd>{{ shipping | currency:'EUR' }}</dd>
+        <dt>{{ firstFormGroup.controls.deliveryMethod.value === 'pickup' ? 'Ritiro in sede' : 'Spedizione' }}</dt><dd>{{ shipping | currency:'EUR' }}</dd>
 
         <dt class="grand-total">Totale</dt><dd class="grand-total">{{ counter + shipping | currency:'EUR' }}</dd>
 
       </dl>
 
-      <button class="pay-button" mat-flat-button color="primary" [disabled]="invalidOrder || isPaying || !stripeService.configured" (click)="makePayment()"><mat-icon>lock</mat-icon>{{ isPaying ? 'Attendi...' : (stripeService.demo ? 'Prova pagamento Stripe' : 'Vai al pagamento') }}</button>
+      <a class="whatsapp-button" mat-flat-button color="primary" [href]="invalidOrder ? null : whatsappOrderUrl" [attr.aria-disabled]="invalidOrder" [attr.tabindex]="invalidOrder ? -1 : null" (click)="requestOrder($event)" target="_blank" rel="noopener noreferrer"><mat-icon>chat</mat-icon>Richiedi ordine su WhatsApp</a>
+      <p class="payment-notice">Ordine, prezzo e data da confermare in chat. Anteprime e schede PDF da allegare al messaggio.</p>
+      <button class="pay-button" mat-stroked-button [disabled]="invalidOrder || isPaying || !stripeService.configured" (click)="makePayment()"><mat-icon>lock</mat-icon>{{ isPaying ? 'Attendi...' : (stripeService.demo ? 'Prova pagamento Stripe' : 'Vai al pagamento') }}</button>
 
       <p *ngIf="stripeService.demo" class="payment-notice" role="status">Modalit&agrave; demo: nessun addebito. Si aprir&agrave; la demo ufficiale di Stripe con un ordine di esempio; importo, personalizzazione e data desiderata non vengono trasferiti.</p>
 

@@ -2,6 +2,7 @@ import { ChangeDetectionStrategy, Component, EventEmitter, Input, Output, Simple
 import { MatBottomSheetRef } from '@angular/material/bottom-sheet';
 import { FormControl } from '@angular/forms';
 import { ThemePalette } from '@angular/material/core';
+import { COOKIE_PALETTE, CookieCovering } from '../cookie-product';
 
 @Component({
   standalone: false,
@@ -41,35 +42,26 @@ export class MakerSfondoComponent {
   cropperReady = false;
 
   @Input() selectedColorSfondo = '';
+  @Input() covering: CookieCovering = 'royal-icing';
+  @Output() coveringChange = new EventEmitter<CookieCovering>();
+
+  selectCovering(value: CookieCovering): void {
+    this.covering = value;
+    this.coveringChange.emit(value);
+    if (!this.selectedColorSfondo) {
+      this.selectedColorSfondo = '#FFFFFF';
+      this.sendColorSfondoMessage();
+    }
+  }
 
   @Output() colorSfondo = new EventEmitter<any>();
   @Output() imageSfondo = new EventEmitter<any>();
 
   @Output() colorSfondoSent = new EventEmitter<string>();
 
-  colors = [
-    '#FFFFFF', 
-    '#FF0000',
-    '#00FFFF',
-    '#000000',
-    '#A791D9',
-    '#FC6C05',
-    '#81DB81',
-    '#FAFAFA',
-    '#40C8F5',
-  ];
+  readonly colors = COOKIE_PALETTE.map(value => value.color);
 
-  nameColors = [
-    'Bianco',
-    'Rosso',
-    'Ciano',
-    'Nero',
-    'Lavanda',
-    'Arancione',
-    'Menta',
-    'Grigio Chiaro',
-    'Blu Cielo',
-  ];
+  readonly nameColors = COOKIE_PALETTE.map(value => value.name);
 
   sendColorSfondoMessage() {
     this.colorSfondoSent.emit(this.selectedColorSfondo);

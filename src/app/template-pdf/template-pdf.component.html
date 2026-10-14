@@ -8,6 +8,7 @@
         <img class="final-image" [src]="imageData" alt="Anteprima finale del biscotto" />
         <p class="caption">Anteprima completa con forma, foto, testo e colori scelti.</p>
         <dl><dt>Forma</dt><dd>{{ selectedShape | titlecase }}</dd><dt>Quantit&agrave;</dt><dd>{{ quantity }} biscotti</dd></dl>
+        <dl><dt>Impasto</dt><dd>{{ recipeLabel(draft?.recipe) }}</dd><ng-container *ngIf="selectedColorSfondo"><dt>Copertura</dt><dd>{{ coveringLabel(draft?.covering) }}</dd></ng-container><ng-container *ngIf="selectedImage || hasText"><dt>Stampa</dt><dd>Cialda di zucchero</dd></ng-container></dl>
       </section>
       <section class="sheet-section source-photo" *ngIf="draft?.originalImage || selectedImage">
         <h2>2. Immagine originale caricata</h2>
@@ -39,11 +40,16 @@
         <div class="color-item" *ngIf="hasText && selectedColor"><span class="color-chip" [style.background-color]="selectedColor"></span><div><strong>Testo</strong><p>{{ selectedColor }}</p></div></div>
         <div class="color-item" *ngIf="selectedColorSfondo"><span class="color-chip" [class.natural-color]="!selectedColorSfondo" [style.background-color]="selectedColorSfondo || '#d6ab72'"></span><div><strong>Sfondo</strong><p>{{ selectedColorSfondo || 'Biscotto naturale (nessun colore aggiunto)' }}</p></div></div>
       </section>
-      <section class="sheet-section delivery-details" *ngIf="delivery.requestedDate">
+      <section class="sheet-section delivery-details">
         <h2>Consegna richiesta</h2>
+        <p>{{ orderRequest.details.deliveryMethod === 'pickup' ? 'Ritiro in sede' : 'Spedizione' }}</p>
+        <p *ngIf="orderRequest.details.deliveryMethod === 'pickup'">{{ business.pickupName }} &middot; {{ business.pickupAddress }}</p>
+        <p *ngIf="orderRequest.details.customerName">{{ orderRequest.details.customerName }}</p>
+        <p *ngIf="orderRequest.details.deliveryMethod === 'shipping' && orderRequest.details.address">{{ orderRequest.details.address }}</p>
         <p *ngIf="delivery.requestedDate; else noDate">{{ delivery.requestedDate | date:'dd/MM/yyyy' }} <span class="caption">(da confermare)</span></p>
         <ng-template #noDate><p>Data non specificata.</p></ng-template>
         <p class="caption">La data richiesta non costituisce una conferma dell'ordine o della consegna.</p>
+        <p *ngIf="orderRequest.details.notes"><strong>Note e informazioni:</strong> {{ orderRequest.details.notes }}</p>
       </section>
     </ng-container>
     <ng-template #emptyDesign><p>Nessun biscotto selezionato.</p></ng-template>

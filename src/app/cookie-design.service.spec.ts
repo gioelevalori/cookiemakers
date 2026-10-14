@@ -26,6 +26,14 @@ describe('Saved cookie designs', () => {
     expect(saved[0].route).toBe('/cuore');
     expect(saved[1].draft.testoInput).toBe('Luca');
   });
+  it('preserves recipe and covering through navigation and explicit saves', () => {
+    const service = new CookieDesignService();
+    const options: CookieDraft = { ...draft, recipe: 'lactose-free', covering: 'sugar-paste' };
+    service.save(options, '/cerchio');
+    expect(service.draft).toEqual(options);
+    service.saveForLater(options, '/cerchio');
+    expect(new CookieDesignService().getSavedDesigns()[0].draft).toEqual(options);
+  });
 
   it('keeps temporary editing handoffs out of persistent storage', () => {
     const service = new CookieDesignService();

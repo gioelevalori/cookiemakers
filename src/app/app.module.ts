@@ -44,6 +44,9 @@ import { FooterComponent } from './footer/footer.component';
 import { TestComponent } from './test/test.component';
 import { Cookie3dComponent } from './cookie-3d.component';
 import { SavedCookiePreviewComponent } from './saved-cookie-preview.component';
+import { CookieIngredientsComponent } from './cookie-ingredients.component';
+import { RecipeOptionsComponent } from './recipe-options.component';
+import { EventiComponent } from './eventi/eventi.component';
 
 registerLocaleData(localeIt);
 
@@ -68,6 +71,9 @@ registerLocaleData(localeIt);
     TestComponent,
     Cookie3dComponent,
     SavedCookiePreviewComponent,
+    CookieIngredientsComponent,
+    RecipeOptionsComponent,
+    EventiComponent,
   ],
   imports: [
     BrowserModule,

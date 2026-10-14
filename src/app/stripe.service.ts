@@ -1,12 +1,16 @@
 import { Injectable } from '@angular/core';
 import { environment } from './environment';
+import { CookieRecipe, CookieCovering } from './cookie-product';
+import { OrderDetails } from './order-request.service';
 
-export interface CheckoutOrder {
+export interface CheckoutOrder extends Partial<OrderDetails> {
   requestedDate?: string;
   items: CheckoutItem[];
 }
 
 export interface CheckoutItem {
+  recipe?: CookieRecipe;
+  covering?: CookieCovering | null;
   requestedDate?: string;
   quantity: number;
   shape: string;

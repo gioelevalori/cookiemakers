@@ -11,12 +11,13 @@ describe('CheckoutComponent', () => {
   beforeEach(async () => {
     localStorage.removeItem('cookie-cart-v1');
     sessionStorage.removeItem('cookie-cart-editing'); sessionStorage.removeItem('cookie-direct-order');
+    sessionStorage.removeItem('cookie-order-details-v1');
     await TestBed.configureTestingModule({ imports: [AppModule] }).compileComponents();
     fixture = TestBed.createComponent(CheckoutComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
   });
-  afterEach(() => { localStorage.removeItem('cookie-cart-v1'); sessionStorage.removeItem('cookie-cart-editing'); sessionStorage.removeItem('cookie-direct-order'); });
+  afterEach(() => { localStorage.removeItem('cookie-cart-v1'); sessionStorage.removeItem('cookie-cart-editing'); sessionStorage.removeItem('cookie-direct-order'); sessionStorage.removeItem('cookie-order-details-v1'); });
   it('should create', () => { expect(component).toBeTruthy(); });
   it('rejects past delivery dates and flags requests before the estimate', () => {
     spyOnProperty(component.delivery, 'today', 'get').and.returnValue('2026-10-07');
@@ -59,6 +60,30 @@ describe('CheckoutComponent', () => {
     const checkout = spyOn(component.stripeService, 'createCheckoutSession');
     await component.makePayment();
     expect(checkout).not.toHaveBeenCalled();
+  });
+  it('removes shipping charges for pickup and persists notes for the PDF', () => {
+    component.cart.add('cerchio', 'data:image/png;base64,test', draft);
+    component.firstFormGroup.patchValue({ deliveryMethod: 'pickup', notes: 'Per un matrimonio' });
+    expect(component.shipping).toBe(0);
+    expect(component.counter + component.shipping).toBe(15);
+    expect(component.orderRequest.details.notes).toBe('Per un matrimonio');
+    component.firstFormGroup.controls.deliveryMethod.setValue('shipping');
+    expect(component.shipping).toBe(6);
+  });
+  it('encodes the complete multi-design inquiry for the bakery WhatsApp number', () => {
+    component.cart.add('cerchio', 'data:image/png;base64,test', { ...draft, recipe: 'lactose-free', covering: 'sugar-paste', selectedColorSfondo: '#FFD43B' });
+    component.cart.add('cuore', 'data:image/png;base64,test', { ...draft, testoInput: 'A&B' });
+    component.firstFormGroup.patchValue({ deliveryMethod: 'pickup', customerName: 'Sara', notes: 'Confezioni & fiocco' });
+    const url = new URL(component.whatsappOrderUrl);
+    expect(url.pathname).toBe('/393491687845');
+    const message = url.searchParams.get('text')!;
+    expect(message).toContain('Senza lattosio');
+    expect(message).toContain('Pasta di zucchero');
+    expect(message).toContain('Via Roma, 78');
+    expect(message).toContain('A&B');
+    expect(message).toContain('Confezioni & fiocco');
+    expect(message).toContain('30,00');
+    expect(message).toContain('da allegare');
   });
   it('checks out only the direct design while preserving the cart', async () => {
     component.cart.add('cerchio', 'data:image/png;base64,cart', draft);

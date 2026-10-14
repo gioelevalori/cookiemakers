@@ -1,4 +1,5 @@
 import { Injectable } from '@angular/core';
+import { CookieCovering, CookieRecipe } from './cookie-product';
 
 export const COOKIE_FONTS = ['CocoGothic', 'BeckMan', 'PhotoShoot'] as const;
 
@@ -16,6 +17,8 @@ export const COOKIE_SHAPES = [
 ] as const;
 
 export interface CookieDraft {
+  recipe?: CookieRecipe;
+  covering?: CookieCovering;
   testoInput: string;
   testoDueInput: string;
   testoTreInput: string;
@@ -125,7 +128,9 @@ export class CookieDesignService {
       Number.isFinite(draft.textPosition?.x) && Number.isFinite(draft.textPosition?.y) &&
       (!draft.croppedImage || /^data:image\/(jpeg|jpg|png|gif|webp);base64,/.test(draft.croppedImage)) &&
       (draft.originalImage === undefined || draft.originalImage === '' || (typeof draft.originalImage === 'string' && /^data:image\/(jpeg|jpg|png|gif|webp);base64,/.test(draft.originalImage))) &&
-      (draft.originalImageName === undefined || typeof draft.originalImageName === 'string');
+      (draft.originalImageName === undefined || typeof draft.originalImageName === 'string') &&
+      (draft.recipe === undefined || ['classic', 'lactose-free'].includes(draft.recipe)) &&
+      (draft.covering === undefined || ['royal-icing', 'sugar-paste'].includes(draft.covering));
   }
 
   private snapshot(value: CookieDraft): CookieDraft {
@@ -134,7 +139,9 @@ export class CookieDesignService {
       selectedFontFamily: normalizeCookieFont(value.selectedFontFamily), fontSize: value.fontSize,
       selectedColor: value.selectedColor, selectedColorSfondo: value.selectedColorSfondo,
       croppedImage: value.croppedImage, originalImage: value.originalImage || '',
-      originalImageName: value.originalImageName || '', textPosition: { ...value.textPosition }
+      originalImageName: value.originalImageName || '', textPosition: { ...value.textPosition },
+      ...(value.recipe ? { recipe: value.recipe === 'lactose-free' ? 'lactose-free' as const : 'classic' as const } : {}),
+      ...(value.covering ? { covering: value.covering === 'sugar-paste' ? 'sugar-paste' as const : 'royal-icing' as const } : {})
     };
   }
 }

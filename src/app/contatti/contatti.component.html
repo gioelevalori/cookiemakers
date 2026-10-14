@@ -1,5 +1,7 @@
 <main class="contact-page">
   <header><p class="eyebrow">Un'occasione speciale?</p><h1>Parliamone</h1><p>Siamo qui per le tue idee, le tue domande e i tuoi ordini.</p></header>
+  <a mat-stroked-button [href]="whatsapp" target="_blank" rel="noopener noreferrer"><mat-icon>chat</mat-icon>Scrivici su WhatsApp</a>
+  <p>Ritiro in sede: {{ business.pickupName }}, {{ business.pickupAddress }}. <a [href]="business.mapsUrl" target="_blank" rel="noopener noreferrer">Indicazioni</a></p>
   <form [formGroup]="form" (ngSubmit)="send()">
     <mat-form-field appearance="outline"><mat-label>Nome e cognome</mat-label><input matInput formControlName="from_name" autocomplete="name" required /><mat-error>Inserisci il tuo nome.</mat-error></mat-form-field>
     <mat-form-field appearance="outline"><mat-label>Email</mat-label><input matInput type="email" formControlName="from_email" autocomplete="email" required /><mat-error>Inserisci un indirizzo email valido.</mat-error></mat-form-field>

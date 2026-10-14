@@ -21,6 +21,21 @@ describe('RettangoloMakerSfondoComponent', () => {
   it('should create', () => {
     expect(component).toBeTruthy();
   });
+  it('uses yellow instead of cyan and a visibly distinct grey, preserving sky blue', () => {
+    expect(component.colors[2]).toBe('#FFD43B');
+    expect(component.colors[7]).toBe('#B8BEC4');
+    expect(component.colors[8]).toBe('#40C8F5');
+  });
+  it('applies the chosen covering to a natural biscuit and preserves an existing colour', () => {
+    const material = spyOn(component.coveringChange, 'emit');
+    const colour = spyOn(component.colorSfondoSent, 'emit');
+    component.selectCovering('sugar-paste');
+    expect(material).toHaveBeenCalledWith('sugar-paste');
+    expect(colour).toHaveBeenCalledWith('#FFFFFF');
+    component.selectedColorSfondo = '#FFD43B';
+    component.selectCovering('royal-icing');
+    expect(component.selectedColorSfondo).toBe('#FFD43B');
+  });
 
   it('preserves the complete uploaded file independently of the crop', async () => {
     const file = new File(['original bytes'], 'photo.png', { type: 'image/png' });

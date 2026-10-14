@@ -32,9 +32,21 @@ dd { margin: 0; text-align: right; overflow-wrap: anywhere; }
   h1 { font-size: 36px; }
 }
 
-.design-summary { border: 1px solid #dde6e0; border-radius: 10px; padding: 20px; margin-bottom: 24px; }
+.design-summary { border: 1px solid #dde6e0; border-radius: 8px; padding: 20px; margin-bottom: 24px; }
 .design-summary h2 { font-size: 22px; }
 .design-summary .preview { max-width: 300px; margin: auto; }
 .cart-actions { display: flex; flex-wrap: wrap; gap: 4px; }
 .order-summary { align-self: start; }
 .model-total { text-align: right; }
+.delivery-options { display: flex; flex-wrap: wrap; gap: 8px 24px; border: 0; padding: 0; margin: 0 0 16px; }
+.delivery-options legend { font-size: 16px; font-weight: 600; margin-bottom: 8px; }
+.delivery-options label { display: flex; align-items: center; gap: 8px; min-height: 44px; font-size: 14px; cursor: pointer; }
+.delivery-options input { accent-color: #205a48; width: 18px; height: 18px; }
+.delivery-options mat-icon { flex-shrink: 0; }
+.order-field { width: 100%; margin-top: 16px; }
+.pickup-location { border-left: 3px solid #205a48; padding: 4px 0 4px 16px; font-size: 14px; line-height: 1.6; }
+.pickup-location p { margin: 4px 0; }
+.pickup-location a { display: inline-flex; align-items: center; gap: 6px; color: #205a48; text-decoration: underline; min-height: 36px; }
+.pickup-location mat-icon { font-size: 16px; width: 16px; height: 16px; }
+.whatsapp-button { width: 100%; min-height: 48px; border-radius: 6px; white-space: normal; text-align: center; }
+.whatsapp-button[aria-disabled=true] { pointer-events: none; opacity: .5; }

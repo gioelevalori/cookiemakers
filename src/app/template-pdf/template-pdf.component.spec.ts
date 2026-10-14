@@ -8,6 +8,7 @@ describe('TemplatePdfComponent', () => {
   let fixture: ComponentFixture<TemplatePdfComponent>;
 
   beforeEach(async () => {
+    sessionStorage.removeItem('cookie-order-details-v1');
     await TestBed.configureTestingModule({
       imports: [AppModule]
     })
@@ -22,15 +23,16 @@ describe('TemplatePdfComponent', () => {
     expect(component).toBeTruthy();
   });
 
-  it('omits unused personalization and delivery details', () => {
+  it('omits unused personalization while showing the delivery method', () => {
     component.imageData = 'data:image/png;base64,final';
     component.message = '   ';
     component.selectedFont = 'CocoGothic';
     component.selectedColor = '#ff0000';
     fixture.detectChanges();
-    for (const selector of ['.specifications', '.palette', '.source-photo', '.cropped-photo', '.delivery-details']) {
+    for (const selector of ['.specifications', '.palette', '.source-photo', '.cropped-photo']) {
       expect(fixture.nativeElement.querySelector(selector)).toBeNull();
     }
+    expect(fixture.nativeElement.querySelector('.delivery-details').textContent).toContain('Spedizione');
   });
 
   it('keeps the final image and the applied crop in separate sections', () => {

@@ -1,4 +1,17 @@
 :host { display: block; color: #253b33; }
+.showcase { position: relative; height: min(720px, calc(100svh - 210px)); min-height: 480px; background: #f6f0f2; overflow: hidden; margin-bottom: 32px; }
+.showcase-scene { position: absolute; inset: 0; width: 100%; height: 100%; aspect-ratio: auto; }
+.showcase-copy, .showcase-editor { position: absolute; left: max(32px, calc((100% - 1152px) / 2)); z-index: 1; width: 370px; max-width: 42%; }
+.showcase-copy { top: 44px; pointer-events: none; }
+.showcase-copy h1 { font-size: 52px; line-height: 1.12; }
+.showcase-copy .intro-copy { color: #56695e; margin-top: 20px; }
+.showcase-editor { bottom: 44px; display: flex; flex-direction: column; gap: 6px; }
+.showcase-editor mat-form-field { width: 100%; }
+.showcase-editor button { min-height: 48px; border-radius: 6px; }
+.showcase-scroll { position: absolute; right: 32px; bottom: 28px; display: grid; place-items: center; width: 44px; height: 44px; border: 0; background: transparent; color: #205a48; z-index: 1; }
+.showcase-source { position: fixed; left: -10000px; top: 0; width: 360px; height: 360px; pointer-events: none; }
+.showcase-source .cookie-shape { position: absolute; inset: 15%; width: auto; height: auto; box-shadow: none; }
+.showcase-source p { position: absolute; top: 50%; left: 20%; translate: 0 -50%; width: 60%; margin: 0; text-align: center; font: 36px/1.25 'CocoGothic'; color: #202925; overflow-wrap: anywhere; }
 .intro, .shape-section { max-width: 1200px; margin: auto; padding: 0 24px; }
 .intro { padding-top: 56px; padding-bottom: 36px; }
 .eyebrow { margin: 0 0 12px; color: #9d4357; font-size: 12px; text-transform: uppercase; letter-spacing: 0; font-weight: 600; }
@@ -26,6 +39,26 @@ h3 { margin: 0 0 16px; font-size: 16px; font-weight: 500; }
 .hexagon { height: 74.478185px; clip-path: var(--cookie-hexagon-clip); }
 .heart { clip-path: var(--cookie-heart-clip); }
 .gallery-section { background: #fff; border-top: 1px solid #dde6e0; padding: 40px 24px 56px; }
+.inspiration-section, .saved-design-section { max-width: 1200px; margin: auto; padding: 0 24px 40px; }
+.saved-design-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 16px; }
+.saved-design-card { border: 1px solid #dde6e0; border-radius: 8px; overflow: hidden; background: #fff; min-width: 0; }
+.saved-design-card img { display: block; width: 100%; height: 180px; object-fit: contain; background: #f0f3f1; }
+.saved-design-body { padding: 16px; }
+.saved-design-body h3 { margin: 0 0 8px; overflow-wrap: anywhere; }
+.saved-design-body p { font-size: 13px; margin: 0 0 16px; color: #61766a; }
+.saved-design-section h2 { overflow-wrap: anywhere; }
+.saved-design-actions { display: flex; align-items: center; gap: 8px; }
+.saved-design-actions button { min-height: 44px; }
+.inspiration-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 16px; }
+.inspiration-card { display: flex; flex-direction: column; align-items: center; gap: 16px; padding: 20px 12px; background: #fff; border: 1px solid #dde6e0; border-radius: 8px; color: #253b33; min-width: 0; cursor: pointer; }
+.inspiration-card:hover { border-color: #65917c; }
+.inspiration-card:focus-visible { outline: 3px solid #205a48; outline-offset: 3px; }
+.inspiration-preview { display: grid; place-items: center; width: 100%; height: 132px; }
+.inspiration-cookie { position: relative; width: 120px; height: 120px; box-shadow: none; }
+.inspiration-cookie.hexagon { height: 103.923px; }
+.inspiration-icing { position: absolute; inset: 6%; border-radius: inherit; clip-path: inherit; }
+.inspiration-message { position: absolute; top: 50%; left: 8%; width: 84%; translate: 0 -50%; font-size: 18px; line-height: 1.25; text-align: center; overflow-wrap: anywhere; }
+.inspiration-title { font-size: 16px; }
 .gallery-section > * { max-width: 1152px; margin-left: auto; margin-right: auto; }
 .gallery { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px; }
 .gallery-item { aspect-ratio: 1; margin: 0; overflow: hidden; border-radius: 6px; background: #edf4f0; }
@@ -35,10 +68,24 @@ h3 { margin: 0 0 16px; font-size: 16px; font-weight: 500; }
 .policy-links nav { display: flex; flex-wrap: wrap; gap: 12px 24px; }
 .policy-links a { color: #fff; font-size: 12px; }
 @media (max-width: 980px) {
+  .showcase-copy h1 { font-size: 40px; }
   .shape-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
   .section-note { font-size: 12px; }
 }
+@media (max-width: 380px) { .showcase-copy .intro-copy { display: none; } }
 @media (max-width: 560px) {
+  .inspiration-section, .saved-design-section { padding-left: 20px; padding-right: 20px; }
+  .inspiration-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
+  .inspiration-cookie { width: 104px; height: 104px; }
+  .inspiration-cookie.hexagon { height: 90.0666px; }
+  .showcase { height: min(700px, calc(100svh - 190px)); min-height: 420px; margin-bottom: 24px; }
+  .showcase-copy, .showcase-editor { left: 20px; width: calc(100% - 40px); max-width: none; }
+  .showcase-copy { top: 24px; }
+  .showcase-copy h1 { font-size: 34px; }
+  .showcase-copy .eyebrow { margin-bottom: 8px; }
+  .showcase-copy .intro-copy { font-size: 14px; margin-top: 10px; }
+  .showcase-editor { bottom: 20px; gap: 0; }
+  .showcase-scroll { display: none; }
   .intro { padding: 32px 20px 28px; }
   h1 { font-size: 36px; }
   h2 { font-size: 24px; }

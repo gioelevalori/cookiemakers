@@ -1,7 +1,8 @@
-import { ChangeDetectionStrategy, Component, EventEmitter, Input, Output, SimpleChanges, inject } from '@angular/core';
+import { ChangeDetectionStrategy, ChangeDetectorRef, Component, EventEmitter, Input, OnDestroy, OnInit, Output, SimpleChanges, inject } from '@angular/core';
 import { MatBottomSheetRef } from '@angular/material/bottom-sheet';
 import { FormControl } from '@angular/forms';
 import { COOKIE_FONTS } from '../cookie-design.service';
+import { cookieTextFits } from '../cookie-text-fit';
 
 @Component({
   standalone: false,
@@ -10,7 +11,11 @@ import { COOKIE_FONTS } from '../cookie-design.service';
   templateUrl: './maker-text.component.html',
   styleUrls: ['../editor-panel.css']
 })
-export class MakerTextComponent {
+export class MakerTextComponent implements OnInit, OnDestroy {
+  private readonly detector = inject(ChangeDetectorRef);
+  private readonly fontsLoaded = () => this.detector.markForCheck();
+  ngOnInit(): void { document.fonts.addEventListener('loadingdone', this.fontsLoaded); }
+  ngOnDestroy(): void { document.fonts.removeEventListener('loadingdone', this.fontsLoaded); }
   private readonly sheet = inject(MatBottomSheetRef, { optional: true });
   close(): void { this.sheet?.dismiss(); }
   @Input() resetVersion = 0;
@@ -27,6 +32,12 @@ export class MakerTextComponent {
   @Input() message3 = '';
   @Input() font = 'CocoGothic';
   @Input() fontSize = 36;
+  @Input() previewSource: HTMLElement | null = null;
+
+  get increaseDisabled(): boolean {
+    return this.disabled || this.fontSize >= 43 ||
+      (!!this.previewSource && !cookieTextFits(this.previewSource, this.fontSize + 1));
+  }
   scale = 1;
   colorText: FormControl = new FormControl(null);
   touchUi = false;
@@ -91,6 +102,7 @@ export class MakerTextComponent {
   
 
   increaseFontSize() {
+    if (this.increaseDisabled) return;
     this.fontSize = Math.min(43, this.fontSize + 1);
     this.textSize.emit(this.fontSize);
   }

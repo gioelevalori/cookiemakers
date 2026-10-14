@@ -1,23 +1,69 @@
 <main class="home-page">
-  <header class="intro">
-    <p class="eyebrow">Creazioni su misura</p>
-    <h1>Biscotti personalizzati</h1>
-    <p class="intro-copy">Per compleanni, cerimonie e momenti da ricordare.</p>
-    <a *ngIf="designState.resumeRoute" mat-flat-button color="primary" [routerLink]="designState.resumeRoute">Riprendi il tuo biscotto</a>
-  </header>
-  <section class="shape-section" aria-labelledby="shape-title">
+  <section class="showcase" aria-labelledby="showcase-title">
+    <div class="showcase-source" #showcaseSource aria-hidden="true">
+      <div class="cookie-shape circle"></div>
+      <p>{{ heroMessage }}</p>
+    </div>
+    <app-cookie-3d *ngIf="showcaseReady" class="showcase-scene" [source]="showcaseSource" shape="circle" [showcase]="true"></app-cookie-3d>
+    <header class="showcase-copy">
+      <p class="eyebrow">My Cookie Delight</p>
+      <h1 id="showcase-title">Biscotti<br />personalizzati</h1>
+    </header>
+    <form class="showcase-editor" (ngSubmit)="startDesign()">
+      <mat-form-field appearance="outline">
+        <mat-label>La tua dedica</mat-label>
+        <input matInput [(ngModel)]="heroMessage" (ngModelChange)="heroEdited = true" name="dedica" maxlength="10" autocomplete="off" />
+        <mat-hint align="end">{{ heroMessage.length }}/10</mat-hint>
+      </mat-form-field>
+      <button mat-flat-button color="primary" type="submit">Crea questo biscotto <mat-icon>arrow_forward</mat-icon></button>
+    </form>
+    <button class="showcase-scroll" type="button" (click)="shapeSection.scrollIntoView({ behavior: 'smooth', block: 'start' })" aria-label="Vai alla scelta della forma" title="Scegli la forma"><mat-icon>south</mat-icon></button>
+  </section>
+  <section class="shape-section" aria-labelledby="shape-title" #shapeSection>
     <div class="section-heading">
       <h2 id="shape-title">Scegli la forma</h2>
       <span class="section-note">Da {{ 15 | currency:'EUR' }} per 10 biscotti</span>
     </div>
     <div class="shape-grid">
       <article class="shape-card" *ngFor="let item of cookieShapes">
-        <a class="shape-link" [routerLink]="item.route" [attr.aria-label]="'Personalizza un biscotto ' + item.title.toLowerCase()">
+        <a class="shape-link" [routerLink]="item.route" (click)="heroEdited && saveHeroDesign()" [attr.aria-label]="'Personalizza un biscotto ' + item.title.toLowerCase()">
         <div class="shape-preview" aria-hidden="true"><div class="cookie-shape" [ngClass]="item.shape"></div></div>
         <h3>{{ item.title }}</h3>
         <span class="shape-action">Personalizza <mat-icon>arrow_forward</mat-icon></span>
         </a>
       </article>
+    </div>
+  </section>
+  <section class="saved-design-section" *ngIf="savedDesigns.length" aria-labelledby="saved-title">
+    <div class="section-heading"><h2 id="saved-title">I tuoi biscotti salvati</h2><span class="section-note">{{ savedDesigns.length }} salvati</span></div>
+    <div class="saved-design-grid" role="list">
+      <article class="saved-design-card" *ngFor="let saved of savedDesigns" role="listitem">
+        <app-saved-cookie-preview [saved]="saved"></app-saved-cookie-preview>
+        <div class="saved-design-body">
+          <h3>{{ saved.draft.testoInput || 'Biscotto personalizzato' }}</h3>
+          <p>{{ savedShapeTitle(saved.route) }}</p>
+          <div class="saved-design-actions">
+            <button mat-flat-button color="primary" (click)="resumeDesign(saved)" [attr.aria-label]="'Riprendi biscotto salvato: ' + (saved.draft.testoInput || savedShapeTitle(saved.route))">Riprendi <mat-icon>arrow_forward</mat-icon></button>
+            <button mat-icon-button (click)="removeSavedDesign(saved)" [attr.aria-label]="'Elimina biscotto salvato: ' + (saved.draft.testoInput || savedShapeTitle(saved.route))" title="Elimina biscotto salvato"><mat-icon>delete_outline</mat-icon></button>
+          </div>
+        </div>
+      </article>
+    </div>
+    <p *ngIf="savedDesignError" role="alert">{{ savedDesignError }}</p>
+  </section>
+  <section class="inspiration-section" aria-labelledby="inspiration-title">
+    <div class="section-heading"><h2 id="inspiration-title">Un biscotto per ogni occasione</h2></div>
+    <div class="inspiration-grid">
+      <button class="inspiration-card" *ngFor="let inspiration of inspirations" (click)="startInspiration(inspiration)" [attr.aria-label]="'Personalizza: ' + inspiration.title">
+        <span class="inspiration-preview" aria-hidden="true">
+          <span class="cookie-shape inspiration-cookie" [ngClass]="inspiration.shape">
+            <span class="inspiration-icing" [style.background-color]="inspiration.draft.selectedColorSfondo"></span>
+            <span class="inspiration-message" [style.color]="inspiration.draft.selectedColor" [style.font-family]="inspiration.draft.selectedFontFamily">{{ inspiration.draft.testoInput }}<br />{{ inspiration.draft.testoDueInput }}</span>
+          </span>
+        </span>
+        <span class="inspiration-title">{{ inspiration.title }}</span>
+        <span class="shape-action">Personalizza <mat-icon>arrow_forward</mat-icon></span>
+      </button>
     </div>
   </section>
   <section id="creazioni" class="gallery-section" aria-labelledby="gallery-title">

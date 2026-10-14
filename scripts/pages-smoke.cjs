@@ -103,7 +103,7 @@ async function main() {
       await page.getByRole('button', { name: 'Sposta testo', exact: true }).click();
       await handle.waitFor({ state: 'visible' });
       await page.getByRole('button', { name: "Continua con l'ordine" }).click();
-      await page.waitForURL('**/#/checkout');
+      await page.waitForURL(/#\/checkout(?:\?|$)/);
       await page.locator('.preview').waitFor();
       assert.ok((await page.locator('.preview').getAttribute('src')).startsWith('data:image/png'));
       const selectionPixels = await page.locator('.preview').evaluate(async image => {
@@ -144,7 +144,7 @@ async function main() {
       await page.locator('canvas[data-ready=true]').waitFor({ timeout: 30000 });
       await page.screenshot({ path: 'artifacts/heart-3d-' + width + '.png', fullPage: true });
       await page.getByRole('button', { name: "Continua con l'ordine" }).click();
-      await page.waitForURL('**/#/checkout');
+      await page.waitForURL(/#\/checkout(?:\?|$)/);
       await page.locator('.preview').waitFor();
       await page.locator('.preview').screenshot({ path: 'artifacts/heart-export-' + width + '.png' });
       await page.close();

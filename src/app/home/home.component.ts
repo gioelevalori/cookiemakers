@@ -1,5 +1,8 @@
-import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
-import { CookieDesignService } from '../cookie-design.service';
+import { AfterViewInit, ChangeDetectionStrategy, Component, OnInit, inject } from '@angular/core';
+import { Router } from '@angular/router';
+import { CookieDesignService, SavedCookieDesign } from '../cookie-design.service';
+import { CartService } from '../cart.service';
+import { COOKIE_INSPIRATIONS, CookieInspiration } from '../cookie-inspirations';
 
 @Component({
   standalone: false,
@@ -8,8 +11,64 @@ import { CookieDesignService } from '../cookie-design.service';
   templateUrl: './home.component.html',
   styleUrls: ['./home.component.scss']
 })
-export class HomeComponent {
-  readonly designState = inject(CookieDesignService);
+export class HomeComponent implements OnInit, AfterViewInit {
+  private readonly router = inject(Router);
+  private readonly designState = inject(CookieDesignService);
+  private readonly cart = inject(CartService);
+  heroMessage = 'Per te';
+  heroEdited = false;
+  showcaseReady = false;
+  readonly inspirations = COOKIE_INSPIRATIONS;
+  savedDesigns = this.designState.getSavedDesigns();
+  savedDesignError = '';
+
+  ngOnInit(): void {
+    this.cart.startNew();
+    this.designState.clearSession();
+  }
+
+  startInspiration(inspiration: CookieInspiration): void {
+    this.designState.draft = { ...inspiration.draft, textPosition: { ...inspiration.draft.textPosition } };
+    void this.router.navigate([inspiration.route]);
+  }
+
+  resumeDesign(saved: SavedCookieDesign): void {
+    this.designState.draft = saved.draft;
+    this.designState.editingSavedId = saved.id;
+    void this.router.navigate([saved.route]);
+  }
+
+  removeSavedDesign(saved: SavedCookieDesign): void {
+    try {
+      this.designState.removeSavedDesign(saved.id);
+      this.savedDesigns = this.designState.getSavedDesigns();
+      this.savedDesignError = '';
+    } catch {
+      this.savedDesignError = 'Impossibile eliminare la bozza su questo dispositivo.';
+    }
+  }
+
+  savedShapeTitle(route: string): string {
+    return this.cookieShapes.find(shape => shape.route === route)?.title || 'Biscotto';
+  }
+
+  ngAfterViewInit(): void {
+    queueMicrotask(() => this.showcaseReady = true);
+  }
+
+  startDesign(): void {
+    this.saveHeroDesign();
+    void this.router.navigate(['/cerchio']);
+  }
+
+  saveHeroDesign(): void {
+    this.designState.draft = {
+      testoInput: this.heroMessage.trim(), testoDueInput: '', testoTreInput: '',
+      selectedFontFamily: 'CocoGothic', fontSize: 36, selectedColor: '#202925',
+      selectedColorSfondo: '', croppedImage: '', textPosition: { x: 0, y: 0 }
+    };
+  }
+
   readonly cookieShapes = [
     { title: 'Rettangolo', route: '/rettangolo', shape: 'rectangle' },
     { title: 'Cerchio', route: '/cerchio', shape: 'circle' },

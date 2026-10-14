@@ -1,7 +1,7 @@
 import { HEART_CURVES, HEART_START } from './heart-outline';
 import { HEXAGON_CORNERS } from './hexagon-outline';
 
-function outline(element: HTMLElement, x: number, y: number, width: number, height: number): Path2D {
+export function cookieOutline(element: HTMLElement, x: number, y: number, width: number, height: number): Path2D {
   const path = new Path2D();
   if (element.classList.contains('heart')) {
     path.moveTo(x + width * HEART_START[0] / 100, y + height * HEART_START[1] / 100);
@@ -46,6 +46,11 @@ function cover(context: CanvasRenderingContext2D, image: HTMLImageElement, x: nu
 
 /** Draw the actual design directly, without browser-dependent SVG foreignObject capture. */
 export async function captureCookiePreview(source: HTMLElement): Promise<string> {
+  const text = source.querySelector<HTMLElement>('.example-box p');
+  if (text?.textContent?.trim()) {
+    const style = getComputedStyle(text);
+    await document.fonts.load(style.fontSize + ' ' + style.fontFamily);
+  }
   await document.fonts.ready;
   const bounds = source.getBoundingClientRect();
   if (!bounds.width || !bounds.height) throw new Error('Cookie preview has no size');
@@ -59,7 +64,7 @@ export async function captureCookiePreview(source: HTMLElement): Promise<string>
   const shape = source.querySelector<HTMLElement>('.cookie-shape')!;
   const rect = shape.getBoundingClientRect();
   const x = rect.left - bounds.left, y = rect.top - bounds.top;
-  const path = outline(shape, x, y, rect.width, rect.height);
+  const path = cookieOutline(shape, x, y, rect.width, rect.height);
   context.save();
   context.shadowColor = '#253b332b'; context.shadowBlur = 8; context.shadowOffsetY = 8;
   context.fillStyle = '#e1cb9d'; context.fill(path);
@@ -72,16 +77,20 @@ export async function captureCookiePreview(source: HTMLElement): Promise<string>
   const icingRect = icing.getBoundingClientRect();
   const ix = icingRect.left - bounds.left, iy = icingRect.top - bounds.top;
   context.fillStyle = getComputedStyle(icing).backgroundColor;
-  context.fill(outline(shape, ix, iy, icingRect.width, icingRect.height));
+  context.fill(cookieOutline(shape, ix, iy, icingRect.width, icingRect.height));
   const photo = shape.querySelector<HTMLImageElement>('.cookie-image');
   if (photo) {
     const photoRect = photo.getBoundingClientRect();
     const px = photoRect.left - bounds.left, py = photoRect.top - bounds.top;
-    context.save(); context.clip(outline(shape, px, py, photoRect.width, photoRect.height));
+    context.save(); context.clip(cookieOutline(shape, px, py, photoRect.width, photoRect.height));
     cover(context, await loadImage(photo.src), px, py, photoRect.width, photoRect.height);
     context.restore();
   }
-  const text = source.querySelector<HTMLElement>('.example-box p');
+  if (text) drawCookieText(context, text, bounds);
+  return canvas.toDataURL('image/png');
+}
+
+export function drawCookieText(context: CanvasRenderingContext2D, text: HTMLElement, bounds: DOMRect): void {
   if (text?.textContent?.trim()) {
     const style = getComputedStyle(text), textRect = text.getBoundingClientRect();
     const fontSize = parseFloat(style.fontSize), lineHeight = parseFloat(style.lineHeight) || fontSize * 1.25;
@@ -108,5 +117,4 @@ export async function captureCookiePreview(source: HTMLElement): Promise<string>
       context.fillText(wrapped, textRect.left - bounds.left + textRect.width / 2, baseline + lineIndex++ * lineHeight);
     }
   }
-  return canvas.toDataURL('image/png');
 }

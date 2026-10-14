@@ -2,6 +2,7 @@ const assert = require('node:assert/strict');
 const fs = require('node:fs');
 const { chromium } = require('playwright');
 const base = process.env.COOKIE_URL || 'http://127.0.0.1:4202/cookiemakers/';
+const route = name => process.env.COOKIE_ROUTE_MODE === 'path' ? new URL(name, base).href : base + '#/' + name;
 fs.mkdirSync('artifacts', { recursive: true });
 (async () => {
   const browser = await chromium.launch({ channel: 'chrome', headless: true });
@@ -31,13 +32,13 @@ fs.mkdirSync('artifacts', { recursive: true });
       assert.equal(await page.evaluate(() => document.documentElement.scrollWidth > innerWidth + 1), false);
       await page.screenshot({ path: `artifacts/header-${width}.png` });
       if (![390, 1440].includes(width)) { await page.close(); continue; }
-      await page.goto(`${base}#/cerchio`);
+      await page.goto(route('cerchio'));
       await page.getByLabel('Prima riga', { exact: true }).fill('Anna');
       await page.getByRole('button', { name: 'Aggiungi al carrello', exact: true }).click();
       await page.locator('.design-summary').waitFor();
       const originalCart = await page.evaluate(() => localStorage.getItem('cookie-cart-v1'));
       for (const shape of ['quadrato', 'rettangolo', 'esagono', 'cuore', 'cerchio']) {
-        await page.goto(`${base}#/${shape}`);
+        await page.goto(route(shape));
         await page.getByRole('button', { name: 'Ricomincia da zero', exact: true }).click();
         await page.getByLabel('Prima riga', { exact: true }).fill('Luca');
         assert.equal(await page.getByRole('button', { name: 'Aggiungi al carrello', exact: true }).count(), 1);

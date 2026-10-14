@@ -89,12 +89,14 @@ di fattura fittizi.
 
 La texture originale del biscotto e salvata in assets/cookie-texture.jpg.
 Il logo originale viene mostrato senza il margine trasparente del file.
-Testo e sfondo si modificano accanto all'anteprima; la bozza resta disponibile
-passando tra le forme e tornando dal checkout. Testo, colori, carattere, posizione,
-foto ritagliata e ultima forma vengono salvati automaticamente nel localStorage
-del dispositivo e ripristinati dopo un ricaricamento. La home offre "Riprendi il tuo
-biscotto"; "Azzera personalizzazione" salva una bozza vuota. Se lo spazio locale
-non basta, un avviso segnala che la bozza resta solo nella sessione corrente.
+Testo e sfondo si modificano accanto all'anteprima. Il passaggio tra le forme
+mantiene il progetto corrente; uscendo dal configuratore senza salvare, le
+modifiche vengono scartate. "Salva per dopo" memorizza esplicitamente il biscotto
+nel localStorage del dispositivo. La home mostra una lista con anteprima,
+ripresa ed eliminazione individuale. Salvare un biscotto ripreso aggiorna la
+stessa voce; creare un altro biscotto aggiunge una voce distinta.
+Le precedenti bozze singole vengono migrate nella lista. Se lo spazio locale
+non basta, un avviso segnala il mancato salvataggio senza cancellare quelli esistenti.
 Le foto non vengono inviate a un server per il salvataggio della bozza.
 Un ritaglio con lato minore sotto 600 pixel mostra un consiglio sulla nitidezza;
 si tratta di una soglia indicativa, non di una certificazione della resa di stampa.

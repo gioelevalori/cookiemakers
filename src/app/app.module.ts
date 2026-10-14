@@ -43,6 +43,7 @@ import { MatTableModule } from '@angular/material/table';
 import { FooterComponent } from './footer/footer.component';
 import { TestComponent } from './test/test.component';
 import { Cookie3dComponent } from './cookie-3d.component';
+import { SavedCookiePreviewComponent } from './saved-cookie-preview.component';
 
 registerLocaleData(localeIt);
 
@@ -66,6 +67,7 @@ registerLocaleData(localeIt);
     FooterComponent,
     TestComponent,
     Cookie3dComponent,
+    SavedCookiePreviewComponent,
   ],
   imports: [
     BrowserModule,

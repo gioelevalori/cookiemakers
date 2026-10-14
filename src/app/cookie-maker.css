@@ -19,6 +19,8 @@ h1 { font: 600 36px/1.2 "Fraunces", serif; margin: 0; overflow-wrap: anywhere; }
 .preview-modes button.active { border-bottom-color: #205a48; color: #205a48; }
 .preview-source-hidden { position: absolute !important; top: 52px; opacity: 0; pointer-events: none; z-index: -1; }
 .order-action > .reset-design { width: auto; margin-bottom: 12px; min-height: 44px; color: #61766a; }
+.order-action > .save-design { margin-bottom: 12px; }
+.save-feedback { font-size: 13px; color: #205a48; margin: 0 0 12px; }
 .example-boundary { position: relative; width: 100%; aspect-ratio: 1; overflow: hidden; background: #f0f3f1; border-radius: 8px; }
 .cookie-shape { position: absolute; inset: 15%; background: #e1cb9d url("../assets/cookie-texture.jpg") center / cover;  }
 .cookie-icing, .cookie-image { position: absolute; inset: 6%; width: 88%; height: 88%; border-radius: inherit; }
@@ -30,7 +32,7 @@ h1 { font: 600 36px/1.2 "Fraunces", serif; margin: 0; overflow-wrap: anywhere; }
 .cookie-shape.hexagon { inset: 19.68911% 15%; }
 .heart { clip-path: var(--cookie-heart-clip); }
 .heart .cookie-icing, .heart .cookie-image, .hexagon .cookie-icing, .hexagon .cookie-image { clip-path: inherit; }
-.example-box { position: absolute; top: 37%; left: 20%; width: 60%; min-height: 30px; text-align: center; z-index: 2; }
+.example-box { position: absolute; top: 50%; left: 20%; translate: 0 -50%; width: 60%; min-height: 30px; text-align: center; z-index: 2; }
 .example-box.text-moving { cursor: move; touch-action: none; }
 .example-box p { margin: 0; line-height: 1.25; overflow-wrap: anywhere; }
 .text-selection { position: absolute; inset: -4px; border: 1px dashed #205a48; border-radius: 4px; pointer-events: none; }

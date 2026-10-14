@@ -13,6 +13,7 @@ import { HEXAGON_CLIP_PATH, HEXAGON_CORNERS } from './hexagon-outline';
 export class Cookie3dComponent implements AfterViewInit, OnDestroy {
   @Input() source!: HTMLElement;
   @Input() shape = 'circle';
+  @Input() showcase = false;
   @ViewChild('surface') surface!: ElementRef<HTMLDivElement>;
   private readonly zone = inject(NgZone);
   error = '';
@@ -42,11 +43,24 @@ export class Cookie3dComponent implements AfterViewInit, OnDestroy {
       const scene = new T.Scene();
       const camera = new T.PerspectiveCamera(35, 1, 0.1, 30);
       camera.position.set(2.4, 1.1, 5.5);
+      if (this.showcase) camera.position.set(1.7, 0.7, 4.7);
       const controls = new OrbitControls(camera, renderer.domElement);
       controls.enablePan = false;
       controls.enableZoom = false;
       controls.rotateSpeed = 0.7;
       controls.update();
+      const reducedMotion = matchMedia('(prefers-reduced-motion: reduce)');
+      let animation = 0, motionStart = 0, previousFrame = 0;
+      const stopMotion = () => { controls.autoRotate = false; cancelAnimationFrame(animation); };
+      const animate = (time: number) => {
+        if (this.destroyed || !controls.autoRotate) return;
+        if (!motionStart) motionStart = time;
+        if (time - motionStart > 8000 || document.hidden || reducedMotion.matches) { stopMotion(); return; }
+        controls.update(previousFrame ? (time - previousFrame) / 1000 : 0);
+        previousFrame = time;
+        animation = requestAnimationFrame(animate);
+      };
+      if (this.showcase) renderer.domElement.addEventListener('pointerdown', stopMotion);
       let prepared = false;
       const render = () => { if (!this.destroyed && prepared) renderer.render(scene, camera); };
       controls.addEventListener('change', render);
@@ -116,6 +130,12 @@ export class Cookie3dComponent implements AfterViewInit, OnDestroy {
         if (!width || !height) return;
         renderer.setSize(width, height, false);
         camera.aspect = width / height;
+        if (this.showcase) {
+          const mobile = width <= 560;
+          const targetHeight = mobile ? Math.min(width * 0.68, Math.max(125, height - 315)) : Math.min(height * 0.74, width * 0.38);
+          camera.zoom = targetHeight / (height * 0.74);
+          camera.setViewOffset(width, height, mobile ? 0 : -width * 0.22, mobile ? height * 0.01 : 0, width, height);
+        }
         camera.updateProjectionMatrix();
         render();
       };
@@ -136,12 +156,18 @@ export class Cookie3dComponent implements AfterViewInit, OnDestroy {
           faceMaterial.map?.dispose();
           faceMaterial.map = texture;
           faceMaterial.needsUpdate = true;
+          const firstFrame = !prepared;
           prepared = true;
           render();
           renderer.domElement.style.visibility = 'visible';
           if (!this.ready) this.zone.run(() => this.ready = true);
           renderer.domElement.dataset['ready'] = 'true';
           renderer.domElement.dataset['hasPhoto'] = String(!!this.source.querySelector('.cookie-image'));
+          if (firstFrame && this.showcase && !reducedMotion.matches) {
+            controls.autoRotate = true;
+            controls.autoRotateSpeed = 0.22;
+            animation = requestAnimationFrame(animate);
+          }
         } catch {
           if (!this.destroyed) this.zone.run(() => this.error = 'Impossibile aggiornare la vista 3D. Torna alla vista 2D.');
         }
@@ -157,6 +183,8 @@ export class Cookie3dComponent implements AfterViewInit, OnDestroy {
       });
       sourceResize.observe(this.source);
       this.cleanup = () => {
+        stopMotion();
+        renderer.domElement.removeEventListener('pointerdown', stopMotion);
         sourceResize.disconnect();
         resizeObserver.disconnect();
         controls.dispose();

@@ -16,7 +16,7 @@
           <img *ngIf="croppedImage" class="cookie-image" [src]="croppedImage" alt="Immagine personalizzata" />
           </div>
         </div>
-        <div class="example-box" [class.text-moving]="textMoveActive" cdkDragBoundary=".example-boundary" cdkDrag [cdkDragDisabled]="isGenerating || !textMoveActive || !(testoInput || testoDueInput || testoTreInput)" [cdkDragFreeDragPosition]="textPosition" (cdkDragEnded)="textPosition = $event.source.getFreeDragPosition()" [attr.title]="textMoveActive ? 'Trascina il testo per spostarlo' : null">
+        <div class="example-box" [class.text-moving]="textMoveActive" cdkDragBoundary=".example-boundary" cdkDrag [cdkDragDisabled]="isGenerating || isSaving || !textMoveActive || !(testoInput || testoDueInput || testoTreInput)" [cdkDragFreeDragPosition]="textPosition" (cdkDragEnded)="textPosition = $event.source.getFreeDragPosition()" [attr.title]="textMoveActive ? 'Trascina il testo per spostarlo' : null">
           <span *ngIf="textMoveActive && (testoInput || testoDueInput || testoTreInput)" class="text-selection" data-preview-control aria-hidden="true"><span class="text-move-handle"><mat-icon>open_with</mat-icon></span></span>
           <p [style.font-size.px]="fontSize" [style.font-family]="selectedFontFamily" [style.color]="selectedColor || '#202925'">{{ testoInput }}<br *ngIf="testoDueInput" />{{ testoDueInput }}<br *ngIf="testoTreInput" />{{ testoTreInput }}</p>
         </div>
@@ -25,7 +25,7 @@
     <section class="maker-controls" aria-label="Personalizzazione">
       <fieldset class="shape-options"><legend>Forma</legend>
         <div class="shape-option-grid">
-        <a *ngFor="let item of cookieShapes" [routerLink]="item.route" [class.selected]="item.route === '/cerchio'" [attr.aria-current]="item.route === '/cerchio' ? 'page' : null" [attr.aria-label]="'Forma ' + item.title">
+        <a *ngFor="let item of cookieShapes" [routerLink]="item.route" (click)="item.route !== '/cerchio' && keepDraftForNavigation()" [class.selected]="item.route === '/cerchio'" [attr.aria-current]="item.route === '/cerchio' ? 'page' : null" [attr.aria-label]="'Forma ' + item.title">
           <span class="mini-cookie" [ngClass]="item.shape" aria-hidden="true"></span><span>{{ item.title }}</span>
         </a>
         </div>
@@ -35,24 +35,26 @@
         <button id="background-tab" role="tab" [attr.aria-selected]="editorMode === 'background'" aria-controls="background-panel" [class.active]="editorMode === 'background'" (click)="editorMode = 'background'"><mat-icon>image</mat-icon> Sfondo</button>
       </div>
       <section id="text-panel" class="editor-content" role="tabpanel" aria-labelledby="text-tab" [hidden]="editorMode !== 'text'">
-        <app-maker-text [resetVersion]="resetVersion" [embedded]="true" [disabled]="isGenerating" [message]="testoInput" [message2]="testoDueInput" [message3]="testoTreInput" [font]="selectedFontFamily" [fontSize]="fontSize" [selectedColor]="selectedColor"
+        <app-maker-text [previewSource]="cookiePreview" [resetVersion]="resetVersion" [embedded]="true" [disabled]="isGenerating || isSaving" [message]="testoInput" [message2]="testoDueInput" [message3]="testoTreInput" [font]="selectedFontFamily" [fontSize]="fontSize" [selectedColor]="selectedColor"
           (messageSent)="testoInput = $event" (messageSecondSent)="testoDueInput = $event" (messageThirdSent)="testoTreInput = $event" (fontSent)="selectedFontFamily = $event" (textSize)="fontSize = $event" (colorSent)="selectedColor = $event"></app-maker-text>
       </section>
       <section id="background-panel" class="editor-content" role="tabpanel" aria-labelledby="background-tab" [hidden]="editorMode !== 'background'">
-        <app-maker-sfondo [embedded]="true" [resetVersion]="resetVersion" [disabled]="isGenerating" [selectedColorSfondo]="selectedColorSfondo" [croppedImage]="croppedImage" (colorSfondoSent)="selectedColorSfondo = $event" (originalImageChange)="setOriginalImage($event)" (imageSfondo)="croppedImage = $event"></app-maker-sfondo>
+        <app-maker-sfondo [embedded]="true" [resetVersion]="resetVersion" [disabled]="isGenerating || isSaving" [selectedColorSfondo]="selectedColorSfondo" [croppedImage]="croppedImage" (colorSfondoSent)="selectedColorSfondo = $event" (originalImageChange)="setOriginalImage($event)" (imageSfondo)="croppedImage = $event"></app-maker-sfondo>
       </section>
       <div class="text-position-actions" *ngIf="editorMode === 'text' && (testoInput || testoDueInput || testoTreInput)">
-        <button mat-button [disabled]="isGenerating" [attr.aria-pressed]="textMoveActive" (click)="textMoveActive = !textMoveActive; previewMode = '2d'; textMoveActive && cookiePreview.scrollIntoView({ behavior: 'smooth', block: 'center' })"><mat-icon>{{ textMoveActive ? 'check' : 'open_with' }}</mat-icon>{{ textMoveActive ? 'Fatto' : 'Sposta testo' }}</button>
-        <button mat-button [disabled]="isGenerating" (click)="textPosition = { x: 0, y: 0 }" aria-label="Ripristina posizione testo"><mat-icon>restart_alt</mat-icon>Ripristina posizione</button>
+        <button mat-button [disabled]="isGenerating || isSaving" [attr.aria-pressed]="textMoveActive" (click)="textMoveActive = !textMoveActive; previewMode = '2d'; textMoveActive && cookiePreview.scrollIntoView({ behavior: 'smooth', block: 'center' })"><mat-icon>{{ textMoveActive ? 'check' : 'open_with' }}</mat-icon>{{ textMoveActive ? 'Fatto' : 'Sposta testo' }}</button>
+        <button mat-button [disabled]="isGenerating || isSaving" (click)="textPosition = { x: 0, y: 0 }" aria-label="Ripristina posizione testo"><mat-icon>restart_alt</mat-icon>Ripristina posizione</button>
       </div>
       <div class="order-action">
-        <button class="reset-design" mat-stroked-button [disabled]="isGenerating" (click)="resetPage()" aria-label="Ricomincia da zero"><mat-icon>restart_alt</mat-icon>Ricomincia da zero</button>
+        <button class="save-design" mat-stroked-button [disabled]="isGenerating || isSaving" (click)="saveForLater()" title="Salva la bozza su questo dispositivo"><mat-icon>bookmark_border</mat-icon>{{ isSaving ? 'Salvataggio...' : 'Salva per dopo' }}</button>
+        <p *ngIf="saveFeedback" class="save-feedback" [class.error-message]="saveFailed" [attr.role]="saveFailed ? 'alert' : 'status'">{{ saveFeedback }}</p>
+        <button class="reset-design" mat-stroked-button [disabled]="isGenerating || isSaving" (click)="resetPage()" aria-label="Ricomincia da zero"><mat-icon>restart_alt</mat-icon>Ricomincia da zero</button>
         <p class="order-label"><span>Ordine minimo · 10 biscotti</span><strong>{{ 15 | currency:'EUR' }}</strong></p>
         <div class="checkout-actions">
-        <button mat-stroked-button [disabled]="isGenerating" (click)="generateImage('cart')">{{ isGenerating ? 'Preparazione...' : (cart.editingId ? 'Salva modifiche nel carrello' : 'Aggiungi al carrello') }}<mat-icon>arrow_forward</mat-icon></button>
-          <button mat-flat-button color="primary" [disabled]="isGenerating" (click)="generateImage('direct')">Continua con l'ordine<mat-icon>arrow_forward</mat-icon></button>
+        <button mat-stroked-button [disabled]="isGenerating || isSaving" (click)="generateImage('cart')">{{ isGenerating ? 'Preparazione...' : (cart.editingId ? 'Salva modifiche nel carrello' : 'Aggiungi al carrello') }}<mat-icon>arrow_forward</mat-icon></button>
+          <button mat-flat-button color="primary" [disabled]="isGenerating || isSaving" (click)="generateImage('direct')">Continua con l'ordine<mat-icon>arrow_forward</mat-icon></button>
         </div>
-        <p *ngIf="draftSaveError" class="error-message" role="status">{{ draftSaveError }}</p><p *ngIf="captureError" class="error-message" role="alert">{{ captureError }}</p>
+        <p *ngIf="captureError" class="error-message" role="alert">{{ captureError }}</p>
       </div>
     </section>
   </div>

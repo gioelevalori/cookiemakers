@@ -1,0 +1,4 @@
+:host { display: block; height: 180px; background: #f0f3f1; }
+.saved-preview-image { display: block; width: 100%; height: 180px; object-fit: contain; }
+.saved-preview-source { position: fixed !important; left: -10000px; top: 0; width: 340px !important; height: 340px; max-width: none; margin: 0; pointer-events: none; }
+.saved-preview-error { margin: 0; padding: 24px; font-size: 13px; }

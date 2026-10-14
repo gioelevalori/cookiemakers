@@ -2,7 +2,7 @@ import { CartService } from '../cart.service';
 import { captureCookiePreview } from '../capture-cookie-preview';
 import { ChangeDetectionStrategy, Component, ElementRef, ViewChild, inject  } from '@angular/core';
 import { Router } from '@angular/router';
-import { COOKIE_SHAPES, CookieDesignService, normalizeCookieFont } from '../cookie-design.service';
+import { COOKIE_SHAPES, CookieDesignService, CookieDraft, normalizeCookieFont } from '../cookie-design.service';
 import { takeUntil } from 'rxjs';
 import { AbstractControl, FormControl } from '@angular/forms';
 import { ThemePalette } from '@angular/material/core';
@@ -28,25 +28,57 @@ export class HeartMakerComponent {
   editorMode: 'text' | 'background' = 'text';
   previewMode: '2d' | '3d' = '2d';
   textMoveActive = false;
+  private keepWorkflow = false;
+  private savedDesignId: string | null = null;
 
   ngOnInit(): void {
-    if (this.designState.draft) Object.assign(this, this.designState.draft);
+    const draft = this.designState.draft || this.cart.items.find(item => item.id === this.cart.editingId)?.draft;
+    this.savedDesignId = this.designState.editingSavedId;
+    this.designState.clearSession();
+    if (draft) Object.assign(this, draft);
     this.selectedFontFamily = normalizeCookieFont(this.selectedFontFamily);
   }
 
-  ngDoCheck(): void {
-    this.designState.save(this, '/cuore');
+  ngOnDestroy(): void {
+    if (!this.keepWorkflow) {
+      this.designState.clearSession();
+      this.cart.editingId = null;
+    }
   }
 
-  get draftSaveError(): string { return this.designState.saveError; }
+  keepDraftForNavigation(): void {
+    this.keepWorkflow = true;
+    this.designState.save(this.currentDraft(), '/cuore');
+    this.designState.editingSavedId = this.savedDesignId;
+  }
 
-  ngOnDestroy(): void {
-    this.designState.draft = {
+  private currentDraft(): CookieDraft {
+    return {
       testoInput: this.testoInput, testoDueInput: this.testoDueInput, testoTreInput: this.testoTreInput,
       selectedFontFamily: this.selectedFontFamily, fontSize: this.fontSize,
       selectedColor: this.selectedColor, selectedColorSfondo: this.selectedColorSfondo,
       croppedImage: this.croppedImage, originalImage: this.originalImage, originalImageName: this.originalImageName, textPosition: { ...this.textPosition }
     };
+  }
+  saveFeedback = '';
+  saveFailed = false;
+  isSaving = false;
+
+  async saveForLater(): Promise<void> {
+    if (this.isSaving || this.isGenerating) return;
+    this.isSaving = true;
+    this.saveFailed = false;
+    const draft = this.currentDraft();
+    try {
+      const preview = await captureCookiePreview(this.cookiePreview.nativeElement);
+      this.savedDesignId = this.designState.saveForLater(draft, '/cuore', preview, this.savedDesignId);
+      this.saveFeedback = 'Bozza salvata su questo dispositivo.';
+    } catch {
+      this.saveFailed = true;
+      this.saveFeedback = 'Impossibile salvare la bozza su questo dispositivo.';
+    } finally {
+      this.isSaving = false;
+    }
   }
   isGenerating = false;
   resetVersion = 0;
@@ -142,6 +174,7 @@ export class HeartMakerComponent {
     this.colorService.setSelectedColor('');
     this.colorService.setSelectedColorSfondo('');
     this.colorService.setSelectedImage('');
+    this.saveFeedback = '';
     this.textMoveActive = false;
     this.resetVersion++;
     this.textPosition = { x: 0, y: 0 };
@@ -172,7 +205,7 @@ export class HeartMakerComponent {
       this.colorService.setSelectedFont(this.selectedFontFamily);
       this.colorService.setSelectedImage(this.croppedImage);
       this.colorService.setSelectedMessage([this.testoInput, this.testoDueInput, this.testoTreInput].filter(Boolean).join(' '));
-      this.designState.save(this, '/' + 'cuore');
+      this.keepDraftForNavigation();
       if (destination === 'direct') this.cart.checkoutDirect('cuore', image, this.designState.draft!);
       else this.cart.add('cuore', image, this.designState.draft!);
       await this.router.navigate(['/checkout'], { queryParams: destination === 'direct' ? { direct: '1' } : {} });

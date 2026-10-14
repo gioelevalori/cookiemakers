@@ -23,6 +23,12 @@ describe('HomeComponent', () => {
   it('should create', () => {
     expect(component).toBeTruthy();
   });
+  it('links to the bakery story without replacing the cookie configurator', () => {
+    const page = fixture.nativeElement as HTMLElement;
+    expect(page.querySelector('#bakery-title')?.textContent).toBe('Nonna Delizia');
+    expect(page.querySelector('.bakery-story a')?.getAttribute('href')).toBe('/chisiamo');
+    expect(page.querySelectorAll('.shape-link').length).toBe(5);
+  });
 
   it('starts the circle design with the dedication and original cookie font', () => {
     const navigate = spyOn(TestBed.inject(Router), 'navigate').and.resolveTo(true);

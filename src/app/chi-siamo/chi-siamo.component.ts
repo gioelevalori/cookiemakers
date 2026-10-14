@@ -1,4 +1,5 @@
 import { ChangeDetectionStrategy, Component  } from '@angular/core';
+import { whatsappUrl } from '../cookie-product';
 
 @Component({
   standalone: false,
@@ -8,5 +9,5 @@ import { ChangeDetectionStrategy, Component  } from '@angular/core';
   styleUrls: ['./chi-siamo.component.css']
 })
 export class ChiSiamoComponent {
-
+  readonly whatsapp = whatsappUrl('Ciao! Vorrei informazioni sui biscotti personalizzati di Nonna Delizia e My Cookie Delight.');
 }

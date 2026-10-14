@@ -60,6 +60,16 @@ h3 { margin: 0 0 16px; font-size: 16px; font-weight: 500; }
 .inspiration-message { position: absolute; top: 50%; left: 8%; width: 84%; translate: 0 -50%; font-size: 18px; line-height: 1.25; text-align: center; overflow-wrap: anywhere; }
 .inspiration-title { font-size: 16px; }
 .gallery-section > * { max-width: 1152px; margin-left: auto; margin-right: auto; }
+.bakery-story { background: #faeef1; padding: 40px 24px; border-top: 1px solid #eedce3; }
+.bakery-story-inner { max-width: 1152px; margin: auto; display: grid; grid-template-columns: minmax(0, 1fr) 300px; align-items: center; gap: 48px; }
+.bakery-story p { max-width: 660px; line-height: 1.65; color: #52665b; }
+.bakery-story .eyebrow { color: #9d4357; }
+.bakery-story .bakery-tagline { font-size: 20px; color: #253b33; margin: 16px 0; }
+.bakery-story figure { margin: 0; text-align: center; }
+.bakery-story img { width: 100%; height: auto; max-width: 300px; }
+.bakery-story figcaption { font-size: 13px; line-height: 1.5; color: #52665b; margin-top: 12px; }
+.bakery-story a { min-height: 44px; letter-spacing: 0; }
+@media (max-width: 760px) { .bakery-story { padding: 32px 20px; } .bakery-story-inner { grid-template-columns: minmax(0, 1fr); gap: 24px; } .bakery-story img { max-width: 240px; } }
 .event-intro { display: flex; align-items: center; justify-content: space-between; gap: 24px; border-bottom: 1px solid #dde6e0; padding-bottom: 32px; margin-bottom: 32px; }
 .event-intro p:last-child { max-width: 600px; color: #52665b; line-height: 1.6; margin: 12px 0 0; }
 .event-intro > a { flex-shrink: 0; min-height: 48px; border-radius: 6px; }

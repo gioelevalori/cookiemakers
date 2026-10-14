@@ -11,6 +11,8 @@ figure { margin: 0; }
 figure img { display: block; width: 100%; height: auto; aspect-ratio: 1; object-fit: contain; border-radius: 6px; background: #fff; }
 figcaption { color: #52665b; font-size: 13px; line-height: 1.5; margin-top: 12px; }
 .events-gallery > a { grid-column: 1 / -1; justify-self: start; min-height: 44px; margin-top: 8px; }
+.event-materials { grid-column: 1 / -1; font-size: 14px; color: #52665b; line-height: 1.6; margin: 8px 0 0; }
+.bakery-link { min-height: 44px; letter-spacing: 0; margin-left: -12px; }
 form { display: flex; flex-direction: column; gap: 12px; }
 mat-form-field { width: 100%; }
 fieldset { display: flex; flex-wrap: wrap; gap: 8px 24px; border: 0; margin: 0 0 12px; padding: 0; }

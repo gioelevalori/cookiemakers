@@ -1,0 +1,23 @@
+:host { display: block; color: #253b33; }
+.bakery-page { max-width: 1152px; margin: auto; padding: 40px 24px 56px; }
+.bakery-heading { max-width: 720px; padding-bottom: 32px; }
+.eyebrow { color: #9d4357; font-size: 12px; text-transform: uppercase; margin: 0 0 12px; letter-spacing: 0; }
+h1 { font: 600 44px/1.15 'Fraunces', serif; margin: 0 0 20px; overflow-wrap: anywhere; }
+h2 { font: 600 28px/1.3 'Fraunces', serif; margin: 0 0 16px; overflow-wrap: anywhere; }
+p { font-size: 16px; color: #52665b; line-height: 1.65; margin: 0 0 16px; }
+.lead { font-size: 20px; color: #253b33; }
+.story-section { display: grid; grid-template-columns: 48px minmax(0, 1fr); gap: 24px; padding: 32px 0; border-top: 1px solid #dde6e0; }
+.story-copy { max-width: 720px; }
+.story-copy > p:last-child { margin-bottom: 0; }
+.story-number { font: 600 24px/1.3 'Fraunces', serif; color: #9d4357; }
+.with-photo { grid-template-columns: 48px minmax(0, 1fr) 260px; align-items: start; }
+figure { margin: 0; text-align: center; }
+figure img { width: 100%; height: auto; max-width: 260px; }
+figcaption { margin-top: 12px; color: #52665b; font-size: 13px; line-height: 1.5; }
+.bakery-next { border-top: 1px solid #dde6e0; padding: 32px 0 24px; }
+.bakery-actions { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 24px; }
+.bakery-actions a { min-height: 48px; border-radius: 6px; letter-spacing: 0; white-space: normal; text-align: center; }
+.food-information { display: flex; align-items: flex-start; gap: 12px; margin-top: 24px; padding-top: 24px; border-top: 1px solid #dde6e0; }
+.food-information p { font-size: 13px; margin: 0; }
+.food-information mat-icon { flex-shrink: 0; color: #52665b; }
+@media (max-width: 760px) { .bakery-page { padding: 32px 20px 48px; } h1 { font-size: 36px; } h2 { font-size: 24px; } .story-section { grid-template-columns: 32px minmax(0, 1fr); gap: 16px; } .with-photo figure { grid-column: 2; max-width: 240px; justify-self: center; } .lead { font-size: 18px; } }

@@ -155,3 +155,17 @@ schede PDF in chat. Il pagamento Stripe mantiene la precedente modalita demo.
 
 Test mobile/desktop: `node scripts/product-options-smoke.cjs`.
 Per la build Pages usare `COOKIE_URL` e `COOKIE_ROUTE_MODE=hash`.
+
+## Presentazione del laboratorio
+
+La presentazione PDF fornita dalla cliente e stata adattata a testo HTML:
+home con introduzione a Nonna Delizia, pagina `/chisiamo` con materia prima,
+laboratorio e personalizzazione, e testi dedicati nella pagina eventi.
+Due immagini della pagina 3 sono estratte senza modifiche nel sito.
+La brochure completa da circa 19 MB non viene scaricata dai visitatori.
+Il configuratore, la texture originale e i font del biscotto restano invariati.
+Sono escluse la formula "niente chimica", le promesse di collezioni settimanali
+non implementate e la trasformazione del testo promozionale in una ricetta:
+il PDF non contiene una lista completa di ingredienti o allergeni.
+
+Test dedicato: `node scripts/bakery-story-smoke.cjs` (320-1440 px).

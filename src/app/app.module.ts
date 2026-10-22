@@ -1,3 +1,6 @@
+import { CustomerExperienceComponent } from './customer-experience.component';
+import { EditorQuoteComponent } from './editor-quote.component';
+import { CustomRequestComponent } from './custom-request/custom-request.component';
 import { CookieInspirationsComponent } from './cookie-inspirations.component';
 import { GalleriaComponent } from './galleria/galleria.component';
 import { LOCALE_ID, NgModule, provideZoneChangeDetection } from '@angular/core';
@@ -78,6 +81,9 @@ registerLocaleData(localeIt);
     EventiComponent,
     GalleriaComponent,
     CookieInspirationsComponent,
+    CustomerExperienceComponent,
+    EditorQuoteComponent,
+    CustomRequestComponent,
   ],
   imports: [
     BrowserModule,

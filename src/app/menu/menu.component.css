@@ -5,7 +5,7 @@
 .logo-window { display: block; width: 172px; aspect-ratio: 827 / 293; overflow: hidden; position: relative; }
 /* The original square PNG has transparent padding around the wordmark. */
 .logo-window img { position: absolute; width: 120.92%; height: auto; max-width: none; left: -10.88%; top: -99.66%; }
-.nav-links { margin-left: auto; display: flex; align-items: center; gap: 36px; }
+.nav-links { margin-left: auto; display: flex; align-items: center; gap: 24px; }
 .nav-links a { display: flex; align-items: center; min-height: 44px; color: #61766a; font-size: 14px; border-bottom: 1px solid transparent; }
 .nav-links a:hover { color: #253b33; border-bottom-color: #b4c9bc; }
 .nav-links a.active { color: #253b33; }

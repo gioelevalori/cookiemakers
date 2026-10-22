@@ -1,3 +1,4 @@
+import { EditorOrderService } from '../editor-order.service';
 import { AfterViewInit, ChangeDetectionStrategy, Component, OnInit, inject } from '@angular/core';
 import { Router } from '@angular/router';
 import { CookieDesignService, SavedCookieDesign } from '../cookie-design.service';
@@ -14,6 +15,7 @@ export class HomeComponent implements OnInit, AfterViewInit {
   private readonly router = inject(Router);
   private readonly designState = inject(CookieDesignService);
   private readonly cart = inject(CartService);
+  private readonly order = inject(EditorOrderService);
   readonly homeCreations = ['1.jpeg', '2.jpeg', '3.jpeg', '4.jpeg', '5.jpeg', '6.jpeg'];
   heroMessage = 'Per te';
   heroEdited = false;
@@ -22,6 +24,7 @@ export class HomeComponent implements OnInit, AfterViewInit {
   savedDesignError = '';
 
   ngOnInit(): void {
+    this.order.reset();
     this.cart.startNew();
     this.designState.clearSession();
   }

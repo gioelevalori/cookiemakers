@@ -1,3 +1,4 @@
+import { EditorOrderService } from '../editor-order.service';
 import { CartService } from '../cart.service';
 import { CookieRecipe, CookieCovering } from '../cookie-product';
 import { captureCookiePreview } from '../capture-cookie-preview';
@@ -25,6 +26,7 @@ export class HeartMakerComponent {
   private readonly router = inject(Router);
   private readonly designState = inject(CookieDesignService);
   readonly cart = inject(CartService);
+  readonly order = inject(EditorOrderService);
   readonly cookieShapes = COOKIE_SHAPES;
   editorMode: 'text' | 'background' = 'text';
   previewMode: '2d' | '3d' = '2d';
@@ -33,6 +35,11 @@ export class HeartMakerComponent {
   private savedDesignId: string | null = null;
 
   ngOnInit(): void {
+    const editingOrder = this.cart.items.find(item => item.id === this.cart.editingId);
+    if (editingOrder && this.order.editingId !== editingOrder.id) {
+      this.order.quantityControl.setValue(editingOrder.quantity);
+      this.order.editingId = editingOrder.id;
+    }
     const draft = this.designState.draft || this.cart.items.find(item => item.id === this.cart.editingId)?.draft;
     this.savedDesignId = this.designState.editingSavedId;
     this.designState.clearSession();
@@ -172,6 +179,7 @@ export class HeartMakerComponent {
   }
 
   resetPage() {
+    this.order.reset();
     this.previewMode = '2d';
     this.editorMode = 'text';
     this.imageService.changeImage('');
@@ -200,7 +208,7 @@ export class HeartMakerComponent {
   }
 
   public async generateImage(destination: 'cart' | 'direct' = 'cart'): Promise<void> {
-    if (this.isGenerating) return;
+    if (this.isGenerating || this.order.invalid) return;
     this.isGenerating = true;
     this.captureError = '';
     try {
@@ -214,8 +222,8 @@ export class HeartMakerComponent {
       this.colorService.setSelectedImage(this.croppedImage);
       this.colorService.setSelectedMessage([this.testoInput, this.testoDueInput, this.testoTreInput].filter(Boolean).join(' '));
       this.keepDraftForNavigation();
-      if (destination === 'direct') this.cart.checkoutDirect('cuore', image, this.designState.draft!);
-      else this.cart.add('cuore', image, this.designState.draft!);
+      if (destination === 'direct') this.cart.checkoutDirect('cuore', image, this.designState.draft!, this.order.quantity);
+      else this.cart.add('cuore', image, this.designState.draft!, this.order.quantity);
       await this.router.navigate(['/checkout'], { queryParams: destination === 'direct' ? { direct: '1' } : {} });
     } catch {
       this.captureError = 'Impossibile preparare l\'anteprima. Riprova.';

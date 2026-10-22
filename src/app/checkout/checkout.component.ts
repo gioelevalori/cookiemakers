@@ -1,3 +1,4 @@
+import { EditorOrderService } from '../editor-order.service';
 import { ChangeDetectionStrategy, Component, DestroyRef, OnInit, inject } from '@angular/core';
 import { AbstractControl, FormBuilder, Validators } from '@angular/forms';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
@@ -17,6 +18,7 @@ export class CheckoutComponent implements OnInit {
   private readonly route = inject(ActivatedRoute);
   direct = false;
   readonly cart = inject(CartService);
+  private readonly editorOrder = inject(EditorOrderService);
   get items(): CartItem[] { return this.direct ? (this.cart.directItem ? [this.cart.directItem] : []) : this.cart.items; }
   get quantity(): number { return this.items.reduce((sum, item) => sum + item.quantity, 0); }
   readonly stripeService = inject(StripeService);
@@ -93,6 +95,8 @@ export class CheckoutComponent implements OnInit {
   }
   remove(item: CartItem): void { this.quantityErrors.delete(item.id); this.cart.remove(item.id); }
   async edit(item: CartItem): Promise<void> {
+    this.editorOrder.quantityControl.setValue(item.quantity);
+    this.editorOrder.editingId = item.id;
     if (this.direct) { this.cart.startNew(); this.cart.edit(item); this.cart.editingId = null; }
     else this.cart.edit(item); await this.router.navigate(['/' + item.shape]); }
   newDesign(): void { this.cart.startNew(); }

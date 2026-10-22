@@ -21,6 +21,7 @@
           <p [style.font-size.px]="fontSize" [style.font-family]="selectedFontFamily" [style.color]="selectedColor || '#202925'">{{ testoInput }}<br *ngIf="testoDueInput" />{{ testoDueInput }}<br *ngIf="testoTreInput" />{{ testoTreInput }}</p>
         </div>
       </div>
+      <app-editor-quote [disabled]="isGenerating || isSaving"></app-editor-quote>
     </div>
     <section class="maker-controls" aria-label="Personalizzazione">
       <fieldset class="shape-options"><legend>Forma</legend>
@@ -46,14 +47,14 @@
         <button mat-button [disabled]="isGenerating || isSaving" [attr.aria-pressed]="textMoveActive" (click)="textMoveActive = !textMoveActive; previewMode = '2d'; textMoveActive && cookiePreview.scrollIntoView({ behavior: 'smooth', block: 'center' })"><mat-icon>{{ textMoveActive ? 'check' : 'open_with' }}</mat-icon>{{ textMoveActive ? 'Fatto' : 'Sposta testo' }}</button>
         <button mat-button [disabled]="isGenerating || isSaving" (click)="textPosition = { x: 0, y: 0 }" aria-label="Ripristina posizione testo"><mat-icon>restart_alt</mat-icon>Ripristina posizione</button>
       </div>
-      <div class="order-action">
+      <div id="order-actions" class="order-action">
         <button class="save-design" mat-stroked-button [disabled]="isGenerating || isSaving" (click)="saveForLater()" title="Salva la bozza su questo dispositivo"><mat-icon>bookmark_border</mat-icon>{{ isSaving ? 'Salvataggio...' : 'Salva per dopo' }}</button>
         <p *ngIf="saveFeedback" class="save-feedback" [class.error-message]="saveFailed" [attr.role]="saveFailed ? 'alert' : 'status'">{{ saveFeedback }}</p>
         <button class="reset-design" mat-stroked-button [disabled]="isGenerating || isSaving" (click)="resetPage()" aria-label="Ricomincia da zero"><mat-icon>restart_alt</mat-icon>Ricomincia da zero</button>
-        <p class="order-label"><span>Ordine minimo · 10 biscotti</span><strong>{{ 15 | currency:'EUR' }}</strong></p>
+        <p class="order-label"><span>{{ order.quantity }} biscotti · {{ order.method === 'pickup' ? 'ritiro' : 'spedizione' }}</span><strong *ngIf="!order.invalid">{{ order.total | currency:'EUR' }}</strong></p>
         <div class="checkout-actions">
-        <button mat-stroked-button [disabled]="isGenerating || isSaving" (click)="generateImage('cart')">{{ isGenerating ? 'Preparazione...' : (cart.editingId ? 'Salva modifiche nel carrello' : 'Aggiungi al carrello') }}<mat-icon>arrow_forward</mat-icon></button>
-          <button mat-flat-button color="primary" [disabled]="isGenerating || isSaving" (click)="generateImage('direct')">Continua con l'ordine<mat-icon>arrow_forward</mat-icon></button>
+        <button mat-stroked-button [disabled]="isGenerating || isSaving || order.invalid" (click)="generateImage('cart')">{{ isGenerating ? 'Preparazione...' : (cart.editingId ? 'Salva modifiche nel carrello' : 'Aggiungi al carrello') }}<mat-icon>arrow_forward</mat-icon></button>
+          <button mat-flat-button color="primary" [disabled]="isGenerating || isSaving || order.invalid" (click)="generateImage('direct')">Continua con l'ordine<mat-icon>arrow_forward</mat-icon></button>
         </div>
         <p *ngIf="captureError" class="error-message" role="alert">{{ captureError }}</p>
       </div>

@@ -53,17 +53,19 @@ export class CartService {
   get total(): number { return this.items.reduce((sum, item) => sum + this.price(item.quantity), 0); }
   get quantity(): number { return this.items.reduce((sum, item) => sum + item.quantity, 0); }
 
-  add(shape: string, preview: string, draft: CookieDraft): void {
+  add(shape: string, preview: string, draft: CookieDraft, quantity?: number): void {
+    if (quantity !== undefined && !this.validQuantity(quantity)) throw new Error('Quantità non valida');
     const existing = this.items.find(item => item.id === this.editingId);
     const item: CartItem = { id: existing?.id || (crypto.randomUUID?.() ?? `${Date.now()}-${Math.random().toString(36).slice(2)}`), shape, preview,
-      quantity: existing?.quantity || 10, draft: JSON.parse(JSON.stringify(draft)) };
+      quantity: quantity ?? existing?.quantity ?? 10, draft: JSON.parse(JSON.stringify(draft)) };
     this.items = existing ? this.items.map(value => value.id === existing.id ? item : value) : [...this.items, item];
     this.editingId = null;
     this.persist();
   }
 
-  checkoutDirect(shape: string, preview: string, draft: CookieDraft): void {
-    this.directItem = { id: 'direct-order', shape, preview, quantity: this.directItem?.quantity || 10,
+  checkoutDirect(shape: string, preview: string, draft: CookieDraft, quantity?: number): void {
+    if (quantity !== undefined && !this.validQuantity(quantity)) throw new Error('Quantità non valida');
+    this.directItem = { id: 'direct-order', shape, preview, quantity: quantity ?? this.directItem?.quantity ?? 10,
       draft: JSON.parse(JSON.stringify(draft)) };
     this.editingId = null;
     this.persistDirect();

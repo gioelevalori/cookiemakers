@@ -19,7 +19,8 @@
     </form>
     <button class="showcase-scroll" type="button" (click)="shapeSection.scrollIntoView({ behavior: 'smooth', block: 'start' })" aria-label="Vai alla scelta della forma" title="Scegli la forma"><mat-icon>south</mat-icon></button>
   </section>
-  <section class="shape-section" aria-labelledby="shape-title" #shapeSection>
+  <app-customer-experience mode="steps"></app-customer-experience>
+  <section id="personalizza" class="shape-section" aria-labelledby="shape-title" #shapeSection>
     <div class="section-heading">
       <h2 id="shape-title">Scegli la forma</h2>
       <span class="section-note">Da {{ 15 | currency:'EUR' }} per 10 biscotti</span>
@@ -81,6 +82,7 @@
       </a>
     </div>
   </section>
+  <app-customer-experience mode="details"></app-customer-experience>
   <section id="creazioni" class="events-home" aria-labelledby="events-home-title">
     <div class="event-intro"><div><p class="eyebrow">Il tuo giorno speciale</p><h2 id="events-home-title">Biscotti per eventi</h2><p>Compleanni, matrimoni, lauree ed eventi aziendali. Forme, colori, scritte, loghi e immagini su misura: tu scegli il tema, noi lo trasformiamo in dolce.</p></div><a mat-flat-button color="primary" routerLink="/eventi">Parliamo del tuo evento <mat-icon>arrow_forward</mat-icon></a></div>
   </section>

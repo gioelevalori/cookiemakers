@@ -81,3 +81,5 @@ h1 { font: 600 36px/1.2 "Fraunces", serif; margin: 0; overflow-wrap: anywhere; }
 
 .checkout-actions { display: grid; gap: 12px; }
 .checkout-actions > button { width: 100%; min-height: 48px; border-radius: 6px; }
+
+@media(max-width: 960px) { .maker-page { padding-bottom: 120px; } }

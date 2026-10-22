@@ -1,0 +1,19 @@
+<details class="editor-quote" [open]="expanded" (toggle)="expanded = $any($event.target).open">
+  <summary><h2>Quantità e consegna</h2><span *ngIf="!order.invalid">{{ order.total | currency:'EUR' }}</span><mat-icon aria-hidden="true">{{ expanded ? 'expand_less' : 'expand_more' }}</mat-icon></summary>
+  <p class="quote-price-note">Minimo 10 pezzi. Personalizzazione e quantità restano modificabili.</p>
+  <div class="quote-quantity">
+    <button mat-icon-button type="button" [disabled]="disabled || order.quantity <= 10" (click)="changeQuantity(-1)" aria-label="Riduci quantità nell'editor"><mat-icon>remove</mat-icon></button>
+    <mat-form-field appearance="outline"><mat-label>Quantità del tuo biscotto</mat-label><input matInput type="number" min="10" step="1" [formControl]="order.quantityControl" [readonly]="disabled" /><mat-error>Almeno 10 pezzi, in numero intero.</mat-error></mat-form-field>
+    <button mat-icon-button type="button" [disabled]="disabled" (click)="changeQuantity(1)" aria-label="Aumenta quantità nell'editor"><mat-icon>add</mat-icon></button>
+  </div>
+  <fieldset [disabled]="disabled"><legend>Come li ricevi?</legend><label><input type="radio" name="editorDelivery" [checked]="order.method === 'pickup'" (change)="order.method = 'pickup'" />Ritiro in sede</label><label><input type="radio" name="editorDelivery" [checked]="order.method === 'shipping'" (change)="order.method = 'shipping'" />Spedizione</label></fieldset>
+  <dl *ngIf="!order.invalid" aria-live="polite"><dt>{{ order.quantity }} biscotti</dt><dd>{{ order.subtotal | currency:'EUR' }}</dd><dt>{{ order.method === 'pickup' ? 'Ritiro' : 'Spedizione' }}</dt><dd>{{ order.shipping | currency:'EUR' }}</dd><dt class="quote-total">Totale stimato</dt><dd class="quote-total">{{ order.total | currency:'EUR' }}</dd></dl>
+  <p class="quote-price-note">10 pezzi: {{ 15 | currency:'EUR' }}. Ogni pezzo aggiuntivo: {{ 5 | currency:'EUR' }}.</p>
+  <p *ngIf="order.earliestDate">{{ order.method === 'pickup' ? 'Primo ritiro stimato' : 'Prima consegna stimata' }}: <strong>{{ order.earliestDate | date:'dd/MM/yyyy' }}</strong>.</p>
+  <p class="quote-price-note">Tempi lavorativi e disponibilità da confermare. Confezioni speciali e richieste su misura da preventivare.</p>
+</details>
+<aside class="mobile-quote" aria-label="Totale durante la personalizzazione">
+  <span *ngIf="!order.invalid; else invalidQuantity">{{ order.quantity }} biscotti · {{ order.method === 'pickup' ? 'ritiro' : 'spedizione' }}<strong>{{ order.total | currency:'EUR' }}</strong></span>
+  <ng-template #invalidQuantity><span>Inserisci almeno 10 biscotti.</span></ng-template>
+  <button mat-flat-button type="button" [disabled]="order.invalid || disabled" (click)="goToOrder()">Riepilogo <mat-icon>arrow_downward</mat-icon></button>
+</aside>

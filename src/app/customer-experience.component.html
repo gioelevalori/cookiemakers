@@ -1,0 +1,35 @@
+<section class="how-it-works" *ngIf="mode === 'steps'" aria-labelledby="how-title">
+  <div class="section-title"><p class="eyebrow">Dal primo clic al primo morso</p><h2 id="how-title">Il tuo biscotto, in tre piccoli passi.</h2></div>
+  <ol class="steps">
+    <li><span class="step-number">01</span><div><h3>Scegli la tua idea</h3><p>Una forma, un esempio pronto o una creazione tutta tua.</p><a routerLink="/" fragment="personalizza">Scegli la forma <mat-icon>arrow_forward</mat-icon></a></div></li>
+    <li><span class="step-number">02</span><div><h3>Metti qualcosa di te</h3><p>Una foto, una dedica e i tuoi colori. Guarda l'anteprima mentre crei.</p><a routerLink="/galleria">Trova l'ispirazione <mat-icon>arrow_forward</mat-icon></a></div></li>
+    <li><span class="step-number">03</span><div><h3>Concordiamo i dettagli</h3><p>Quantità, disponibilità e data: scegli ritiro in sede o spedizione.</p><a routerLink="/contatti">Parliamone <mat-icon>arrow_forward</mat-icon></a></div></li>
+  </ol>
+</section>
+
+<div class="experience-details" *ngIf="mode === 'details'">
+  <section class="packaging-section" aria-labelledby="packaging-title">
+    <div class="section-title"><p class="eyebrow">Anche il regalo ha la sua forma</p><h2 id="packaging-title">Bello da ricevere. Buono da ricordare.</h2><p>Tre idee per raccontarci come vorresti regalare i tuoi biscotti. Confezioni, materiali e costi si concordano con il laboratorio.</p></div>
+    <div class="packaging-grid">
+      <article *ngFor="let pack of packages"><span class="package-illustration" aria-hidden="true"><mat-icon>{{ pack.icon }}</mat-icon></span><p class="small-label">Idea di confezione · da concordare</p><h3>{{ pack.title }}</h3><p>{{ pack.copy }}</p><a routerLink="/su-misura" [queryParams]="{ confezione: pack.id }">Chiedi questa soluzione <mat-icon>arrow_forward</mat-icon></a></article>
+    </div>
+  </section>
+
+  <section class="size-guide" aria-labelledby="size-title">
+    <div><p class="eyebrow">Dai forma alla tua idea</p><h2 id="size-title">Piccolo pensiero o protagonista della tavola?</h2><p>La misura cambia l'effetto del tuo regalo. Confronta queste dimensioni indicative e raccontaci quella che immagini.</p><a routerLink="/su-misura" [queryParams]="{ dimensione: 'da-concordare' }">Troviamo la misura giusta <mat-icon>arrow_forward</mat-icon></a></div>
+    <figure>
+      <svg viewBox="0 0 600 220" role="img" aria-label="Confronto illustrativo di biscotti da 4, 6 e 8 centimetri, con diametri in proporzione">
+        <defs><pattern id="measureCookieTexture" patternUnits="userSpaceOnUse" width="160" height="160"><image href="assets/cookie-texture.jpg" width="160" height="160" preserveAspectRatio="xMidYMid slice" /></pattern></defs>
+        <circle cx="90" cy="100" r="40" fill="url(#measureCookieTexture)" /><circle cx="270" cy="100" r="60" fill="url(#measureCookieTexture)" /><circle cx="490" cy="100" r="80" fill="url(#measureCookieTexture)" />
+        <circle cx="90" cy="100" r="34" fill="#f8e8ec" /><circle cx="270" cy="100" r="51" fill="#e5f0eb" /><circle cx="490" cy="100" r="68" fill="#efecf7" />
+        <text x="90" y="107" text-anchor="middle">4 cm</text><text x="270" y="107" text-anchor="middle">6 cm</text><text x="490" y="107" text-anchor="middle">8 cm</text>
+        <text class="size-caption" x="90" y="210" text-anchor="middle">Un piccolo pensiero</text><text class="size-caption" x="270" y="210" text-anchor="middle">Una dedica</text><text class="size-caption" x="490" y="210" text-anchor="middle">Più spazio alla tua idea</text>
+      </svg>
+      <figcaption>Confronto illustrativo, non in scala reale sullo schermo. Le misure non descrivono i biscotti nelle foto: dimensioni e fattibilità sono da confermare.</figcaption>
+    </figure>
+  </section>
+
+  <section class="bespoke-callout" aria-labelledby="bespoke-title"><div><p class="eyebrow">Hai già qualcosa in mente?</p><h2 id="bespoke-title">Partiamo dalla tua idea.</h2><p>Una foto, un invito, un logo o un colore speciale. Raccontaci l'occasione e prepariamo insieme una proposta.</p></div><a mat-flat-button color="primary" routerLink="/su-misura">Richiedi una creazione su misura <mat-icon>arrow_forward</mat-icon></a></section>
+
+  <section class="trust-section" aria-labelledby="trust-title"><div><p class="eyebrow">Prima di scegliere, conosciamoci</p><h2 id="trust-title">Un laboratorio vero, persone da incontrare.</h2><p>{{ business.pickupName }} · {{ business.pickupAddress }}</p><p>Consulta la scheda del laboratorio su Google per informazioni, indicazioni e recensioni dei clienti.</p><div class="trust-actions"><a mat-stroked-button [href]="business.mapsUrl" target="_blank" rel="noopener noreferrer">Recensioni e informazioni su Google <mat-icon>open_in_new</mat-icon></a><a mat-button routerLink="/chisiamo">Conosci il laboratorio <mat-icon>arrow_forward</mat-icon></a></div></div><span class="trust-mark" aria-hidden="true"><mat-icon>storefront</mat-icon><span>Nonna Delizia</span></span></section>
+</div>

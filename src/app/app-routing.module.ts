@@ -1,3 +1,4 @@
+import { CustomRequestComponent } from './custom-request/custom-request.component';
 import { GalleriaComponent } from './galleria/galleria.component';
 import { NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
@@ -29,6 +30,7 @@ const routes: Routes = [
   { path: 'contatti', component: ContattiComponent },
   { path: 'eventi', component: EventiComponent },
   { path: 'galleria', component: GalleriaComponent },
+  { path: 'su-misura', component: CustomRequestComponent },
   { path: 'cuore', component: HeartMakerComponent },
   { path: 'test', component: TestComponent },
 ];

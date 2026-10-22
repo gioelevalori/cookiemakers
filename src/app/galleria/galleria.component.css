@@ -23,12 +23,14 @@ h2 { font-size: 36px; line-height: 1.2; margin: 0 0 16px; }
 .gallery-contact h2 { font-size: 28px; }
 .gallery-contact p:last-child { color: #61766a; line-height: 1.6; margin: 0; }
 .gallery-contact a { flex-shrink: 0; min-height: 48px; }
-.photo-dialog { border: 0; border-radius: 12px; padding: 0; max-width: min(960px, calc(100vw - 32px)); max-height: calc(100dvh - 32px); width: max-content; color: #253b33; background: #fff; }
-.photo-dialog::backdrop { background: #152a23d9; }
-.dialog-content { display: flex; flex-direction: column; max-height: calc(100dvh - 32px); }
-.dialog-header, .dialog-footer { display: flex; align-items: center; justify-content: space-between; gap: 16px; padding: 8px 16px; flex-shrink: 0; }
-.dialog-header { font-size: 13px; color: #61766a; }
-.enlarged-photo { display: block; max-width: 100%; max-height: calc(100dvh - 180px); min-height: 0; width: auto; height: auto; object-fit: contain; }
+.photo-dialog { position: fixed; inset: 0; border: 0; border-radius: 0; padding: 0; margin: 0; width: 100%; height: 100vh; height: 100dvh; max-width: none; max-height: none; overflow: hidden; color: #fff; background: #152a23; }
+.photo-dialog::backdrop { background: #152a23; }
+.dialog-content { display: grid; grid-template-rows: auto minmax(0, 1fr) auto; width: 100%; height: 100%; }
+.dialog-header, .dialog-footer { display: flex; align-items: center; justify-content: space-between; gap: 16px; padding: 12px 24px; }
+.dialog-header { font-size: 13px; color: #fff; padding-top: max(12px, env(safe-area-inset-top)); }
+.dialog-footer { padding-bottom: max(12px, env(safe-area-inset-bottom)); }
+.dialog-content button { color: #fff; }
+.enlarged-photo { display: block; width: 100%; height: 100%; min-width: 0; min-height: 0; max-width: none; max-height: none; object-fit: contain; }
 .dialog-footer p { font-size: 14px; margin: 0; text-align: center; }
 @media (max-width: 1000px) { .collection-heading { align-items: flex-start; flex-direction: column; gap: 16px; } .photo-grid { columns: 2; } }
 @media (max-width: 600px) {
@@ -38,5 +40,5 @@ h2 { font-size: 36px; line-height: 1.2; margin: 0 0 16px; }
   .collection-nav { margin-bottom: 32px; }
   .photo-grid { columns: 1; }
   .gallery-contact { flex-direction: column; align-items: stretch; padding: 24px; margin-top: 24px; }
-  .dialog-header, .dialog-footer { gap: 8px; padding: 8px; }
+  .dialog-header, .dialog-footer { gap: 8px; padding-left: 12px; padding-right: 12px; }
 }

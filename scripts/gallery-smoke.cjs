@@ -28,6 +28,8 @@ fs.mkdirSync('artifacts', { recursive: true });
       await page.locator('.photo-card').first().click();
       const dialog = page.getByRole('dialog');
       await dialog.waitFor();
+      const viewer = await dialog.boundingBox();
+      assert.ok(viewer.width >= width - 2 && viewer.height >= 998, 'The photo viewer must fill the viewport');
       await dialog.locator('img').evaluate(image => image.decode());
       assert.match(await dialog.locator('.dialog-header').innerText(), /1 \/ 10/);
       await page.getByRole('button', { name: 'Foto successiva', exact: true }).click();

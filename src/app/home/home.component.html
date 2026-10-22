@@ -34,6 +34,20 @@
       </article>
     </div>
   </section>
+  <section class="gallery-preview" aria-labelledby="gallery-preview-title">
+    <div class="gallery-preview-inner">
+      <div class="gallery-preview-copy">
+        <p class="eyebrow">Dalla nostra galleria</p>
+        <h2 id="gallery-preview-title">Le nostre creazioni,<br />da vicino.</h2>
+        <p>Scopri le nostre creazioni per ogni occasione.</p>
+        <a mat-flat-button color="primary" routerLink="/galleria">Guarda la galleria <mat-icon>arrow_forward</mat-icon></a>
+      </div>
+      <a class="gallery-preview-photos" routerLink="/galleria" aria-label="Esplora le creazioni nella galleria">
+        <img src="assets/gallery/pasqua/pasqua-07-thumb.webp" alt="Biscotto a forma di coniglietto bianco con dettagli rosa" width="800" height="800" loading="lazy" />
+        <img src="assets/gallery/pasqua/pasqua-03-thumb.webp" alt="Biscotto decorato come un cestino con uova di Pasqua" width="735" height="800" loading="lazy" />
+      </a>
+    </div>
+  </section>
   <section class="saved-design-section" *ngIf="savedDesigns.length" aria-labelledby="saved-title">
     <div class="section-heading"><h2 id="saved-title">I tuoi biscotti salvati</h2><span class="section-note">{{ savedDesigns.length }} salvati</span></div>
     <div class="saved-design-grid" role="list">
@@ -51,39 +65,30 @@
     </div>
     <p *ngIf="savedDesignError" role="alert">{{ savedDesignError }}</p>
   </section>
-  <section class="inspiration-section" aria-labelledby="inspiration-title">
-    <div class="section-heading"><h2 id="inspiration-title">Un biscotto per ogni occasione</h2></div>
-    <div class="inspiration-grid">
-      <button class="inspiration-card" *ngFor="let inspiration of inspirations" (click)="startInspiration(inspiration)" [attr.aria-label]="'Personalizza: ' + inspiration.title">
-        <span class="inspiration-preview" aria-hidden="true">
-          <span class="cookie-shape inspiration-cookie" [ngClass]="inspiration.shape">
-            <span class="inspiration-icing" [style.background-color]="inspiration.draft.selectedColorSfondo"></span>
-            <span class="inspiration-message" [style.color]="inspiration.draft.selectedColor" [style.font-family]="inspiration.draft.selectedFontFamily">{{ inspiration.draft.testoInput }}<br />{{ inspiration.draft.testoDueInput }}</span>
-          </span>
-        </span>
-        <span class="inspiration-title">{{ inspiration.title }}</span>
-        <span class="shape-action">Personalizza <mat-icon>arrow_forward</mat-icon></span>
-      </button>
-    </div>
-  </section>
+  <app-cookie-inspirations></app-cookie-inspirations>
   <section class="bakery-story" aria-labelledby="bakery-title">
     <div class="bakery-story-inner">
-      <div><p class="eyebrow">Il laboratorio di My Cookie Delight</p><h2 id="bakery-title">Nonna Delizia</h2><p class="bakery-tagline">L'arte della pasticceria incontra il design.</p><p>Da 10 anni uniamo cura artigianale e creativit&agrave;. Ogni biscotto prende forma con tempo, pazienza e attenzione ai dettagli: una dedica da gustare, un piccolo regalo per i tuoi momenti speciali.</p><a mat-button routerLink="/chisiamo">Dentro il laboratorio <mat-icon>arrow_forward</mat-icon></a></div>
-      <figure><img src="assets/nonna-delizia-decorazione.png" width="346" height="336" alt="Decorazione a mano di un biscotto con la scritta Andrea Zoe" loading="lazy" /><figcaption>Una mano ferma, una dedica tutta tua.</figcaption></figure>
+      <div class="gallery-preview-copy">
+        <p class="eyebrow">Il nostro laboratorio</p>
+        <h2 id="bakery-title">Nonna Delizia</h2>
+        <p class="bakery-tagline">L'arte della pasticceria incontra il design.</p>
+        <p>Da 10 anni uniamo cura artigianale e creativit&agrave;. Entra nel nostro laboratorio e scopri come nascono i tuoi biscotti.</p>
+        <a mat-flat-button color="primary" routerLink="/chisiamo">Scopri il laboratorio <mat-icon>arrow_forward</mat-icon></a>
+      </div>
+      <a class="gallery-preview-photos" routerLink="/chisiamo" aria-label="Entra nel laboratorio Nonna Delizia">
+        <img src="assets/nonna-delizia-decorazione.png" width="346" height="336" alt="Decorazione a mano di un biscotto con la scritta Andrea Zoe" loading="lazy" />
+        <img src="assets/nonna-delizia-biscotti.png" width="447" height="449" alt="Biscotti decorati azzurri con la dedica Laura" loading="lazy" />
+      </a>
     </div>
   </section>
-  <section id="creazioni" class="gallery-section" aria-labelledby="gallery-title">
-    <div class="event-intro"><div><p class="eyebrow">Il tuo giorno speciale</p><h2>Biscotti per eventi</h2><p>Compleanni, matrimoni, lauree ed eventi aziendali. Forme, colori, scritte, loghi e immagini su misura: tu scegli il tema, noi lo trasformiamo in dolce.</p></div><a mat-flat-button color="primary" routerLink="/eventi">Parliamo del tuo evento <mat-icon>arrow_forward</mat-icon></a></div>
-    <div class="section-heading">
-      <div><p class="eyebrow">Dalla nostra galleria</p><h2 id="gallery-title">Piccole dolci storie</h2></div>
-      <a mat-button routerLink="/contatti">Parliamone <mat-icon>arrow_forward</mat-icon></a>
-    </div>
-    <div class="gallery">
-      <figure class="gallery-item" *ngFor="let image of galleryImages; let i = index">
-        <img class="gallery-image" [src]="'assets/' + image" [alt]="'Biscotti personalizzati, creazione ' + (i + 1)" width="1024" height="1024" [attr.loading]="i < 3 ? 'eager' : 'lazy'" />
+  <section id="creazioni" class="events-home" aria-labelledby="events-home-title">
+    <div class="event-intro"><div><p class="eyebrow">Il tuo giorno speciale</p><h2 id="events-home-title">Biscotti per eventi</h2><p>Compleanni, matrimoni, lauree ed eventi aziendali. Forme, colori, scritte, loghi e immagini su misura: tu scegli il tema, noi lo trasformiamo in dolce.</p></div><a mat-flat-button color="primary" routerLink="/eventi">Parliamo del tuo evento <mat-icon>arrow_forward</mat-icon></a></div>
+  </section>
+    <div class="home-creations" aria-label="Biscotti personalizzati realizzati nel laboratorio">
+      <figure *ngFor="let image of homeCreations; let i = index">
+        <img [src]="'assets/' + image" [alt]="'Biscotti personalizzati, creazione ' + (i + 1)" width="1024" height="1024" loading="lazy" />
       </figure>
     </div>
-  </section>
   <footer class="policy-links">
     <span>My Cookie Delight</span>
     <nav aria-label="Link legali">

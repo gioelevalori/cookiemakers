@@ -2,7 +2,6 @@ import { AfterViewInit, ChangeDetectionStrategy, Component, OnInit, inject } fro
 import { Router } from '@angular/router';
 import { CookieDesignService, SavedCookieDesign } from '../cookie-design.service';
 import { CartService } from '../cart.service';
-import { COOKIE_INSPIRATIONS, CookieInspiration } from '../cookie-inspirations';
 
 @Component({
   standalone: false,
@@ -15,21 +14,16 @@ export class HomeComponent implements OnInit, AfterViewInit {
   private readonly router = inject(Router);
   private readonly designState = inject(CookieDesignService);
   private readonly cart = inject(CartService);
+  readonly homeCreations = ['1.jpeg', '2.jpeg', '3.jpeg', '4.jpeg', '5.jpeg', '6.jpeg'];
   heroMessage = 'Per te';
   heroEdited = false;
   showcaseReady = false;
-  readonly inspirations = COOKIE_INSPIRATIONS;
   savedDesigns = this.designState.getSavedDesigns();
   savedDesignError = '';
 
   ngOnInit(): void {
     this.cart.startNew();
     this.designState.clearSession();
-  }
-
-  startInspiration(inspiration: CookieInspiration): void {
-    this.designState.draft = { ...inspiration.draft, textPosition: { ...inspiration.draft.textPosition } };
-    void this.router.navigate([inspiration.route]);
   }
 
   resumeDesign(saved: SavedCookieDesign): void {
@@ -77,5 +71,4 @@ export class HomeComponent implements OnInit, AfterViewInit {
     { title: 'Cuore', route: '/cuore', shape: 'heart' },
   ];
 
-  readonly galleryImages = ['1.jpeg', '2.jpeg', '3.jpeg', '4.jpeg', '5.jpeg', '6.jpeg'];
 }

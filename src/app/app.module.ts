@@ -1,3 +1,5 @@
+import { CookieInspirationsComponent } from './cookie-inspirations.component';
+import { GalleriaComponent } from './galleria/galleria.component';
 import { LOCALE_ID, NgModule, provideZoneChangeDetection } from '@angular/core';
 import { registerLocaleData } from '@angular/common';
 import localeIt from '@angular/common/locales/it';
@@ -74,6 +76,8 @@ registerLocaleData(localeIt);
     CookieIngredientsComponent,
     RecipeOptionsComponent,
     EventiComponent,
+    GalleriaComponent,
+    CookieInspirationsComponent,
   ],
   imports: [
     BrowserModule,

@@ -1,0 +1,22 @@
+  <section class="inspiration-section" aria-labelledby="inspiration-title">
+    <div class="section-heading inspiration-heading"><div><p class="eyebrow">Un'idea da cui partire</p><h2 id="inspiration-title">Un biscotto per ogni occasione</h2><p class="inspiration-intro">Scegli quello che ti somiglia. Il prossimo dettaglio lo aggiungi tu.</p></div></div>
+    <div class="inspiration-grid">
+      <button class="inspiration-card" *ngFor="let inspiration of inspirations" [attr.data-theme]="inspiration.theme" (click)="startInspiration(inspiration)" [attr.aria-label]="'Personalizza: ' + inspiration.title">
+        <span class="inspiration-preview" aria-hidden="true">
+          <span class="inspiration-occasion"><mat-icon>{{ inspiration.icon }}</mat-icon></span>
+          <span class="inspiration-spark spark-one"></span><span class="inspiration-spark spark-two"></span>
+          <span class="inspiration-cookie-wrap">
+            <span class="cookie-shape inspiration-cookie" [ngClass]="inspiration.shape">
+              <span class="inspiration-icing" [style.background-color]="inspiration.draft.selectedColorSfondo"></span>
+              <span class="inspiration-message" [style.color]="inspiration.draft.selectedColor" [style.font-family]="inspiration.draft.selectedFontFamily">{{ inspiration.draft.testoInput }}<br />{{ inspiration.draft.testoDueInput }}</span>
+            </span>
+          </span>
+        </span>
+        <span class="inspiration-body">
+          <span class="inspiration-title">{{ inspiration.title }}</span>
+          <span class="inspiration-description">{{ inspiration.description }}</span>
+          <span class="inspiration-action">Crea il tuo <mat-icon aria-hidden="true">arrow_forward</mat-icon></span>
+        </span>
+      </button>
+    </div>
+  </section>

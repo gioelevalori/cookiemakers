@@ -1,3 +1,4 @@
+import { GalleriaComponent } from './galleria/galleria.component';
 import { NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
 import { CerchioMakerComponent } from './cerchio-maker/cerchio-maker.component';
@@ -27,6 +28,7 @@ const routes: Routes = [
   { path: 'chisiamo', component: ChiSiamoComponent },
   { path: 'contatti', component: ContattiComponent },
   { path: 'eventi', component: EventiComponent },
+  { path: 'galleria', component: GalleriaComponent },
   { path: 'cuore', component: HeartMakerComponent },
   { path: 'test', component: TestComponent },
 ];

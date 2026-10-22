@@ -31,6 +31,78 @@ const easterPhotos = [
   return { ...photo, src: `${base}.webp`, thumbnail: `${base}-thumb.webp` };
 });
 
+const christmasPhotos = [
+  {
+    "title": "Natale verde salvia",
+    "alt": "Assortimento di biscotti natalizi verde salvia con schiaccianoci, albero, regalo e Babbo Natale",
+    "width": 1920,
+    "height": 1280
+  },
+  {
+    "title": "Natale in rosa",
+    "alt": "Biscotti natalizi rosa con schiaccianoci, albero, pupazzo di neve e Babbo Natale",
+    "width": 1920,
+    "height": 1280
+  },
+  {
+    "title": "Omino di pan di zenzero",
+    "alt": "Biscotto a forma di omino con sciarpa rossa e bottoni verdi",
+    "width": 1344,
+    "height": 1792
+  },
+  {
+    "title": "Tre dolci omini",
+    "alt": "Tre biscotti a forma di omino con sciarpe rosse e decorazioni bianche",
+    "width": 1920,
+    "height": 1280
+  },
+  {
+    "title": "Bastoncini di Natale",
+    "alt": "Tre biscotti a forma di bastoncino decorati a righe rosse e bianche",
+    "width": 1920,
+    "height": 1280
+  },
+  {
+    "title": "Un fiocco dorato",
+    "alt": "Biscotto a forma di fiocco di neve decorato con glassa bianca e dettagli dorati",
+    "width": 1600,
+    "height": 1600
+  },
+  {
+    "title": "Natale azzurro",
+    "alt": "Assortimento di biscotti natalizi azzurri con schiaccianoci, albero e Babbo Natale",
+    "width": 1920,
+    "height": 1280
+  },
+  {
+    "title": "Una stella di Natale",
+    "alt": "Biscotto a forma di stella rossa con decorazioni bianche",
+    "width": 1792,
+    "height": 1344
+  },
+  {
+    "title": "Un fiocco di neve",
+    "alt": "Biscotto a forma di fiocco di neve con decorazioni bianche",
+    "width": 1600,
+    "height": 1600
+  },
+  {
+    "title": "Alberelli in festa",
+    "alt": "Tre biscotti a forma di albero di Natale con glassa verde, palline rosse e festoni bianchi",
+    "width": 1920,
+    "height": 1280
+  },
+  {
+    "title": "Un bastoncino da regalare",
+    "alt": "Biscotto a forma di bastoncino natalizio a righe bianche e rosse",
+    "width": 1344,
+    "height": 1792
+  }
+].map((photo, index) => {
+  const base = `assets/gallery/natale/natale-${String(index + 1).padStart(2, '0')}`;
+  return { ...photo, src: `${base}.webp`, thumbnail: `${base}-thumb.webp` };
+});
+
 @Component({
   standalone: false,
   changeDetection: ChangeDetectionStrategy.Eager,
@@ -43,6 +115,9 @@ export class GalleriaComponent {
   readonly collections: GalleryCollection[] = [{
     id: 'pasqua', title: 'Pasqua',
     photos: easterPhotos
+  }, {
+    id: 'natale', title: 'Natale',
+    photos: christmasPhotos
   }];
   @ViewChild('photoDialog') photoDialog!: ElementRef<HTMLDialogElement>;
   activeCollection = this.collections[0];

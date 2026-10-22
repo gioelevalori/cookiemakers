@@ -1,9 +1,9 @@
 :host { display: block; color: #253b33; }
 .how-it-works, .experience-details { max-width: 1200px; padding: 40px 24px; margin: auto; }
 .eyebrow { color: #9d4357; font-size: 11px; text-transform: uppercase; margin: 0 0 12px; font-weight: 600; }
-h2 { font: 600 clamp(26px, 3vw, 36px)/1.25 "Fraunces", serif; margin: 0 0 16px; }
-h3 { font: 600 21px/1.3 "Fraunces", serif; margin: 0 0 12px; }
-p { color: #61766a; line-height: 1.7; margin: 0 0 16px; }
+h2 { font: 600 clamp(26px, 3vw, 36px)/1.25 "Fraunces", serif; margin: 0 0 16px; text-wrap: balance; }
+h3 { font: 600 21px/1.3 "Fraunces", serif; margin: 0 0 12px; text-wrap: balance; }
+p { color: #61766a; line-height: 1.65; margin: 0 0 16px; max-width: 65ch; text-wrap: pretty; }
 a { color: #205a48; display: inline-flex; align-items: center; gap: 8px; min-height: 44px; text-decoration: none; font-size: 14px; }
 a:focus-visible { outline: 3px solid #205a48; outline-offset: 4px; }
 a mat-icon { font-size: 18px; width: 18px; height: 18px; flex-shrink: 0; }
@@ -11,7 +11,7 @@ a mat-icon { font-size: 18px; width: 18px; height: 18px; flex-shrink: 0; }
 .steps { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 32px; padding: 0; margin: 0; list-style: none; }
 .steps li { display: flex; align-items: flex-start; gap: 16px; }
 .steps p { font-size: 14px; margin-bottom: 8px; }
-.step-number { font: 400 30px "Fraunces", serif; color: #9d4357; }
+.step-number { font: 400 30px/1.3 "Fraunces", serif; color: #9d4357; flex-shrink: 0; min-width: 1.3em; }
 .packaging-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 20px; }
 .packaging-grid article { background: #fff; border: 1px solid #dde6e0; border-radius: 14px; padding: 24px; display: flex; flex-direction: column; }
 .packaging-grid article > a { margin-top: auto; }
@@ -29,6 +29,8 @@ a mat-icon { font-size: 18px; width: 18px; height: 18px; flex-shrink: 0; }
 figcaption { color: #61766a; font-size: 12px; line-height: 1.6; margin-top: 20px; }
 .bespoke-callout { background: #205a48; color: white; border-radius: 16px; padding: 36px; display: flex; align-items: center; justify-content: space-between; gap: 32px; }
 .bespoke-callout p { color: #edf4f0; }
+.bespoke-callout > div > p:last-child { margin-bottom: 0; }
+.bespoke-callout > a { padding: 12px 20px; line-height: 1.5; text-align: left; }
 .bespoke-callout .eyebrow { color: #f7c9d6; }
 .bespoke-callout > a { flex-shrink: 0; background: #fff; color: #205a48; max-width: 100%; white-space: normal; height: auto; min-height: 48px; }
 .trust-section { padding: 48px 0 0; display: grid; grid-template-columns: minmax(0, 1fr) 200px; align-items: center; gap: 40px; }

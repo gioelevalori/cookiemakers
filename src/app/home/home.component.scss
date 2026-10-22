@@ -18,7 +18,7 @@
 h1 { margin: 0; font: 600 48px/1.15 "Fraunces", serif; overflow-wrap: anywhere; }
 .intro-copy { margin: 18px 0 0; color: #61766a; font-size: 17px; line-height: 1.5; }
 .section-heading { display: flex; justify-content: space-between; align-items: center; gap: 20px; margin-bottom: 24px; }
-h2 { margin: 0; font: 600 28px/1.25 "Fraunces", serif; }
+h2 { margin: 0; font: 600 28px/1.25 "Fraunces", serif; text-wrap: balance; }
 .section-note { font-size: 13px; color: #61766a; }
 .shape-section { padding-bottom: 56px; }
 .shape-grid { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 16px; }
@@ -54,7 +54,7 @@ h3 { margin: 0 0 16px; font-size: 16px; font-weight: 500; }
 .bakery-story-inner { max-width: 1152px; margin: auto; display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); align-items: center; gap: 48px; }
 .bakery-story p { max-width: 660px; line-height: 1.65; color: #52665b; }
 .bakery-story .eyebrow { color: #9d4357; }
-.bakery-story .bakery-tagline { font-size: 20px; color: #253b33; margin: 16px 0; }
+.bakery-story .gallery-preview-copy > .bakery-tagline { font-size: 20px; color: #253b33; margin: 0 0 12px; }
 .bakery-story a { min-height: 44px; letter-spacing: 0; }
 @media (max-width: 760px) { .bakery-story { padding: 32px 20px; } .bakery-story-inner { grid-template-columns: minmax(0, 1fr); gap: 24px; } }
 .event-intro { display: flex; align-items: center; justify-content: space-between; gap: 24px; border-bottom: 1px solid #dde6e0; padding-bottom: 32px; margin-bottom: 32px; }
@@ -97,7 +97,7 @@ h3 { margin: 0 0 16px; font-size: 16px; font-weight: 500; }
 .gallery-preview { padding: 40px 24px; background: #edf4f0; border-top: 1px solid #dde6e0; border-bottom: 1px solid #dde6e0; }
 .gallery-preview-inner { max-width: 1152px; margin: auto; display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); align-items: center; gap: 48px; }
 .gallery-preview-copy h2 { margin: 0 0 16px; font-size: clamp(28px, 3.5vw, 40px); line-height: 1.2; }
-.gallery-preview-copy > p:not(.eyebrow) { color: #52665b; margin: 0 0 24px; line-height: 1.6; }
+.gallery-preview-copy > p:not(.eyebrow) { color: #52665b; margin: 0 0 24px; line-height: 1.65; max-width: 52ch; text-wrap: pretty; }
 .gallery-preview-copy a { min-height: 48px; letter-spacing: 0; }
 .gallery-preview-photos { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; border-radius: 10px; }
 .gallery-preview-photos img { display: block; width: 100%; height: auto; border-radius: 10px; }

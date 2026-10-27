@@ -112,6 +112,16 @@ Il test dedicato si esegue con `node scripts/three-smoke.cjs` a server avviato.
 
 ## Pubblicazione
 
+### Aruba Linux
+
+`scripts/package-aruba.ps1` genera `dist/mycookiedelight-aruba.zip` per il dominio
+mostrato nel pannello della cliente, `www.mycookiedelight.it`. Include una build
+di produzione separata, senza il percorso `/cookiemakers/`, con fallback Apache
+per le rotte Angular e senza il pagamento Stripe dimostrativo. GitHub Pages e
+lo sviluppo locale restano invariati. Istruzioni in `deployment/aruba/LEGGIMI.md`.
+
+### GitHub Pages
+
 Repository: https://github.com/gioelevalori/cookiemakers.
 GitHub Actions compila e pubblica su Pages a ogni push su main.
 La build Pages usa il base href /cookiemakers/ e rotte hash per consentire

@@ -34,6 +34,18 @@
             "scripts": []
           },
           "configurations": {
+            "aruba": {
+              "outputPath": "dist/aruba",
+              "baseHref": "/",
+              "fileReplacements": [
+                { "replace": "src/app/environment.ts", "with": "src/app/environment.aruba.ts" }
+              ],
+              "assets": [
+                "src/favicon.ico",
+                "src/assets",
+                { "glob": ".htaccess", "input": "deployment/aruba", "output": "/" }
+              ]
+            },
             "github-pages": {
               "fileReplacements": [
                 { "replace": "src/app/environment.ts", "with": "src/app/environment.pages.ts" }

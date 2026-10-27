@@ -1,0 +1,22 @@
+# Preserve Aruba tools and certificate verification paths.
+<IfModule mod_rewrite.c>
+  RewriteEngine On
+  RewriteBase /
+  RewriteRule ^(?:cgi-bin|\.well-known)(?:/|$) - [L]
+  RewriteRule ^$ index.html [L]
+
+  RewriteCond %{REQUEST_FILENAME} -f [OR]
+  RewriteCond %{REQUEST_FILENAME} -d
+  RewriteRule ^ - [L]
+
+  # Only browser page requests fall back to the Angular application.
+  RewriteCond %{REQUEST_METHOD} ^(?:GET|HEAD)$
+  RewriteCond %{HTTP:Accept} text/html [NC]
+  RewriteRule ^ index.html [L]
+</IfModule>
+
+<IfModule mod_headers.c>
+  <Files "index.html">
+    Header set Cache-Control "no-cache"
+  </Files>
+</IfModule>

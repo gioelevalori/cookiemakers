@@ -9,11 +9,14 @@ Piccolo server Node.js, separato dal sito Angular, che:
    invia a **mycookiedelight@gmail.com** un'email con cliente, consegna, data desiderata,
    note e, per ogni biscotto, forma, quantità, impasto, copertura, colori, righe di testo,
    carattere, dimensione e posizione, con anteprima, foto ritagliata e foto originale
-   allegate. Rispondendo all'email si scrive al cliente.
+   allegate. Rispondendo all'email si scrive al cliente;
+3. invia al cliente, all'email inserita su Stripe, una conferma con numero d'ordine,
+   riepilogo e anteprima dei biscotti, consegna o ritiro e totale pagato.
+   Rispondendo, il cliente scrive a mycookiedelight@gmail.com.
 
 Stripe raccoglie email e telefono del cliente e, per le spedizioni, l'indirizzo (solo Italia).
-Ogni ordine genera una sola email anche se Stripe ripete il webhook. Se l'invio fallisce,
-il server risponde 500 e Stripe riprova automaticamente. Se l'ordine salvato non esiste più,
+Ogni email parte una sola volta anche se Stripe ripete il webhook. Se un invio fallisce,
+il server risponde 500 e Stripe riprova automaticamente, reinviando solo l'email mancante. Se l'ordine salvato non esiste più,
 l'email arriva comunque con i dati di pagamento, segnalando di controllare la dashboard Stripe.
 
 `GET /health` risponde `{ "ok": true }` per il monitoraggio dell'hosting.

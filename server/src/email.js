@@ -110,6 +110,75 @@ export function buildOrderEmail(order, session, orderId) {
   };
 }
 
+// Mirrors COOKIE_BUSINESS in src/app/cookie-product.ts.
+const SHOP = {
+  pickup: 'Nonna Delizia, Via Roma, 78, 65012 Cepagatti (PE)',
+  whatsapp: '+39 349 168 7845',
+  whatsappUrl: 'https://wa.me/393491687845'
+};
+
+/** Confirmation for the customer, sent to the email they entered on Stripe Checkout. */
+export function buildCustomerEmail(order, session, orderId) {
+  const payment = paymentDetails(session);
+  const attachments = [];
+  const reference = orderId.slice(0, 8).toUpperCase();
+  const name = order.customerName || payment.name;
+  const intro = [
+    `${name ? `Ciao ${name},` : 'Ciao,'} grazie per il tuo ordine!`,
+    `Abbiamo ricevuto il pagamento di ${euro(payment.amount)}. Ti contatteremo per confermare i dettagli e la data di consegna.`
+  ];
+  const delivery = order.deliveryMethod === 'pickup'
+    ? ['Ritiro in sede', SHOP.pickup]
+    : ['Spedizione', [payment.shippingName, payment.shippingAddress].filter(Boolean).join(' – ') || order.address];
+  const orderRows = [
+    ['Numero ordine', reference],
+    [delivery[0], delivery[1]],
+    ['Data desiderata', order.requestedDate ? `${order.requestedDate} (da confermare)` : ''],
+    ['Note', order.notes]
+  ].filter(([, value]) => value);
+
+  const html = [
+    `<h1 style="font-family:sans-serif">Grazie per il tuo ordine!</h1>`,
+    ...intro.map(line => `<p style="font-family:sans-serif">${escape(line)}</p>`),
+    table(orderRows)
+  ];
+  const text = [...intro, '', ...orderRows.map(([label, value]) => `${label}: ${value}`), ''];
+
+  order.items.forEach((item, index) => {
+    const title = `Biscotto ${index + 1}: ${SHAPES[item.shape]}`;
+    const rows = [
+      ['Quantità', `${item.quantity} biscotti`],
+      ['Impasto', RECIPES[item.recipe]],
+      ['Copertura', item.covering ? COVERINGS[item.covering] : 'Biscotto naturale'],
+      ['Testo', item.lines.join(' / ')],
+      ['Foto', item.image ? 'Stampata su cialda di zucchero' : ''],
+      ['Subtotale', euro(itemPriceCents(item.quantity))]
+    ].filter(([, value]) => value);
+    html.push(`<h2 style="font-family:sans-serif">${escape(title)}</h2>`, table(rows));
+    if (item.preview) {
+      const cid = `biscotto-${index + 1}@mycookiedelight`;
+      attachments.push({ filename: `biscotto-${index + 1}.${extension(item.preview)}`, path: item.preview, cid });
+      html.push(`<img src="cid:${cid}" alt="Anteprima del biscotto ${index + 1}" style="max-width:240px;max-height:240px;margin:8px 0">`);
+    }
+    text.push(title.toUpperCase(), ...rows.map(([label, value]) => `${label}: ${value}`), '');
+  });
+
+  const totals = orderTotals(order);
+  const totalRows = [['Biscotti', euro(totals.items)], [order.deliveryMethod === 'pickup' ? 'Ritiro in sede' : 'Spedizione', euro(totals.shipping)], ['Totale pagato', euro(payment.amount)]];
+  const contact = `Per qualsiasi domanda rispondi a questa email o scrivici su WhatsApp al ${SHOP.whatsapp}.`;
+  html.push('<h2 style="font-family:sans-serif">Totale</h2>', table(totalRows),
+    `<p style="font-family:sans-serif">Per qualsiasi domanda rispondi a questa email o scrivici su WhatsApp al <a href="${SHOP.whatsappUrl}">${SHOP.whatsapp}</a>.</p>`,
+    '<p style="font-family:sans-serif">A presto,<br>My Cookie Delight</p>');
+  text.push('TOTALE', ...totalRows.map(([label, value]) => `${label}: ${value}`), '', contact, '', 'A presto,', 'My Cookie Delight');
+
+  return {
+    subject: `Conferma ordine My Cookie Delight n. ${reference}`,
+    html: html.join('\n'),
+    text: text.join('\n'),
+    attachments
+  };
+}
+
 function table(rows) {
   return `<table style="font-family:sans-serif;border-collapse:collapse">${rows.map(([label, value]) =>
     `<tr><th style="text-align:left;padding:4px 12px 4px 0;vertical-align:top">${escape(label)}</th><td style="padding:4px 0">${escape(value)}</td></tr>`).join('')}</table>`;

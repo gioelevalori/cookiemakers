@@ -51,7 +51,7 @@ before(async () => {
     webhooks: realStripe.webhooks,
     checkout: { sessions: { create: async params => { created.push(params); return { url: 'https://checkout.stripe.com/c/pay/cs_test_1' }; } } }
   };
-  const mailer = { sendMail: async message => { if (failMail) throw new Error('SMTP down'); sent.push(message); } };
+  const mailer = { sendMail: async message => { if (failMail === true || failMail === message.to) throw new Error('SMTP down'); sent.push(message); } };
   const config = { allowedOrigins: [SITE], webhookSecret: WEBHOOK_SECRET, orderEmailTo: 'mycookiedelight@gmail.com', mailFrom: 'shop@example.com' };
   const log = { info() {}, warn() {}, error() {} };
   server = createServer(createApp({ stripe, store: createFileStore(dir), mailer, config, log }));
@@ -123,7 +123,7 @@ test('emails the owner once with all cookie details after payment', async () => 
   const orderId = created[0].metadata.orderId;
 
   assert.equal((await webhook(paidSession(orderId))).status, 200);
-  assert.equal(sent.length, 1);
+  assert.equal(sent.length, 2);
   const [email] = sent;
   assert.equal(email.to, 'mycookiedelight@gmail.com');
   assert.equal(email.replyTo, 'mario@example.com');
@@ -135,7 +135,7 @@ test('emails the owner once with all cookie details after payment', async () => 
   assert.deepEqual(email.attachments.map(file => file.filename), ['biscotto-1-anteprima.png', 'biscotto-1-ritaglio.jpg', 'biscotto-1-originale.jpg']);
 
   await webhook(paidSession(orderId), 'checkout.session.async_payment_succeeded');
-  assert.equal(sent.length, 1, 'repeated webhooks must not send a second email');
+  assert.equal(sent.length, 2, 'repeated webhooks must not send the emails again');
 });
 
 test('does not email unpaid sessions', async () => {
@@ -151,7 +151,38 @@ test('answers 500 when the email fails so Stripe retries, then sends on retry', 
   assert.equal((await webhook(session)).status, 500);
   failMail = false;
   assert.equal((await webhook(session)).status, 200);
-  assert.equal(sent.length, 1);
+  assert.equal(sent.length, 2);
+});
+
+test('sends the customer a confirmation with the order summary', async () => {
+  await post('/checkout-session', order());
+  await webhook(paidSession(created[0].metadata.orderId));
+  const email = sent.find(message => message.to === 'mario@example.com');
+  assert.ok(email, 'customer email missing');
+  assert.equal(email.replyTo, 'mycookiedelight@gmail.com');
+  assert.match(email.subject, /^Conferma ordine My Cookie Delight n\. [0-9A-F]{8}$/);
+  for (const detail of ['Ciao Mario Rossi', '21,00', 'CERCHIO', '12 biscotti', 'Senza lattosio', 'Auguri / Giulia', 'Via Roma 1, 65012 Cepagatti, IT', '2026-12-20']) {
+    assert.ok(email.text.includes(detail), `missing ${detail}`);
+  }
+  assert.ok(!email.text.includes('foto.jpg'), 'customer email must not expose internal details');
+  assert.deepEqual(email.attachments.map(file => file.filename), ['biscotto-1.png']);
+});
+
+test('retries only the customer email when it fails', async () => {
+  await post('/checkout-session', order());
+  const session = paidSession(created[0].metadata.orderId);
+  failMail = 'mario@example.com';
+  assert.equal((await webhook(session)).status, 500);
+  assert.deepEqual(sent.map(message => message.to), ['mycookiedelight@gmail.com']);
+  failMail = false;
+  assert.equal((await webhook(session)).status, 200);
+  assert.deepEqual(sent.map(message => message.to), ['mycookiedelight@gmail.com', 'mario@example.com']);
+});
+
+test('skips the customer email when Stripe has no customer address', async () => {
+  await post('/checkout-session', order());
+  await webhook({ ...paidSession(created[0].metadata.orderId), customer_details: { email: null, phone: null, name: null } });
+  assert.deepEqual(sent.map(message => message.to), ['mycookiedelight@gmail.com']);
 });
 
 test('still emails Stripe data when the stored order is missing', async () => {

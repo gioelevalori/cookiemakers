@@ -55,7 +55,8 @@ resta disabilitato.
 Il backend e nella cartella `server/` (Node.js, pubblicato separatamente dal sito):
 crea la sessione Stripe Checkout con i prezzi calcolati sul server e, alla ricezione
 del webhook di pagamento riuscito, invia a mycookiedelight@gmail.com un'email con
-tutti i dettagli dei biscotti e le immagini. Al ritorno da Stripe il checkout mostra
+tutti i dettagli dei biscotti e le immagini, e al cliente una conferma con il
+riepilogo dell'ordine. Al ritorno da Stripe il checkout mostra
 la conferma e svuota soltanto l'ordine pagato. Configurazione, test e pubblicazione
 in `server/README.md`.
 

@@ -1,5 +1,5 @@
 import { randomUUID } from 'node:crypto';
-import { buildOrderEmail } from './email.js';
+import { buildCustomerEmail, buildOrderEmail } from './email.js';
 import { COVERINGS, OrderError, RECIPES, SHAPES, SHIPPING_CENTS, itemPriceCents, normalizeOrder, validReturnUrl, withQuery } from './order.js';
 
 const MAX_ORDER_BYTES = 40 * 1024 * 1024;
@@ -95,13 +95,25 @@ export function createApp({ stripe, store, mailer, config, log = console }) {
     const key = orderId || session.id;
     if (!sending.has(key)) {
       sending.set(key, (async () => {
-        const order = orderId ? await store.load(orderId) : null;
-        if (order?.emailedAt) return;
-        if (!order) log.warn(`Ordine ${orderId || '(senza id)'} non trovato per la sessione ${session.id}: invio i soli dati Stripe.`);
-        const email = buildOrderEmail(order, session, orderId);
-        await mailer.sendMail({ from: config.mailFrom, to: config.orderEmailTo, ...email });
-        if (order) await store.save(orderId, { ...order, emailedAt: new Date().toISOString(), stripeSessionId: session.id });
-        log.info(`Email ordine ${orderId} inviata a ${config.orderEmailTo}.`);
+        let order = orderId ? await store.load(orderId) : null;
+        if (!order) {
+          log.warn(`Ordine ${orderId || '(senza id)'} non trovato per la sessione ${session.id}: invio i soli dati Stripe.`);
+          await mailer.sendMail({ from: config.mailFrom, to: config.orderEmailTo, ...buildOrderEmail(null, session, orderId) });
+          return;
+        }
+        // Each email is recorded once sent, so a retry after a failure only sends what is missing.
+        if (!order.emailedAt) {
+          await mailer.sendMail({ from: config.mailFrom, to: config.orderEmailTo, ...buildOrderEmail(order, session, orderId) });
+          order = { ...order, emailedAt: new Date().toISOString(), stripeSessionId: session.id };
+          await store.save(orderId, order);
+          log.info(`Email ordine ${orderId} inviata a ${config.orderEmailTo}.`);
+        }
+        const customer = session.customer_details?.email;
+        if (customer && !order.customerEmailedAt) {
+          await mailer.sendMail({ from: config.mailFrom, to: customer, replyTo: config.orderEmailTo, ...buildCustomerEmail(order, session, orderId) });
+          await store.save(orderId, { ...order, customerEmailedAt: new Date().toISOString() });
+          log.info(`Conferma ordine ${orderId} inviata al cliente.`);
+        }
       })().finally(() => sending.delete(key)));
     }
     // A failure answers 500, so Stripe retries the webhook later.

@@ -52,11 +52,12 @@ Per usare il checkout del proprio account, impostare stripe.demo=false e
 configurare stripe.checkoutEndpoint negli environment; senza endpoint il pagamento
 resta disabilitato.
 
-Il server deve ricevere POST JSON con quantity, shape, preview, message,
-textColor, backgroundColor, font e image, validare quantita e dati, calcolare
-il prezzo dal proprio listino e restituire { "url": "https://checkout.stripe.com/..." }.
-La conferma dell'ordine deve dipendere dal webhook Stripe sul server.
-Questo repository non contiene quel backend.
+Il backend e nella cartella `server/` (Node.js, pubblicato separatamente dal sito):
+crea la sessione Stripe Checkout con i prezzi calcolati sul server e, alla ricezione
+del webhook di pagamento riuscito, invia a mycookiedelight@gmail.com un'email con
+tutti i dettagli dei biscotti e le immagini. Al ritorno da Stripe il checkout mostra
+la conferma e svuota soltanto l'ordine pagato. Configurazione, test e pubblicazione
+in `server/README.md`.
 
 Il listino mostrato conserva i valori precedenti: 15 EUR per 10 biscotti,
 5 EUR per ciascun biscotto aggiuntivo e 6 EUR di spedizione. Verificare questi

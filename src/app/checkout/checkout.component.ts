@@ -4,10 +4,12 @@ import { AbstractControl, FormBuilder, Validators } from '@angular/forms';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ActivatedRoute, Router } from '@angular/router';
 import { CartItem, CartService } from '../cart.service';
-import { StripeService } from '../stripe.service';
+import { PAYMENT_RESULT_PARAM, StripeService } from '../stripe.service';
 import { DeliveryService, validRequestedDate } from '../delivery.service';
 import { COOKIE_BUSINESS, coveringLabel, recipeLabel, whatsappUrl } from '../cookie-product';
 import { OrderRequestService } from '../order-request.service';
+
+const PENDING_PAYMENT_KEY = 'cookie-pending-payment';
 
 @Component({ standalone: false, changeDetection: ChangeDetectionStrategy.Eager,
   selector: 'app-checkout', templateUrl: './checkout.component.html', styleUrls: ['./checkout.component.css'] })
@@ -32,6 +34,7 @@ export class CheckoutComponent implements OnInit {
   quantityErrors = new Set<string>();
   isPaying = false;
   paymentError = '';
+  paymentResult: 'paid' | 'cancelled' | null = null;
   readonly firstFormGroup = this.formBuilder.nonNullable.group({
     requestedDate: [this.delivery.requestedDate, (control: AbstractControl) => validRequestedDate(control.value, this.delivery.today) ? null : { requestedDate: true }],
     deliveryMethod: [this.orderRequest.details.deliveryMethod],
@@ -49,7 +52,13 @@ export class CheckoutComponent implements OnInit {
 
 
   ngOnInit(): void {
-    this.route.queryParamMap.pipe(takeUntilDestroyed(this.destroyRef)).subscribe(params => { this.direct = params.get('direct') === '1'; this.quantityErrors.clear(); });
+    this.route.queryParamMap.pipe(takeUntilDestroyed(this.destroyRef)).subscribe(params => {
+      this.direct = params.get('direct') === '1';
+      this.quantityErrors.clear();
+      const result = params.get(PAYMENT_RESULT_PARAM);
+      if (result === 'ok') this.completePaidOrder();
+      this.paymentResult = result === 'ok' ? 'paid' : result === 'annullato' ? 'cancelled' : null;
+    });
     this.firstFormGroup.controls.requestedDate.valueChanges.pipe(takeUntilDestroyed(this.destroyRef)).subscribe(value => this.delivery.requestedDate = value);
     this.firstFormGroup.valueChanges.pipe(takeUntilDestroyed(this.destroyRef)).subscribe(() => this.orderRequest.update(this.firstFormGroup.getRawValue()));
   }
@@ -100,6 +109,13 @@ export class CheckoutComponent implements OnInit {
     if (this.direct) { this.cart.startNew(); this.cart.edit(item); this.cart.editingId = null; }
     else this.cart.edit(item); await this.router.navigate(['/' + item.shape]); }
   newDesign(): void { this.cart.startNew(); }
+  // Empties only the order that was sent to Stripe, once, so a reload keeps later changes.
+  private completePaidOrder(): void {
+    let pending: string | null = null;
+    try { pending = sessionStorage.getItem(PENDING_PAYMENT_KEY); sessionStorage.removeItem(PENDING_PAYMENT_KEY); } catch { /* Storage is blocked. */ }
+    if (pending === 'direct') this.cart.clearDirect();
+    else if (pending === 'cart') this.cart.clear();
+  }
   async makePayment(): Promise<void> {
     if (this.isPaying || this.invalidOrder || !this.stripeService.configured) return;
     this.isPaying = true;
@@ -109,10 +125,15 @@ export class CheckoutComponent implements OnInit {
         items: this.items.map(item => ({ quantity: item.quantity, shape: item.shape, preview: item.preview,
           message: this.message(item), textColor: this.message(item) ? item.draft.selectedColor : '',
           backgroundColor: item.draft.selectedColorSfondo, font: this.message(item) ? item.draft.selectedFontFamily : '',
-          image: item.draft.croppedImage, recipe: item.draft.recipe || 'classic', covering: item.draft.selectedColorSfondo ? (item.draft.covering || 'royal-icing') : null })),
+          image: item.draft.croppedImage, recipe: item.draft.recipe || 'classic', covering: item.draft.selectedColorSfondo ? (item.draft.covering || 'royal-icing') : null,
+          lines: [item.draft.testoInput, item.draft.testoDueInput, item.draft.testoTreInput], fontSize: item.draft.fontSize,
+          textPosition: item.draft.textPosition, originalImage: item.draft.originalImage || '', originalImageName: item.draft.originalImageName || '' })),
         requestedDate: this.firstFormGroup.controls.requestedDate.value,
         ...this.orderRequest.details
       });
+      if (!this.stripeService.demo) {
+        try { sessionStorage.setItem(PENDING_PAYMENT_KEY, this.direct ? 'direct' : 'cart'); } catch { /* The order stays in the cart after payment. */ }
+      }
       window.location.assign(url);
     } catch { this.paymentError = 'Impossibile avviare il pagamento. Riprova tra poco.'; }
     finally { this.isPaying = false; }

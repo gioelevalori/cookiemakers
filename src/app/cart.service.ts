@@ -94,6 +94,15 @@ export class CartService {
     this.items = this.items.map(item => item.id === id ? { ...item, quantity } : item);
     this.persist();
   }
+  clear(): void {
+    this.items = [];
+    this.editingId = null;
+    this.persist();
+  }
+  clearDirect(): void {
+    this.directItem = null;
+    try { sessionStorage.removeItem('cookie-direct-order'); } catch { /* Storage is blocked. */ }
+  }
   remove(id: string): void {
     this.items = this.items.filter(item => item.id !== id);
     if (this.editingId === id) this.editingId = null;

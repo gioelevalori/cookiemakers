@@ -110,4 +110,27 @@ describe('CheckoutComponent', () => {
     expect(order.items[1].font).toBe('');
     expect(order.items.map(item => item.quantity)).toEqual([10, 10]);
   });
+  it('sends the text lines, layout and original photo for the order email', async () => {
+    component.cart.add('cerchio', 'data:image/png;base64,test', { ...draft, testoDueInput: 'Auguri', fontSize: 28, textPosition: { x: 4, y: -10 },
+      croppedImage: 'data:image/jpeg;base64,crop', originalImage: 'data:image/jpeg;base64,orig', originalImageName: 'foto.jpg' });
+    const checkout = spyOn(component.stripeService, 'createCheckoutSession').and.rejectWith(new Error('test'));
+    await component.makePayment();
+    const [item] = checkout.calls.mostRecent().args[0].items;
+    expect(item.lines).toEqual(['Anna', 'Auguri', '']);
+    expect(item.fontSize).toBe(28);
+    expect(item.textPosition).toEqual({ x: 4, y: -10 });
+    expect(item.originalImage).toBe('data:image/jpeg;base64,orig');
+    expect(item.originalImageName).toBe('foto.jpg');
+  });
+  it('empties only the paid order when Stripe returns to the checkout', () => {
+    component.cart.add('cerchio', 'data:image/png;base64,cart', draft);
+    component.cart.checkoutDirect('cuore', 'data:image/png;base64,direct', draft);
+    sessionStorage.setItem('cookie-pending-payment', 'direct');
+    component['completePaidOrder']();
+    expect(component.cart.directItem).toBeNull();
+    expect(component.cart.items.length).toBe(1);
+    expect(sessionStorage.getItem('cookie-pending-payment')).toBeNull();
+    component['completePaidOrder']();
+    expect(component.cart.items.length).toBe(1);
+  });
 });

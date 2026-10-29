@@ -25,6 +25,8 @@ dd { margin: 0; text-align: right; overflow-wrap: anywhere; }
 .delivery-timing a { color: #205a48; text-decoration: underline; }
 .date-warning { color: #795019; }
 .empty-order { text-align: center; padding: 48px 0; }
+p.payment-result { margin: 0 0 32px; padding: 16px; background: #f1f6f2; border-radius: 8px; line-height: 1.6; }
+div.payment-result p { max-width: 560px; margin: 0 auto 24px; line-height: 1.6; }
 .empty-order > mat-icon { width: 48px; height: 48px; font-size: 48px; color: #65917c; margin-bottom: 24px; }
 @media (max-width: 960px) {
   .checkout-layout { grid-template-columns: minmax(0, 1fr); gap: 32px; }

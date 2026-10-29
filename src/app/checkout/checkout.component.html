@@ -2,7 +2,19 @@
 
   <header><a mat-button routerLink="/"> <mat-icon>arrow_back</mat-icon> Biscotti</a><h1>{{ direct ? 'Il tuo ordine' : 'Il tuo carrello' }}</h1></header>
 
-  <div *ngIf="!items.length" class="empty-order">
+  <p *ngIf="paymentResult === 'cancelled'" class="payment-result" role="status">Pagamento annullato: nessun addebito. Il tuo ordine &egrave; ancora qui.</p>
+
+  <div *ngIf="paymentResult === 'paid'" class="empty-order payment-result" role="status">
+
+    <mat-icon>check_circle</mat-icon><h2>Grazie, pagamento ricevuto!</h2>
+
+    <p>Abbiamo ricevuto il tuo ordine e ti contatteremo per confermare i dettagli e la data di consegna. Stripe ti invier&agrave; la ricevuta via email.</p>
+
+    <a mat-flat-button color="primary" routerLink="/" (click)="newDesign()">Torna ai biscotti</a>
+
+  </div>
+
+  <div *ngIf="!items.length && paymentResult !== 'paid'" class="empty-order">
 
     <mat-icon>shopping_cart</mat-icon><h2>{{ direct ? 'Nessun biscotto selezionato' : 'Il carrello è vuoto' }}</h2>
 
@@ -12,7 +24,7 @@
 
   </div>
 
-  <div *ngIf="items.length" class="checkout-layout">
+  <div *ngIf="items.length && paymentResult !== 'paid'" class="checkout-layout">
 
     <section class="cart-designs" [attr.aria-label]="direct ? 'Il tuo biscotto' : 'Biscotti nel carrello'">
 

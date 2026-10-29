@@ -8,6 +8,9 @@ export interface CheckoutOrder extends Partial<OrderDetails> {
   items: CheckoutItem[];
 }
 
+/** Checkout query parameter set by the server's Stripe success and cancel URLs. */
+export const PAYMENT_RESULT_PARAM = 'pagamento';
+
 export interface CheckoutItem {
   recipe?: CookieRecipe;
   covering?: CookieCovering | null;
@@ -20,6 +23,11 @@ export interface CheckoutItem {
   backgroundColor: string;
   font: string;
   image: string;
+  lines?: string[];
+  fontSize?: number;
+  textPosition?: { x: number; y: number };
+  originalImage?: string;
+  originalImageName?: string;
 }
 
 @Injectable({ providedIn: 'root' })
@@ -34,7 +42,7 @@ export class StripeService {
     const response = await fetch(environment.stripe.checkoutEndpoint, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(order)
+      body: JSON.stringify({ ...order, returnUrl: this.returnUrl() })
     });
     if (!response.ok) throw new Error('Impossibile avviare il pagamento.');
     const session: { url?: string } = await response.json();
@@ -44,5 +52,10 @@ export class StripeService {
       throw new Error('Indirizzo di pagamento non valido.');
     }
     return checkoutUrl.href;
+  }
+
+  // Stripe sends the customer back to this checkout page, with or without hash routes.
+  private returnUrl(): string {
+    return window.location.href.replace(new RegExp(`[?&]${PAYMENT_RESULT_PARAM}=[^&#]*(&session_id=[^&#]*)?`), '');
   }
 }

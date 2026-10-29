@@ -2,6 +2,6 @@ export const environment = {
   production: true,
   githubPages: false,
   newsletterEndpoint: '',
-  // Set to the published order server, e.g. 'https://<server>/checkout-session' (see server/README.md).
-  stripe: { demo: false, checkoutEndpoint: '' }
+  // PHP endpoint published with the site by scripts/package-aruba.ps1 (see api/README.md).
+  stripe: { demo: false, checkoutEndpoint: '/api/checkout-session.php' }
 };

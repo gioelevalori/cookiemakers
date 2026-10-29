@@ -14,8 +14,10 @@ Se Node non si trova nel PATH, passare `-NodePath` con il percorso di node.exe.
 Il pacchetto pronto e `dist/mycookiedelight-aruba.zip`.
 La build ha base href `/`, rotte normali (senza hash) e regole Apache `.htaccess`.
 Include soltanto il sito compilato; non contiene il progetto sorgente o node_modules.
-Il pagamento dimostrativo Stripe e disabilitato solo per Aruba. Le richieste
-WhatsApp restano disponibili. Il pagamento reale richiede un endpoint configurato.
+Su Aruba il pagamento usa Stripe reale tramite la cartella `api/` (PHP) inclusa
+nello ZIP. Compilare prima `api/config.php` (vedi `api/README.md`): se manca, lo
+script avvisa e il pagamento non funziona. Lo ZIP con `config.php` contiene le
+chiavi: caricarlo solo su Aruba. Le richieste WhatsApp restano disponibili.
 
 ## Caricamento iniziale
 
@@ -44,6 +46,9 @@ WhatsApp restano disponibili. Il pagamento reale richiede un endpoint configurat
 - Aprire direttamente `/esagono`, `/galleria`, `/eventi`, `/su-misura` e ricaricare.
 - Verificare l'anteprima 3D da smartphone, le bozze e il carrello.
 - Il pulsante WhatsApp deve puntare al numero della cliente e includere le note.
+- Aprire `/api/check.php`, controllare che ogni riga sia `[OK]` e poi eliminarlo.
+  Configurare il webhook Stripe e fare un pagamento di prova come in `api/README.md`.
+- Aggiornando il sito, non cancellare `api/data/`: contiene gli ordini in attesa di pagamento.
 - Verificare il certificato SSL da pannello prima di forzare il redirect HTTPS.
   Lo ZIP non modifica DNS, certificati o redirect del dominio.
 - Verificare nell'account EmailJS che il nuovo dominio sia autorizzato. Un test

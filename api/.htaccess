@@ -1,0 +1,18 @@
+# Only the public endpoints are reachable: configuration, code and saved orders are not.
+Options -Indexes
+
+<FilesMatch "^(config(\.example)?\.php|.*\.(json|lock|md))$">
+  <IfModule mod_authz_core.c>
+    Require all denied
+  </IfModule>
+  <IfModule !mod_authz_core.c>
+    Order allow,deny
+    Deny from all
+  </IfModule>
+</FilesMatch>
+
+# Large orders carry the cookie photos; Aruba may ignore these if PHP runs as CGI.
+<IfModule mod_php.c>
+  php_value post_max_size 40M
+  php_value memory_limit 256M
+</IfModule>

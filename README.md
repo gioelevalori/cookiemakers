@@ -52,13 +52,14 @@ Per usare il checkout del proprio account, impostare stripe.demo=false e
 configurare stripe.checkoutEndpoint negli environment; senza endpoint il pagamento
 resta disabilitato.
 
-Il backend e nella cartella `server/` (Node.js, pubblicato separatamente dal sito):
+Il backend e nella cartella `api/` (PHP, pubblicato su Aruba insieme al sito in `/api/`):
 crea la sessione Stripe Checkout con i prezzi calcolati sul server e, alla ricezione
 del webhook di pagamento riuscito, invia a mycookiedelight@gmail.com un'email con
 tutti i dettagli dei biscotti e le immagini, e al cliente una conferma con il
-riepilogo dell'ordine. Al ritorno da Stripe il checkout mostra
+riepilogo dell'ordine. La build Aruba usa `/api/checkout-session.php`; GitHub Pages
+resta in modalita demo. Al ritorno da Stripe il checkout mostra
 la conferma e svuota soltanto l'ordine pagato. Configurazione, test e pubblicazione
-in `server/README.md`.
+in `api/README.md`.
 
 Il listino mostrato conserva i valori precedenti: 15 EUR per 10 biscotti,
 5 EUR per ciascun biscotto aggiuntivo e 6 EUR di spedizione. Verificare questi

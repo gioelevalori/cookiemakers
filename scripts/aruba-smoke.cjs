@@ -92,7 +92,7 @@ const server = http.createServer((request, response) => {
       await page.locator('.design-summary').waitFor();
       await page.locator('.preview').evaluate(image => image.decode());
       assert.match(await page.locator('.design-summary').innerText(), /Aruba/);
-      assert.equal(await page.getByRole('button', { name: 'Vai al pagamento', exact: true }).isDisabled(), true);
+      assert.equal(await page.getByRole('button', { name: 'Vai al pagamento', exact: true }).isEnabled(), true, 'Aruba pays through /api/checkout-session.php');
       assert.equal(await page.getByRole('button', { name: 'Prova pagamento Stripe', exact: true }).count(), 0);
       const url = new URL(await page.getByRole('link', { name: 'Richiedi ordine su WhatsApp', exact: true }).getAttribute('href'));
       assert.equal(url.pathname, '/393491687845');

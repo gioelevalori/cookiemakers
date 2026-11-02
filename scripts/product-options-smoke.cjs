@@ -7,7 +7,7 @@ fs.mkdirSync('artifacts', { recursive: true });
 
 const decodedMessage = async locator => {
   const url = new URL(await locator.getAttribute('href'));
-  assert.equal(url.pathname, '/393491687845');
+  assert.equal(url.pathname, '/393516777748');
   return url.searchParams.get('text');
 };
 const noOverflow = async page => assert.equal(await page.evaluate(() => document.documentElement.scrollWidth > innerWidth + 1), false);

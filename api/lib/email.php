@@ -3,8 +3,8 @@ require_once __DIR__ . '/order.php';
 
 // Mirrors COOKIE_BUSINESS in src/app/cookie-product.ts.
 const SHOP_PICKUP = 'Nonna Delizia, Via Roma, 78, 65012 Cepagatti (PE)';
-const SHOP_WHATSAPP = '+39 349 168 7845';
-const SHOP_WHATSAPP_URL = 'https://wa.me/393491687845';
+const SHOP_WHATSAPP = '+39 351 677 7748';
+const SHOP_WHATSAPP_URL = 'https://wa.me/393516777748';
 
 function euro(int $cents): string
 {

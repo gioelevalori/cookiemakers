@@ -31,6 +31,6 @@ describe('ChiSiamoComponent', () => {
     expect(page.querySelector('.food-information')?.textContent).toContain('non sostituiscono');
     expect(page.textContent).not.toContain('niente chimica');
     expect(page.textContent).not.toContain('collezione della settimana');
-    expect(new URL(component.whatsapp).pathname).toBe('/393491687845');
+    expect(new URL(component.whatsapp).pathname).toBe('/393516777748');
   });
 });

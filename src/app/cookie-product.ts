@@ -16,7 +16,7 @@ export const recipeLabel = (value?: CookieRecipe): string => value === 'lactose-
 export const coveringLabel = (value?: CookieCovering): string => value === 'sugar-paste' ? 'Pasta di zucchero' : 'Ghiaccia reale';
 
 export const COOKIE_BUSINESS = {
-  whatsappNumber: '393491687845',
+  whatsappNumber: '393516777748',
   pickupName: 'Nonna Delizia',
   pickupAddress: 'Via Roma, 78, 65012 Cepagatti (PE)',
   mapsUrl: 'https://www.google.com/maps?cid=4568183702203452684'

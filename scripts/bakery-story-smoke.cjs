@@ -53,7 +53,7 @@ async function verifyLayout(page) {
       }
       await page.screenshot({ path: `artifacts/bakery-about-${width}.png`, fullPage: true });
       const whatsapp = page.getByRole('link', { name: 'Parliamone su WhatsApp', exact: true });
-      assert.equal(new URL(await whatsapp.getAttribute('href')).pathname, '/393491687845');
+      assert.equal(new URL(await whatsapp.getAttribute('href')).pathname, '/393516777748');
       await page.getByRole('link', { name: 'Il tuo evento', exact: true }).click();
       await page.getByRole('heading', { name: 'Biscotti per eventi', exact: true }).waitFor();
       assert.match(await page.locator('.event-materials').innerText(), /cialda di zucchero/);

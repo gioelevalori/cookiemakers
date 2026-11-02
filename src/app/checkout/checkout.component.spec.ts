@@ -76,7 +76,7 @@ describe('CheckoutComponent', () => {
     component.cart.add('cuore', 'data:image/png;base64,test', { ...draft, testoInput: 'A&B' });
     component.firstFormGroup.patchValue({ deliveryMethod: 'pickup', notes: 'Confezioni & fiocco' });
     const url = new URL(component.whatsappOrderUrl);
-    expect(url.pathname).toBe('/393491687845');
+    expect(url.pathname).toBe('/393516777748');
     const message = url.searchParams.get('text')!;
     expect(message).toContain('Senza lattosio');
     expect(message).toContain('Pasta di zucchero');

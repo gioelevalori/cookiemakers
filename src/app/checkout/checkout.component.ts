@@ -154,7 +154,9 @@ export class CheckoutComponent implements OnInit, OnDestroy {
       const address = this.firstFormGroup.controls.deliveryMethod.value === 'shipping'
         ? elements.create('address', { mode: 'shipping', allowedCountries: ['IT'] }) : null;
       // Name, email and phone come from the site fields above and are passed on confirmation.
-      const payment = elements.create('payment', { layout: { type: 'tabs' }, fields: { billingDetails: { name: 'never', email: 'never', phone: 'never' } } });
+      const payment = elements.create('payment', { layout: { type: 'tabs' },
+        paymentMethodOrder: ['card', 'apple_pay', 'google_pay', 'paypal', 'klarna', 'satispay'],
+        fields: { billingDetails: { name: 'never', email: 'never', phone: 'never' } } });
       if (!this.paymentOpen) return;
       if (address && this.addressContainer) address.mount(this.addressContainer.nativeElement);
       if (this.paymentContainer) payment.mount(this.paymentContainer.nativeElement);

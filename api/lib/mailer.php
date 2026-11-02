@@ -81,10 +81,26 @@ function build_mime(string $from, array $message): array
     return [$headers, $body . "--$related--\r\n"];
 }
 
+/**
+ * CA bundle for the TLS connection to the mail server. Shared hosting often leaves
+ * openssl.cafile empty while cURL has its own bundle, so look in the usual places.
+ */
+function ca_bundle(): ?string
+{
+    $candidates = [ini_get('openssl.cafile'), ini_get('curl.cainfo'), openssl_get_cert_locations()['default_cert_file'] ?? '',
+        '/etc/ssl/certs/ca-certificates.crt', '/etc/pki/tls/certs/ca-bundle.crt', '/etc/ssl/ca-bundle.pem', '/etc/pki/tls/cacert.pem'];
+    foreach ($candidates as $file) {
+        if ($file && @is_readable($file)) return $file;
+    }
+    return null;
+}
+
 function smtp_open(array $config)
 {
     $secure = $config['secure'] ?? 'ssl';
-    $context = stream_context_create(['ssl' => ['verify_peer' => true, 'verify_peer_name' => true]]);
+    $ssl = ['verify_peer' => true, 'verify_peer_name' => true];
+    if ($cafile = ca_bundle()) $ssl['cafile'] = $cafile;
+    $context = stream_context_create(['ssl' => $ssl]);
     $smtp = @stream_socket_client(($secure === 'ssl' ? 'ssl://' : 'tcp://') . "{$config['host']}:{$config['port']}",
         $errno, $errstr, 20, STREAM_CLIENT_CONNECT, $context);
     if (!$smtp) throw new MailError("Server SMTP non raggiungibile ({$config['host']}:{$config['port']}): $errstr");

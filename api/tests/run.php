@@ -116,21 +116,22 @@ test('creates the Stripe customer and charges the server-side total', function (
     check($customer['email'] === 'mario@example.com' && $customer['name'] === 'Mario Rossi' && $customer['shipping']['address']['city'] === 'Cepagatti');
     check($intent['amount'] === 3100 && $intent['currency'] === 'eur' && $intent['customer'] === 'cus_test_1', json_encode($intent));
     check($intent['automatic_payment_methods'] === ['enabled' => 'true']);
-    check($intent['shipping']['phone'] === '+39 333 0000000');
+    check(!isset($intent['shipping']), 'shipping must be left to the Address Element on confirmation');
+    check($customer['shipping']['phone'] === '+39 333 0000000');
     check(preg_match('/^Ordine [0-9A-F]{8} · Cerchio ×12 · Spedizione 20\/12\/2026$/u', $intent['description']) === 1, $intent['description']);
     check($intent['metadata']['data_desiderata'] === '2026-12-20' && $intent['metadata']['note'] === 'Senza fretta');
 });
 
 test('ignores client prices and charges pickup orders without shipping', function () use ($pay) {
     $stripe = $pay(order(['deliveryMethod' => 'pickup', 'amount' => 1, 'shipping' => null]));
-    check($stripe->intents[0]['amount'] === 2500 && !isset($stripe->intents[0]['shipping']) && !isset($stripe->customers[0]['shipping']));
+    check($stripe->intents[0]['amount'] === 2500 && !isset($stripe->customers[0]['shipping']));
     check(str_contains($stripe->intents[0]['description'], 'Ritiro'));
 });
 
 test('encodes nested Stripe parameters in the expected form format', function () use ($pay) {
     $query = urldecode(http_build_query($pay(order())->intents[0]));
     check(str_contains($query, 'automatic_payment_methods[enabled]=true'), $query);
-    check(str_contains($query, 'shipping[address][postal_code]=65012'));
+    check(str_contains($query, 'metadata[consegna]=Spedizione'));
 });
 
 test('refuses webhooks without a valid Stripe signature', function () use ($config, $store) {

@@ -37,5 +37,16 @@ foreach ([465, 587] as $smtpPort) {
 }
 $check('config.php presente', is_file(__DIR__ . '/config.php'));
 
+// Real login with the configured mail account: the message never contains the password.
+if (is_file(__DIR__ . '/config.php')) {
+    require_once __DIR__ . '/lib/mailer.php';
+    $mail = (require __DIR__ . '/config.php')['mail'];
+    $check('Certificati per la connessione sicura', (bool) ca_bundle(), (string) ca_bundle());
+    if (($mail['transport'] ?? 'smtp') === 'smtp') {
+        try { (new Mailer($mail))->verify(); $check("Accesso a {$mail['host']} con l'account configurato", true); }
+        catch (Throwable $error) { $check("Accesso a {$mail['host']} con l'account configurato", false, $error->getMessage()); }
+    }
+}
+
 echo "Controllo hosting per gli ordini My Cookie Delight\n\n" . implode("\n", $results)
     . "\n\nRicorda di eliminare check.php dopo il controllo.\n";

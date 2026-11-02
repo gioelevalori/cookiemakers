@@ -58,13 +58,14 @@ function create_payment(string $body, OrderStore $store, $stripe): array
         'name' => $customer['name'], 'email' => $customer['email'], 'phone' => $customer['phone'],
         'shipping' => $shipping, 'preferred_locales' => ['it'], 'metadata' => ['orderId' => $orderId],
     ]));
+    // No shipping here: the Address Element sends it on confirmation, and Stripe rejects
+    // a publishable-key update of shipping that was set with the secret key.
     $intent = $stripe->createPaymentIntent(array_filter([
         'amount' => order_totals($order)['total'],
         'currency' => 'eur',
         'customer' => $stripeCustomer['id'],
         'automatic_payment_methods' => ['enabled' => 'true'],
         'description' => payment_description($orderId, $order),
-        'shipping' => $shipping,
         'metadata' => array_filter($metadata, 'strlen'),
     ]));
     if (empty($intent['client_secret'])) throw new RuntimeException('Pagamento Stripe senza client secret.');

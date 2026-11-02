@@ -52,12 +52,14 @@ import { SavedCookiePreviewComponent } from './saved-cookie-preview.component';
 import { CookieIngredientsComponent } from './cookie-ingredients.component';
 import { RecipeOptionsComponent } from './recipe-options.component';
 import { EventiComponent } from './eventi/eventi.component';
+import { DatePickerOpenDirective } from './date-picker-open.directive';
 
 registerLocaleData(localeIt);
 
 @NgModule({
   declarations: [
     AppComponent,
+    DatePickerOpenDirective,
     RettangoloMakerComponent,
     HomeComponent,
     MakerTextComponent,

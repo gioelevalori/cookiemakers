@@ -177,10 +177,17 @@ function build_customer_email(array $order, array $paymentIntent, string $orderI
         ['Note', $order['notes']],
     ]);
 
+    // The customer can check the contact details the shop will use to reach them.
+    $customerRows = rows_filled([
+        ['Nome', $payment['name']],
+        ['Email', $payment['email']],
+        ['Telefono', $payment['phone']],
+    ]);
+
     $html = ['<h1 style="font-family:sans-serif">Grazie per il tuo ordine!</h1>'];
     foreach ($intro as $line) $html[] = '<p style="font-family:sans-serif">' . esc($line) . '</p>';
-    $html[] = html_table($orderRows);
-    $text = [...$intro, '', ...text_rows($orderRows), ''];
+    array_push($html, html_table($orderRows), '<h2 style="font-family:sans-serif">I tuoi dati</h2>', html_table($customerRows));
+    $text = [...$intro, '', ...text_rows($orderRows), '', 'I TUOI DATI', ...text_rows($customerRows), ''];
 
     foreach ($order['items'] as $index => $item) {
         $n = $index + 1;

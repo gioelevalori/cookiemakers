@@ -154,7 +154,7 @@ test('emails the shop and the customer once with all cookie details', function (
     check(array_column($shop['attachments'], 'filename') === ['biscotto-1-anteprima.png', 'biscotto-1-ritaglio.jpg', 'biscotto-1-originale.jpg']);
     check($customer['replyTo'] === 'mycookiedelight@gmail.com');
     check(preg_match('/^Conferma ordine My Cookie Delight n\. [0-9A-F]{8}$/', $customer['subject']) === 1, $customer['subject']);
-    foreach (['Ciao Mario Rossi', 'CERCHIO', 'Auguri / Giulia', 'Via Roma 1, 65012 Cepagatti PE, IT'] as $detail) {
+    foreach (['Ciao Mario Rossi', 'I TUOI DATI', 'Email: mario@example.com', 'Telefono: +39 333 0000000', 'CERCHIO', 'Auguri / Giulia', 'Via Roma 1, 65012 Cepagatti PE, IT'] as $detail) {
         check(str_contains($customer['text'], $detail), "customer email missing $detail");
     }
     check(!str_contains($customer['text'], 'foto.jpg'));

@@ -4,7 +4,6 @@ require dirname(__DIR__) . '/lib/app.php';
 
 const PNG = 'data:image/png;base64,iVBORw0KGgo=';
 const JPEG = 'data:image/jpeg;base64,/9j/4AAQ';
-const SITE = 'https://www.mycookiedelight.it';
 const SECRET = 'whsec_test';
 
 $failures = 0;
@@ -18,9 +17,13 @@ function check(bool $condition, string $message = 'assertion failed'): void
 {
     if (!$condition) throw new Exception($message);
 }
-function throws(callable $body, string $class): void
+function throws(callable $body, string $class, string $text = ''): void
 {
-    try { $body(); } catch (Throwable $error) { check($error instanceof $class, get_class($error) . ': ' . $error->getMessage()); return; }
+    try { $body(); } catch (Throwable $error) {
+        check($error instanceof $class, get_class($error) . ': ' . $error->getMessage());
+        check($text === '' || str_contains($error->getMessage(), $text), $error->getMessage());
+        return;
+    }
     throw new Exception("$class expected");
 }
 
@@ -35,15 +38,18 @@ function item(array $overrides = []): array
 function order(array $overrides = []): array
 {
     return $overrides + [
-        'returnUrl' => SITE . '/checkout', 'items' => [item()], 'deliveryMethod' => 'shipping',
-        'customerName' => 'Mario Rossi', 'address' => 'Via Roma 1', 'notes' => 'Senza fretta', 'requestedDate' => '2026-12-20',
+        'items' => [item()], 'deliveryMethod' => 'shipping', 'notes' => 'Senza fretta', 'requestedDate' => '2026-12-20',
+        'customer' => ['name' => 'Mario Rossi', 'email' => 'mario@example.com', 'phone' => '+39 333 0000000'],
+        'shipping' => ['name' => 'Mario Rossi', 'address' => ['line1' => 'Via Roma 1', 'line2' => '', 'postal_code' => '65012', 'city' => 'Cepagatti', 'state' => 'PE', 'country' => 'IT']],
     ];
 }
 
 class FakeStripe
 {
-    public array $created = [];
-    public function createCheckoutSession(array $params): array { $this->created[] = $params; return ['url' => 'https://checkout.stripe.com/c/pay/cs_test_1']; }
+    public array $customers = [];
+    public array $intents = [];
+    public function createCustomer(array $params): array { $this->customers[] = $params; return ['id' => 'cus_test_1']; }
+    public function createPaymentIntent(array $params): array { $this->intents[] = $params; return ['id' => 'pi_test_1', 'client_secret' => 'pi_test_1_secret_x']; }
 }
 class FakeMailer
 {
@@ -56,30 +62,28 @@ class FakeMailer
     }
 }
 
-function paid_session(string $orderId, array $overrides = []): array
+function paid_intent(string $orderId, array $overrides = []): array
 {
-    return $overrides + [
-        'id' => 'cs_test_1', 'object' => 'checkout.session', 'payment_status' => 'paid', 'amount_total' => 3100, 'payment_intent' => 'pi_1',
-        'metadata' => ['orderId' => $orderId], 'client_reference_id' => $orderId,
-        'customer_details' => ['email' => 'mario@example.com', 'phone' => '+39 333 0000000', 'name' => 'Mario Rossi'],
-        'collected_information' => ['shipping_details' => ['name' => 'Mario Rossi', 'address' => ['line1' => 'Via Roma 1', 'postal_code' => '65012', 'city' => 'Cepagatti', 'country' => 'IT']]],
-    ];
+    return $overrides + ['id' => 'pi_test_1', 'object' => 'payment_intent', 'status' => 'succeeded', 'amount' => 3100, 'amount_received' => 3100,
+        'metadata' => ['orderId' => $orderId, 'nome' => 'Mario Rossi', 'email' => 'mario@example.com', 'telefono' => '+39 333 0000000']];
 }
-function signed(array $session, string $type = 'checkout.session.completed'): array
+function signed(array $payment, string $type = 'payment_intent.succeeded'): array
 {
-    $payload = json_encode(['id' => 'evt_1', 'type' => $type, 'data' => ['object' => $session]]);
+    $payload = json_encode(['id' => 'evt_1', 'type' => $type, 'data' => ['object' => $payment]]);
     $time = time();
     return [$payload, "t=$time,v1=" . hash_hmac('sha256', "$time.$payload", SECRET)];
 }
 
 $dir = sys_get_temp_dir() . '/cookie-orders-' . bin2hex(random_bytes(4));
-$config = ['allowed_origins' => [SITE], 'stripe_webhook_secret' => SECRET, 'order_email_to' => 'mycookiedelight@gmail.com', 'mail' => ['from' => 'shop@example.com']];
+$config = ['stripe_webhook_secret' => SECRET, 'order_email_to' => 'mycookiedelight@gmail.com', 'mail' => ['from' => 'shop@example.com']];
 $store = new OrderStore($dir);
-$checkout = function (array $order) use ($config, $store): array {
+$pay = function (array $order) use ($store): FakeStripe {
     $stripe = new FakeStripe();
-    create_checkout_session(json_encode($order), $config, $store, $stripe);
-    return $stripe->created[0];
+    $result = create_payment(json_encode($order), $store, $stripe);
+    check($result['clientSecret'] === 'pi_test_1_secret_x');
+    return $stripe;
 };
+$orderIdOf = fn (FakeStripe $stripe) => $stripe->intents[0]['metadata']['orderId'];
 
 test('prices follow the shop list', function () {
     check(item_price_cents(10) === 1500);
@@ -97,73 +101,79 @@ test('drops images that are not inline PNG, JPEG or WebP data', function () {
     check($value['items'][0]['image'] === '' && $value['items'][0]['preview'] === '');
 });
 
-test('creates a Stripe session with server-side prices and shipping', function () use ($checkout) {
-    $params = $checkout(order());
-    check(array_column(array_column($params['line_items'], 'price_data'), 'unit_amount') === [2500, 600]);
-    check($params['success_url'] === SITE . '/checkout?pagamento=ok&session_id={CHECKOUT_SESSION_ID}', $params['success_url']);
-    check($params['shipping_address_collection'] === ['allowed_countries' => ['IT']]);
-    check(preg_match('/^[0-9a-f-]{36}$/', $params['metadata']['orderId']) === 1);
+test('requires name, a valid email and phone, and an Italian address for shipping', function () use ($pay) {
+    throws(fn () => $pay(order(['customer' => ['name' => '', 'email' => 'a@b.it', 'phone' => '3330000000']])), HttpError::class, 'nome');
+    throws(fn () => $pay(order(['customer' => ['name' => 'A', 'email' => 'non-valida', 'phone' => '3330000000']])), HttpError::class, 'email');
+    throws(fn () => $pay(order(['customer' => ['name' => 'A', 'email' => 'a@b.it', 'phone' => 'x']])), HttpError::class, 'telefono');
+    throws(fn () => $pay(order(['shipping' => ['address' => ['line1' => 'Rue 1', 'postal_code' => '75001', 'city' => 'Paris', 'country' => 'FR']]])), HttpError::class, 'Italia');
+    throws(fn () => $pay(order(['shipping' => ['address' => ['line1' => '', 'postal_code' => '65012', 'city' => 'Cepagatti', 'country' => 'IT']]])), HttpError::class, 'indirizzo');
 });
 
-test('encodes nested Stripe parameters in the expected form format', function () use ($checkout) {
-    $query = urldecode(http_build_query($checkout(order())));
-    check(str_contains($query, 'line_items[0][price_data][unit_amount]=2500'), $query);
-    check(str_contains($query, 'shipping_address_collection[allowed_countries][0]=IT'));
+test('creates the Stripe customer and charges the server-side total', function () use ($pay) {
+    $stripe = $pay(order());
+    [$customer] = $stripe->customers;
+    [$intent] = $stripe->intents;
+    check($customer['email'] === 'mario@example.com' && $customer['name'] === 'Mario Rossi' && $customer['shipping']['address']['city'] === 'Cepagatti');
+    check($intent['amount'] === 3100 && $intent['currency'] === 'eur' && $intent['customer'] === 'cus_test_1', json_encode($intent));
+    check($intent['automatic_payment_methods'] === ['enabled' => 'true']);
+    check($intent['shipping']['phone'] === '+39 333 0000000');
+    check(preg_match('/^Ordine [0-9A-F]{8} · Cerchio ×12 · Spedizione 20\/12\/2026$/u', $intent['description']) === 1, $intent['description']);
+    check($intent['metadata']['data_desiderata'] === '2026-12-20' && $intent['metadata']['note'] === 'Senza fretta');
 });
 
-test('pickup orders have no shipping line and no address collection', function () use ($checkout) {
-    $params = $checkout(order(['deliveryMethod' => 'pickup']));
-    check(count($params['line_items']) === 1 && !isset($params['shipping_address_collection']));
+test('ignores client prices and charges pickup orders without shipping', function () use ($pay) {
+    $stripe = $pay(order(['deliveryMethod' => 'pickup', 'amount' => 1, 'shipping' => null]));
+    check($stripe->intents[0]['amount'] === 2500 && !isset($stripe->intents[0]['shipping']) && !isset($stripe->customers[0]['shipping']));
+    check(str_contains($stripe->intents[0]['description'], 'Ritiro'));
 });
 
-test('keeps hash routes in return URLs', function () use ($checkout) {
-    $params = $checkout(order(['returnUrl' => SITE . '/cookiemakers/#/checkout?direct=1']));
-    check($params['cancel_url'] === SITE . '/cookiemakers/#/checkout?direct=1&pagamento=annullato', $params['cancel_url']);
-});
-
-test('refuses return URLs on other sites', function () use ($checkout) {
-    throws(fn () => $checkout(order(['returnUrl' => 'https://evil.example/checkout'])), HttpError::class);
+test('encodes nested Stripe parameters in the expected form format', function () use ($pay) {
+    $query = urldecode(http_build_query($pay(order())->intents[0]));
+    check(str_contains($query, 'automatic_payment_methods[enabled]=true'), $query);
+    check(str_contains($query, 'shipping[address][postal_code]=65012'));
 });
 
 test('refuses webhooks without a valid Stripe signature', function () use ($config, $store) {
-    [$payload] = signed(paid_session(uuid4()));
+    [$payload] = signed(paid_intent(uuid4()));
     throws(fn () => handle_webhook($payload, 't=' . time() . ',v1=bad', $config, $store, new FakeMailer()), HttpError::class);
     $old = time() - 3600;
     throws(fn () => handle_webhook($payload, "t=$old,v1=" . hash_hmac('sha256', "$old.$payload", SECRET), $config, $store, new FakeMailer()), HttpError::class);
 });
 
-test('emails the shop and the customer once with all cookie details', function () use ($checkout, $config, $store) {
-    $orderId = $checkout(order())['metadata']['orderId'];
+test('emails the shop and the customer once with all cookie details', function () use ($pay, $orderIdOf, $config, $store) {
+    $orderId = $orderIdOf($pay(order()));
     $mailer = new FakeMailer();
-    handle_webhook(...[...signed(paid_session($orderId)), $config, $store, $mailer]);
+    handle_webhook(...[...signed(paid_intent($orderId)), $config, $store, $mailer]);
     check(array_column($mailer->sent, 'to') === ['mycookiedelight@gmail.com', 'mario@example.com']);
     [$shop, $customer] = $mailer->sent;
     check($shop['replyTo'] === 'mario@example.com' && str_contains($shop['subject'], 'Mario Rossi'));
     foreach (['Cerchio', '12 biscotti', 'Senza lattosio', 'Pasta di zucchero', '#FFD43B', 'Auguri', 'Giulia', 'CocoGothic · 28 px',
-        'X 4 px, Y -10 px', 'foto.jpg', '+39 333 0000000', 'Via Roma 1, 65012 Cepagatti, IT', '2026-12-20', 'Senza fretta', '31,00 €'] as $detail) {
+        'X 4 px, Y -10 px', 'foto.jpg', '+39 333 0000000', 'Via Roma 1, 65012 Cepagatti PE, IT', '2026-12-20', 'Senza fretta', '31,00 €', 'pi_test_1'] as $detail) {
         check(str_contains($shop['text'], $detail), "shop email missing $detail");
     }
     check(array_column($shop['attachments'], 'filename') === ['biscotto-1-anteprima.png', 'biscotto-1-ritaglio.jpg', 'biscotto-1-originale.jpg']);
     check($customer['replyTo'] === 'mycookiedelight@gmail.com');
     check(preg_match('/^Conferma ordine My Cookie Delight n\. [0-9A-F]{8}$/', $customer['subject']) === 1, $customer['subject']);
-    foreach (['Ciao Mario Rossi', 'CERCHIO', 'Auguri / Giulia', 'Via Roma 1, 65012 Cepagatti, IT'] as $detail) {
+    foreach (['Ciao Mario Rossi', 'CERCHIO', 'Auguri / Giulia', 'Via Roma 1, 65012 Cepagatti PE, IT'] as $detail) {
         check(str_contains($customer['text'], $detail), "customer email missing $detail");
     }
     check(!str_contains($customer['text'], 'foto.jpg'));
     check(array_column($customer['attachments'], 'filename') === ['biscotto-1.png']);
 
-    handle_webhook(...[...signed(paid_session($orderId), 'checkout.session.async_payment_succeeded'), $config, $store, $mailer]);
+    handle_webhook(...[...signed(paid_intent($orderId)), $config, $store, $mailer]);
     check(count($mailer->sent) === 2, 'repeated webhooks must not send the emails again');
 });
 
-test('does not email unpaid sessions', function () use ($checkout, $config, $store) {
+test('ignores other events and payments that did not succeed', function () use ($pay, $orderIdOf, $config, $store) {
+    $orderId = $orderIdOf($pay(order()));
     $mailer = new FakeMailer();
-    handle_webhook(...[...signed(paid_session($checkout(order())['metadata']['orderId'], ['payment_status' => 'unpaid'])), $config, $store, $mailer]);
+    handle_webhook(...[...signed(paid_intent($orderId, ['status' => 'processing'])), $config, $store, $mailer]);
+    handle_webhook(...[...signed(paid_intent($orderId), 'payment_intent.created'), $config, $store, $mailer]);
     check(!$mailer->sent);
 });
 
-test('retries only the email that failed', function () use ($checkout, $config, $store) {
-    $event = signed(paid_session($checkout(order())['metadata']['orderId']));
+test('retries only the email that failed', function () use ($pay, $orderIdOf, $config, $store) {
+    $event = signed(paid_intent($orderIdOf($pay(order()))));
     $mailer = new FakeMailer();
     $mailer->fail = 'mario@example.com';
     throws(fn () => handle_webhook(...[...$event, $config, $store, $mailer]), MailError::class);
@@ -172,10 +182,11 @@ test('retries only the email that failed', function () use ($checkout, $config, 
     check(array_column($mailer->sent, 'to') === ['mycookiedelight@gmail.com', 'mario@example.com']);
 });
 
-test('still emails Stripe data when the stored order is missing', function () use ($config, $store) {
+test('still emails the payment and contact data when the stored order is missing', function () use ($config, $store) {
     $mailer = new FakeMailer();
-    handle_webhook(...[...signed(paid_session('00000000-0000-4000-8000-000000000000')), $config, $store, $mailer]);
+    handle_webhook(...[...signed(paid_intent('00000000-0000-4000-8000-000000000000')), $config, $store, $mailer]);
     check(count($mailer->sent) === 1 && str_contains($mailer->sent[0]['text'], 'non è più disponibile'));
+    check(str_contains($mailer->sent[0]['text'], 'mario@example.com') && str_contains($mailer->sent[0]['text'], '+39 333 0000000'));
 });
 
 test('builds a MIME message with inline images', function () {

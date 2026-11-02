@@ -5,8 +5,6 @@ require_once __DIR__ . '/stripe.php';
 require_once __DIR__ . '/email.php';
 require_once __DIR__ . '/mailer.php';
 
-const PAID_EVENTS = ['checkout.session.completed', 'checkout.session.async_payment_succeeded'];
-
 class HttpError extends Exception
 {
     public function __construct(public int $status, string $message) { parent::__construct($message); }
@@ -23,56 +21,57 @@ function load_config(): array
     return $config;
 }
 
-/** Stores the order and creates the Stripe Checkout session; returns the payment page URL. */
-function create_checkout_session(string $body, array $config, OrderStore $store, $stripe): string
+/** Short summary shown in the Stripe dashboard, e.g. "Ordine 1DED47C3 · Cerchio ×12 · Ritiro 20/12/2026". */
+function payment_description(string $orderId, array $order): string
+{
+    $items = implode(', ', array_map(fn ($item) => SHAPES[$item['shape']] . " ×{$item['quantity']}", $order['items']));
+    $delivery = $order['deliveryMethod'] === 'pickup' ? 'Ritiro' : 'Spedizione';
+    if ($order['requestedDate']) $delivery .= ' ' . date('d/m/Y', strtotime($order['requestedDate']));
+    return mb_substr('Ordine ' . strtoupper(substr($orderId, 0, 8)) . " · $items · $delivery", 0, 1000);
+}
+
+/**
+ * Stores the order, creates the Stripe customer and the PaymentIntent with the
+ * server-side total, and returns the client secret the Payment Element confirms.
+ */
+function create_payment(string $body, OrderStore $store, $stripe): array
 {
     $raw = json_decode($body, true);
     if (!is_array($raw)) throw new HttpError(400, 'Ordine non valido.');
-    $returnUrl = valid_return_url($raw['returnUrl'] ?? null, $config['allowed_origins']);
-    if (!$returnUrl) throw new HttpError(400, 'Indirizzo di ritorno non valido.');
     try {
         $order = normalize_order($raw);
+        $order += normalize_customer($raw, $order['deliveryMethod']);
     } catch (OrderError $error) {
         throw new HttpError(400, $error->getMessage());
     }
 
     $orderId = uuid4();
     $store->save($orderId, $order + ['createdAt' => gmdate('c')]);
+    $customer = $order['customer'];
+    $shipping = $order['shipping'] ? $order['shipping'] + ['phone' => $customer['phone']] : null;
+    // Contact details also live in the metadata, so they survive even if the stored order is lost.
+    $metadata = ['orderId' => $orderId, 'nome' => $customer['name'], 'email' => $customer['email'], 'telefono' => $customer['phone'],
+        'consegna' => $order['deliveryMethod'] === 'pickup' ? 'Ritiro in sede' : 'Spedizione', 'data_desiderata' => $order['requestedDate'],
+        'note' => mb_substr($order['notes'], 0, 500)];
 
-    $lineItems = array_map(fn ($item) => [
-        'quantity' => 1,
-        'price_data' => [
-            'currency' => 'eur',
-            'unit_amount' => item_price_cents($item['quantity']),
-            'product_data' => [
-                'name' => 'Biscotti personalizzati ' . SHAPES[$item['shape']] . " × {$item['quantity']}",
-                'description' => RECIPES[$item['recipe']] . ' · ' . ($item['covering'] ? COVERINGS[$item['covering']] : 'Biscotto naturale'),
-            ],
-        ],
-    ], $order['items']);
-    if ($order['deliveryMethod'] === 'shipping') {
-        $lineItems[] = ['quantity' => 1, 'price_data' => ['currency' => 'eur', 'unit_amount' => SHIPPING_CENTS, 'product_data' => ['name' => 'Spedizione']]];
-    }
-
-    $params = [
-        'mode' => 'payment',
-        'locale' => 'it',
-        'line_items' => $lineItems,
-        'client_reference_id' => $orderId,
-        'metadata' => ['orderId' => $orderId],
-        'payment_intent_data' => ['description' => 'Ordine My Cookie Delight ' . substr($orderId, 0, 8), 'metadata' => ['orderId' => $orderId]],
-        'phone_number_collection' => ['enabled' => 'true'],
-        'success_url' => with_query($returnUrl, 'pagamento=ok&session_id={CHECKOUT_SESSION_ID}'),
-        'cancel_url' => with_query($returnUrl, 'pagamento=annullato'),
-    ];
-    if ($order['deliveryMethod'] === 'shipping') $params['shipping_address_collection'] = ['allowed_countries' => ['IT']];
-
-    $session = $stripe->createCheckoutSession($params);
-    if (empty($session['url'])) throw new RuntimeException('Sessione Stripe senza indirizzo di pagamento.');
-    return $session['url'];
+    $stripeCustomer = $stripe->createCustomer(array_filter([
+        'name' => $customer['name'], 'email' => $customer['email'], 'phone' => $customer['phone'],
+        'shipping' => $shipping, 'preferred_locales' => ['it'], 'metadata' => ['orderId' => $orderId],
+    ]));
+    $intent = $stripe->createPaymentIntent(array_filter([
+        'amount' => order_totals($order)['total'],
+        'currency' => 'eur',
+        'customer' => $stripeCustomer['id'],
+        'automatic_payment_methods' => ['enabled' => 'true'],
+        'description' => payment_description($orderId, $order),
+        'shipping' => $shipping,
+        'metadata' => array_filter($metadata, 'strlen'),
+    ]));
+    if (empty($intent['client_secret'])) throw new RuntimeException('Pagamento Stripe senza client secret.');
+    return ['clientSecret' => $intent['client_secret'], 'orderId' => strtoupper(substr($orderId, 0, 8))];
 }
 
-/** Verifies the Stripe webhook and, for a paid session, emails the shop and the customer. */
+/** Verifies the Stripe webhook and, for a succeeded payment, emails the shop and the customer. */
 function handle_webhook(string $body, string $signature, array $config, OrderStore $store, $mailer): void
 {
     try {
@@ -80,29 +79,28 @@ function handle_webhook(string $body, string $signature, array $config, OrderSto
     } catch (SignatureError $error) {
         throw new HttpError(400, $error->getMessage());
     }
-    $session = $event['data']['object'] ?? [];
-    if (!in_array($event['type'] ?? '', PAID_EVENTS, true) || ($session['payment_status'] ?? '') !== 'paid') return;
+    $payment = $event['data']['object'] ?? [];
+    if (($event['type'] ?? '') !== 'payment_intent.succeeded' || ($payment['status'] ?? '') !== 'succeeded') return;
 
-    $orderId = $session['metadata']['orderId'] ?? ($session['client_reference_id'] ?? '');
-    $from = $config['mail']['from'];
+    $orderId = $payment['metadata']['orderId'] ?? '';
     $shop = $config['order_email_to'];
     if (!preg_match('/^[0-9a-f-]{36}$/', $orderId) || !($store->load($orderId))) {
-        error_log("Ordine $orderId non trovato per la sessione {$session['id']}: invio i soli dati Stripe.");
-        $mailer->send(['to' => $shop] + build_order_email(null, $session, $orderId));
+        error_log("Ordine $orderId non trovato per il pagamento {$payment['id']}: invio i soli dati Stripe.");
+        $mailer->send(['to' => $shop] + build_order_email(null, $payment, $orderId));
         return;
     }
 
     // Each email is recorded once sent, so a retry after a failure only sends what is missing.
-    $store->withLock($orderId, function () use ($store, $orderId, $session, $mailer, $shop) {
+    $store->withLock($orderId, function () use ($store, $orderId, $payment, $mailer, $shop) {
         $order = $store->load($orderId);
         if (empty($order['emailedAt'])) {
-            $mailer->send(['to' => $shop] + build_order_email($order, $session, $orderId));
-            $order += ['emailedAt' => gmdate('c'), 'stripeSessionId' => $session['id']];
+            $mailer->send(['to' => $shop] + build_order_email($order, $payment, $orderId));
+            $order += ['emailedAt' => gmdate('c'), 'stripePaymentId' => $payment['id']];
             $store->save($orderId, $order);
         }
-        $customer = $session['customer_details']['email'] ?? '';
+        $customer = $order['customer']['email'] ?? '';
         if ($customer && empty($order['customerEmailedAt'])) {
-            $mailer->send(['to' => $customer, 'replyTo' => $shop] + build_customer_email($order, $session, $orderId));
+            $mailer->send(['to' => $customer, 'replyTo' => $shop] + build_customer_email($order, $payment, $orderId));
             $store->save($orderId, $order + ['customerEmailedAt' => gmdate('c')]);
         }
     });

@@ -53,7 +53,8 @@ const noOverflow = async page => assert.equal(await page.evaluate(() => document
         assert.match(await page.locator('.design-summary').last().innerText(), /Pasta di zucchero/);
       }
       await page.getByRole('radio', { name: 'Ritiro in sede', exact: true }).check();
-      await page.getByLabel('Nome e cognome (facoltativo)', { exact: true }).fill('Sara');
+      // Name, email, phone and shipping address are collected once, in the payment form of the checkout.
+      assert.equal(await page.getByLabel('Nome e cognome (facoltativo)', { exact: true }).count(), 0);
       await page.getByLabel("Note e informazioni per l'ordine", { exact: true }).fill('Fiocco giallo & confezioni singole');
       await page.getByLabel('Data desiderata di ritiro', { exact: true }).fill('2099-12-10');
       const request = page.getByRole('link', { name: 'Richiedi ordine su WhatsApp', exact: true });
@@ -75,10 +76,9 @@ const noOverflow = async page => assert.equal(await page.evaluate(() => document
       assert.match(await page.locator('.delivery-details').innerText(), /Via Roma, 78/);
       await page.getByRole('link', { name: 'Il tuo ordine', exact: true }).click();
       await page.getByRole('radio', { name: 'Spedizione', exact: true }).check();
-      await page.getByLabel('Indirizzo di spedizione (facoltativo)', { exact: true }).fill('Via Esempio 1, Roma');
+      assert.equal(await page.getByLabel('Indirizzo di spedizione (facoltativo)', { exact: true }).count(), 0);
       message = await decodedMessage(request);
       assert.match(message, /81,00/);
-      assert.match(message, /Via Esempio 1, Roma/);
       await noOverflow(page);
       await page.screenshot({ path: `artifacts/product-checkout-${width}.png`, fullPage: true });
       await page.getByLabel('Quantità biscotto 1', { exact: true }).fill('9');

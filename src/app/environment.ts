@@ -4,6 +4,7 @@ export const environment = {
     newsletterEndpoint: '',
     stripe: {
       demo: true,
-      checkoutEndpoint: '',
+      paymentEndpoint: '',
+      publishableKey: '',
     }
   };

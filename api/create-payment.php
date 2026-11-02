@@ -1,5 +1,5 @@
 <?php
-// POST /api/checkout-session.php: stores the order and returns the Stripe Checkout URL.
+// POST /api/create-payment.php: stores the order and returns the client secret of a Stripe PaymentIntent.
 require __DIR__ . '/lib/app.php';
 
 $cors = [];
@@ -24,12 +24,12 @@ try {
         throw new HttpError(413, 'Ordine troppo grande: riduci le dimensioni delle foto.');
     }
     $store = new OrderStore($config['orders_dir']);
-    $url = create_checkout_session($body, $config, $store, new StripeClient($config['stripe_secret_key']));
+    $payment = create_payment($body, $store, new StripeClient($config['stripe_secret_key']));
     if (random_int(1, 50) === 1) $store->prune(($config['order_retention_days'] ?? 30) * 86400);
-    send_json(200, ['url' => $url], $cors);
+    send_json(200, $payment, $cors);
 } catch (HttpError $error) {
     send_json($error->status, ['error' => $error->getMessage()], $cors);
 } catch (Throwable $error) {
-    error_log('checkout-session: ' . $error->getMessage());
+    error_log('create-payment: ' . $error->getMessage());
     send_json(500, ['error' => 'Errore del server.'], $cors);
 }

@@ -28,18 +28,20 @@ function format_address(?array $address): string
     return implode(', ', array_filter([$address['line1'] ?? '', $address['line2'] ?? '', $city, $address['country'] ?? '']));
 }
 
-/** Customer and payment data that Stripe collected on the checkout page. */
-function payment_details(array $session): array
+/**
+ * Payment and contact data for the emails: the amount comes from the Stripe PaymentIntent,
+ * the contact details from the stored order, or from the PaymentIntent metadata if it is lost.
+ */
+function payment_details(?array $order, array $payment): array
 {
-    $shipping = $session['collected_information']['shipping_details'] ?? null;
-    $intent = $session['payment_intent'] ?? '';
+    $meta = $payment['metadata'] ?? [];
+    $shipping = $order['shipping'] ?? ($payment['shipping'] ?? null);
     return [
-        'sessionId' => $session['id'] ?? '',
-        'paymentIntent' => is_array($intent) ? ($intent['id'] ?? '') : (string) $intent,
-        'amount' => (int) ($session['amount_total'] ?? 0),
-        'email' => $session['customer_details']['email'] ?? '',
-        'phone' => $session['customer_details']['phone'] ?? '',
-        'name' => $session['customer_details']['name'] ?? '',
+        'paymentIntent' => $payment['id'] ?? '',
+        'amount' => (int) ($payment['amount_received'] ?? ($payment['amount'] ?? 0)),
+        'email' => $order['customer']['email'] ?? ($meta['email'] ?? ''),
+        'phone' => $order['customer']['phone'] ?? ($meta['telefono'] ?? ''),
+        'name' => $order['customer']['name'] ?? ($meta['nome'] ?? ''),
         'shippingName' => $shipping['name'] ?? '',
         'shippingAddress' => format_address($shipping['address'] ?? null),
     ];
@@ -88,26 +90,24 @@ function item_rows(array $item): array
 }
 
 /**
- * Builds the email for the shop owner after a paid Stripe Checkout session.
+ * Builds the email for the shop owner after a succeeded Stripe payment.
  * $order is null when the stored order is no longer available: the email then
  * contains only what Stripe knows, so the payment is never silently lost.
  */
-function build_order_email(?array $order, array $session, string $orderId): array
+function build_order_email(?array $order, array $paymentIntent, string $orderId): array
 {
-    $payment = payment_details($session);
+    $payment = payment_details($order, $paymentIntent);
     $attachments = [];
-    $customer = ($order['customerName'] ?? '') ?: ($payment['name'] ?: ($payment['email'] ?: 'cliente'));
+    $customer = $payment['name'] ?: ($payment['email'] ?: 'cliente');
     $html = ['<h1 style="font-family:sans-serif">Nuovo ordine pagato: ' . esc(euro($payment['amount'])) . '</h1>'];
     $text = ['Nuovo ordine pagato: ' . euro($payment['amount']), ''];
 
     $customerRows = rows_filled([
-        ['Nome indicato', $order['customerName'] ?? ''],
-        ['Nome su Stripe', $payment['name']],
+        ['Nome', $payment['name']],
         ['Email', $payment['email']],
         ['Telefono', $payment['phone']],
         ['Consegna', $order ? ($order['deliveryMethod'] === 'pickup' ? 'Ritiro in sede' : 'Spedizione') : ''],
-        ['Indirizzo di spedizione (Stripe)', implode(' – ', array_filter([$payment['shippingName'], $payment['shippingAddress']]))],
-        ['Indirizzo indicato nel sito', $order['address'] ?? ''],
+        ['Indirizzo di spedizione', implode(' – ', array_filter([$payment['shippingName'], $payment['shippingAddress']]))],
         ['Data desiderata', ($order['requestedDate'] ?? '') ? "{$order['requestedDate']} (da confermare)" : ''],
         ['Note', $order['notes'] ?? ''],
     ]);
@@ -142,7 +142,7 @@ function build_order_email(?array $order, array $session, string $orderId): arra
         array_push($text, $warning, '');
     }
 
-    $references = rows_filled([['Ordine', $orderId ?: '—'], ['Sessione Stripe', $payment['sessionId']], ['Pagamento Stripe', $payment['paymentIntent']]]);
+    $references = rows_filled([['Ordine', $orderId ?: '—'], ['Pagamento Stripe', $payment['paymentIntent']]]);
     $html[] = '<p style="font-family:sans-serif;color:#666;font-size:12px">'
         . implode('<br>', array_map(fn ($row) => esc("$row[0]: $row[1]"), $references)) . '</p>';
     $text = [...$text, ...text_rows($references)];
@@ -156,20 +156,20 @@ function build_order_email(?array $order, array $session, string $orderId): arra
     ];
 }
 
-/** Confirmation for the customer, sent to the email they entered on Stripe Checkout. */
-function build_customer_email(array $order, array $session, string $orderId): array
+/** Confirmation for the customer, sent to the email they entered in the site checkout. */
+function build_customer_email(array $order, array $paymentIntent, string $orderId): array
 {
-    $payment = payment_details($session);
+    $payment = payment_details($order, $paymentIntent);
     $attachments = [];
     $reference = strtoupper(substr($orderId, 0, 8));
-    $name = $order['customerName'] ?: $payment['name'];
+    $name = $payment['name'];
     $intro = [
         ($name ? "Ciao $name," : 'Ciao,') . ' grazie per il tuo ordine!',
         'Abbiamo ricevuto il pagamento di ' . euro($payment['amount']) . '. Ti contatteremo per confermare i dettagli e la data di consegna.',
     ];
     $delivery = $order['deliveryMethod'] === 'pickup'
         ? ['Ritiro in sede', SHOP_PICKUP]
-        : ['Spedizione', implode(' – ', array_filter([$payment['shippingName'], $payment['shippingAddress']])) ?: $order['address']];
+        : ['Spedizione', implode(' – ', array_filter([$payment['shippingName'], $payment['shippingAddress']]))];
     $orderRows = rows_filled([
         ['Numero ordine', $reference],
         $delivery,

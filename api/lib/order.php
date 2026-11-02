@@ -97,18 +97,36 @@ function normalize_order($raw): array
     ];
 }
 
-/** Accepts only return pages on the configured site origins, so Stripe never redirects elsewhere. */
-function valid_return_url($value, array $allowedOrigins): ?string
+/** Name, email and phone entered once in the site checkout; shipping comes from the Stripe Address Element. */
+function normalize_customer($raw, string $deliveryMethod): array
 {
-    if (!is_string($value)) return null;
-    $parts = parse_url($value);
-    if (!$parts || !isset($parts['scheme'], $parts['host'])) return null;
-    $origin = strtolower($parts['scheme']) . '://' . strtolower($parts['host']) . (isset($parts['port']) ? ':' . $parts['port'] : '');
-    return in_array($origin, $allowedOrigins, true) ? $value : null;
-}
+    $customer = is_array($raw['customer'] ?? null) ? $raw['customer'] : [];
+    $name = clean_text($customer['name'] ?? '', 120);
+    $email = clean_text($customer['email'] ?? '', 200);
+    $phone = clean_text($customer['phone'] ?? '', 40);
+    if ($name === '') throw new OrderError('Inserisci nome e cognome.');
+    if (!filter_var($email, FILTER_VALIDATE_EMAIL)) throw new OrderError('Inserisci un indirizzo email valido.');
+    if (!preg_match('/^\+?[0-9 ().-]{6,40}$/', $phone)) throw new OrderError('Inserisci un numero di telefono valido.');
 
-/** Appends a query string to the checkout page, also when the site uses hash routes (#/checkout). */
-function with_query(string $url, string $query): string
-{
-    return $url . (str_contains($url, '?') ? '&' : '?') . $query;
+    $shipping = null;
+    if ($deliveryMethod === 'shipping') {
+        $address = is_array($raw['shipping']['address'] ?? null) ? $raw['shipping']['address'] : [];
+        $shipping = [
+            'name' => clean_text($raw['shipping']['name'] ?? '', 120) ?: $name,
+            'address' => [
+                'line1' => clean_text($address['line1'] ?? '', 200),
+                'line2' => clean_text($address['line2'] ?? '', 200),
+                'postal_code' => clean_text($address['postal_code'] ?? '', 20),
+                'city' => clean_text($address['city'] ?? '', 100),
+                'state' => clean_text($address['state'] ?? '', 100),
+                'country' => strtoupper(clean_text($address['country'] ?? '', 2)),
+            ],
+        ];
+        $a = $shipping['address'];
+        if ($a['country'] !== 'IT') throw new OrderError('Spediamo solo in Italia.');
+        if ($a['line1'] === '' || $a['city'] === '' || !preg_match('/^\d{5}$/', $a['postal_code'])) {
+            throw new OrderError('Completa l\'indirizzo di spedizione.');
+        }
+    }
+    return ['customer' => ['name' => $name, 'email' => $email, 'phone' => $phone], 'shipping' => $shipping];
 }

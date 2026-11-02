@@ -5,9 +5,14 @@ class StripeClient
 {
     public function __construct(private string $secretKey) {}
 
-    public function createCheckoutSession(array $params): array
+    public function createCustomer(array $params): array
     {
-        return $this->request('POST', '/v1/checkout/sessions', $params);
+        return $this->request('POST', '/v1/customers', $params);
+    }
+
+    public function createPaymentIntent(array $params): array
+    {
+        return $this->request('POST', '/v1/payment_intents', $params);
     }
 
     private function request(string $method, string $path, array $params): array

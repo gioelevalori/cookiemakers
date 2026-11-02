@@ -42,24 +42,22 @@ email, iscrizioni newsletter o pagamenti.
 
 ## Pagamento e servizi esterni
 
-Il vecchio checkout generava un token Stripe e mostrava una conferma senza
-effettuare un addebito. E stato sostituito con il redirect a una sessione
-Stripe Checkout creata sul server. La configurazione attuale usa stripe.demo=true:
-il pulsante apre https://checkout.stripe.dev/checkout, la demo pubblica ufficiale
-di Stripe, senza addebiti. La demo mostra un ordine di esempio e non riceve
-importo, quantita o personalizzazione del biscotto. Funziona anche su GitHub Pages.
-Per usare il checkout del proprio account, impostare stripe.demo=false e
-configurare stripe.checkoutEndpoint negli environment; senza endpoint il pagamento
-resta disabilitato.
+Il pagamento e integrato nella pagina del checkout con Stripe Elements, nello stile
+del sito: nome, email e telefono si inseriscono una sola volta nei campi del sito,
+l'indirizzo di spedizione nell'Address Element di Stripe, e compaiono i metodi di
+pagamento attivi (carta, Apple Pay, Google Pay e altri). In sviluppo e su GitHub
+Pages resta stripe.demo=true: il pulsante apre https://checkout.stripe.dev/checkout,
+la demo pubblica ufficiale di Stripe, senza addebiti e senza i dati dell'ordine.
+Il pagamento reale richiede stripe.paymentEndpoint e stripe.publishableKey negli
+environment; senza questi valori il pagamento resta disabilitato.
 
 Il backend e nella cartella `api/` (PHP, pubblicato su Aruba insieme al sito in `/api/`):
-crea la sessione Stripe Checkout con i prezzi calcolati sul server e, alla ricezione
+crea cliente e pagamento su Stripe con i prezzi calcolati sul server e, alla ricezione
 del webhook di pagamento riuscito, invia a mycookiedelight@gmail.com un'email con
 tutti i dettagli dei biscotti e le immagini, e al cliente una conferma con il
-riepilogo dell'ordine. La build Aruba usa `/api/checkout-session.php`; GitHub Pages
-resta in modalita demo. Al ritorno da Stripe il checkout mostra
-la conferma e svuota soltanto l'ordine pagato. Configurazione, test e pubblicazione
-in `api/README.md`.
+riepilogo dell'ordine. La build Aruba usa `/api/create-payment.php`. A pagamento
+riuscito il checkout mostra la conferma e svuota soltanto l'ordine pagato.
+Configurazione, test e pubblicazione in `api/README.md`.
 
 Il listino mostrato conserva i valori precedenti: 15 EUR per 10 biscotti,
 5 EUR per ciascun biscotto aggiuntivo e 6 EUR di spedizione. Verificare questi

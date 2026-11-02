@@ -44,8 +44,6 @@
         <h2>Consegna richiesta</h2>
         <p>{{ orderRequest.details.deliveryMethod === 'pickup' ? 'Ritiro in sede' : 'Spedizione' }}</p>
         <p *ngIf="orderRequest.details.deliveryMethod === 'pickup'">{{ business.pickupName }} &middot; {{ business.pickupAddress }}</p>
-        <p *ngIf="orderRequest.details.customerName">{{ orderRequest.details.customerName }}</p>
-        <p *ngIf="orderRequest.details.deliveryMethod === 'shipping' && orderRequest.details.address">{{ orderRequest.details.address }}</p>
         <p *ngIf="delivery.requestedDate; else noDate">{{ delivery.requestedDate | date:'dd/MM/yyyy' }} <span class="caption">(da confermare)</span></p>
         <ng-template #noDate><p>Data non specificata.</p></ng-template>
         <p class="caption">La data richiesta non costituisce una conferma dell'ordine o della consegna.</p>

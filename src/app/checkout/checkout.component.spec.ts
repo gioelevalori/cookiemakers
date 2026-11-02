@@ -57,8 +57,9 @@ describe('CheckoutComponent', () => {
     expect(component.invalidOrder).toBeTrue();
   });
   it('does not start a payment with an empty cart', async () => {
-    const checkout = spyOn(component.stripeService, 'createCheckoutSession');
-    await component.makePayment();
+    const checkout = spyOn(component.stripeService, 'elements');
+    await component.openPayment();
+    expect(component.paymentOpen).toBeFalse();
     expect(checkout).not.toHaveBeenCalled();
   });
   it('removes shipping charges for pickup and persists notes for the PDF', () => {
@@ -73,7 +74,7 @@ describe('CheckoutComponent', () => {
   it('encodes the complete multi-design inquiry for the bakery WhatsApp number', () => {
     component.cart.add('cerchio', 'data:image/png;base64,test', { ...draft, recipe: 'lactose-free', covering: 'sugar-paste', selectedColorSfondo: '#FFD43B' });
     component.cart.add('cuore', 'data:image/png;base64,test', { ...draft, testoInput: 'A&B' });
-    component.firstFormGroup.patchValue({ deliveryMethod: 'pickup', customerName: 'Sara', notes: 'Confezioni & fiocco' });
+    component.firstFormGroup.patchValue({ deliveryMethod: 'pickup', notes: 'Confezioni & fiocco' });
     const url = new URL(component.whatsappOrderUrl);
     expect(url.pathname).toBe('/393491687845');
     const message = url.searchParams.get('text')!;
@@ -91,9 +92,7 @@ describe('CheckoutComponent', () => {
     component.direct = true;
     component.updateQuantity(component.items[0], 12);
     expect(component.counter).toBe(25);
-    const checkout = spyOn(component.stripeService, 'createCheckoutSession').and.rejectWith(new Error('test'));
-    await component.makePayment();
-    const order = checkout.calls.mostRecent().args[0];
+    const order = component.buildOrder();
     expect(order.items.length).toBe(1);
     expect(order.items[0].message).toBe('Luca');
     expect(order.items[0].quantity).toBe(12);
@@ -102,9 +101,7 @@ describe('CheckoutComponent', () => {
   it('sends every model and its quantity to checkout', async () => {
     component.cart.add('cerchio', 'data:image/png;base64,test', draft);
     component.cart.add('cuore', 'data:image/png;base64,test', { ...draft, testoInput: '' });
-    const checkout = spyOn(component.stripeService, 'createCheckoutSession').and.rejectWith(new Error('test'));
-    await component.makePayment();
-    const order = checkout.calls.mostRecent().args[0];
+    const order = component.buildOrder();
     expect(order.items.length).toBe(2);
     expect(order.items[0].message).toBe('Anna');
     expect(order.items[1].font).toBe('');
@@ -113,14 +110,23 @@ describe('CheckoutComponent', () => {
   it('sends the text lines, layout and original photo for the order email', async () => {
     component.cart.add('cerchio', 'data:image/png;base64,test', { ...draft, testoDueInput: 'Auguri', fontSize: 28, textPosition: { x: 4, y: -10 },
       croppedImage: 'data:image/jpeg;base64,crop', originalImage: 'data:image/jpeg;base64,orig', originalImageName: 'foto.jpg' });
-    const checkout = spyOn(component.stripeService, 'createCheckoutSession').and.rejectWith(new Error('test'));
-    await component.makePayment();
-    const [item] = checkout.calls.mostRecent().args[0].items;
+    const [item] = component.buildOrder().items;
     expect(item.lines).toEqual(['Anna', 'Auguri', '']);
     expect(item.fontSize).toBe(28);
     expect(item.textPosition).toEqual({ x: 4, y: -10 });
     expect(item.originalImage).toBe('data:image/jpeg;base64,orig');
     expect(item.originalImageName).toBe('foto.jpg');
+  });
+  it('does not send name or address with the order details: the payment form collects them', () => {
+    component.cart.add('cerchio', 'data:image/png;base64,test', draft);
+    const order = component.buildOrder();
+    expect(Object.keys(order).sort()).toEqual(['deliveryMethod', 'items', 'notes', 'requestedDate']);
+  });
+  it('requires name, email and phone before paying', () => {
+    component.contactForm.setValue({ name: 'Mario Rossi', email: 'non-valida', phone: '3330000000' });
+    expect(component.contactForm.invalid).toBeTrue();
+    component.contactForm.controls.email.setValue('mario@example.com');
+    expect(component.contactForm.valid).toBeTrue();
   });
   it('empties only the paid order when Stripe returns to the checkout', () => {
     component.cart.add('cerchio', 'data:image/png;base64,cart', draft);

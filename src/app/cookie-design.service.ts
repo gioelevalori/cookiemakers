@@ -130,7 +130,8 @@ export class CookieDesignService {
       (draft.originalImage === undefined || draft.originalImage === '' || (typeof draft.originalImage === 'string' && /^data:image\/(jpeg|jpg|png|gif|webp);base64,/.test(draft.originalImage))) &&
       (draft.originalImageName === undefined || typeof draft.originalImageName === 'string') &&
       (draft.recipe === undefined || ['classic', 'lactose-free'].includes(draft.recipe)) &&
-      (draft.covering === undefined || ['royal-icing', 'sugar-paste'].includes(draft.covering));
+      // Sugar paste is no longer offered: drafts saved with it are kept and switched to royal icing.
+      (draft.covering === undefined || (['royal-icing', 'sugar-paste'] as string[]).includes(draft.covering));
   }
 
   private snapshot(value: CookieDraft): CookieDraft {
@@ -141,7 +142,7 @@ export class CookieDesignService {
       croppedImage: value.croppedImage, originalImage: value.originalImage || '',
       originalImageName: value.originalImageName || '', textPosition: { ...value.textPosition },
       ...(value.recipe ? { recipe: value.recipe === 'lactose-free' ? 'lactose-free' as const : 'classic' as const } : {}),
-      ...(value.covering ? { covering: value.covering === 'sugar-paste' ? 'sugar-paste' as const : 'royal-icing' as const } : {})
+      ...(value.covering ? { covering: 'royal-icing' as const } : {})
     };
   }
 }

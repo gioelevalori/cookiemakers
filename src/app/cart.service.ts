@@ -1,5 +1,6 @@
 import { Injectable } from '@angular/core';
 import { CookieDraft, CookieDesignService, COOKIE_SHAPES } from './cookie-design.service';
+import { MIN_COOKIES } from './cookie-product';
 
 export interface CartItem {
   id: string;
@@ -48,8 +49,9 @@ export class CartService {
     } catch { /* Keep editing in memory. */ }
   }
 
-  validQuantity(quantity: number): boolean { return Number.isInteger(quantity) && quantity >= 10; }
-  price(quantity: number): number { return 15 + (quantity - 10) * 5; }
+  validQuantity(quantity: number): boolean { return Number.isInteger(quantity) && quantity >= MIN_COOKIES; }
+  // Same price for royal icing and wafer print: 2,50 € each for the first 5, then 2 € each.
+  price(quantity: number): number { return MIN_COOKIES * 2.5 + (quantity - MIN_COOKIES) * 2; }
   get total(): number { return this.items.reduce((sum, item) => sum + this.price(item.quantity), 0); }
   get quantity(): number { return this.items.reduce((sum, item) => sum + item.quantity, 0); }
 
@@ -57,7 +59,7 @@ export class CartService {
     if (quantity !== undefined && !this.validQuantity(quantity)) throw new Error('Quantità non valida');
     const existing = this.items.find(item => item.id === this.editingId);
     const item: CartItem = { id: existing?.id || (crypto.randomUUID?.() ?? `${Date.now()}-${Math.random().toString(36).slice(2)}`), shape, preview,
-      quantity: quantity ?? existing?.quantity ?? 10, draft: JSON.parse(JSON.stringify(draft)) };
+      quantity: quantity ?? existing?.quantity ?? MIN_COOKIES, draft: JSON.parse(JSON.stringify(draft)) };
     this.items = existing ? this.items.map(value => value.id === existing.id ? item : value) : [...this.items, item];
     this.editingId = null;
     this.persist();
@@ -65,7 +67,7 @@ export class CartService {
 
   checkoutDirect(shape: string, preview: string, draft: CookieDraft, quantity?: number): void {
     if (quantity !== undefined && !this.validQuantity(quantity)) throw new Error('Quantità non valida');
-    this.directItem = { id: 'direct-order', shape, preview, quantity: quantity ?? this.directItem?.quantity ?? 10,
+    this.directItem = { id: 'direct-order', shape, preview, quantity: quantity ?? this.directItem?.quantity ?? MIN_COOKIES,
       draft: JSON.parse(JSON.stringify(draft)) };
     this.editingId = null;
     this.persistDirect();

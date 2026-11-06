@@ -29,8 +29,8 @@ describe('RettangoloMakerSfondoComponent', () => {
   it('applies the chosen covering to a natural biscuit and preserves an existing colour', () => {
     const material = spyOn(component.coveringChange, 'emit');
     const colour = spyOn(component.colorSfondoSent, 'emit');
-    component.selectCovering('sugar-paste');
-    expect(material).toHaveBeenCalledWith('sugar-paste');
+    component.selectCovering('royal-icing');
+    expect(material).toHaveBeenCalledWith('royal-icing');
     expect(colour).toHaveBeenCalledWith('#FFFFFF');
     component.selectedColorSfondo = '#FFD43B';
     component.selectCovering('royal-icing');

@@ -11,9 +11,12 @@ export const COOKIE_PALETTE = [
 ] as const;
 
 export type CookieRecipe = 'classic' | 'lactose-free';
-export type CookieCovering = 'royal-icing' | 'sugar-paste';
+// Minimum order per cookie design; see CartService.price for the price list.
+export const MIN_COOKIES = 5;
+
+export type CookieCovering = 'royal-icing';
 export const recipeLabel = (value?: CookieRecipe): string => value === 'lactose-free' ? 'Senza lattosio' : 'Classica';
-export const coveringLabel = (value?: CookieCovering): string => value === 'sugar-paste' ? 'Pasta di zucchero' : 'Ghiaccia reale';
+export const coveringLabel = (_value?: CookieCovering): string => 'Ghiaccia reale';
 
 export const COOKIE_BUSINESS = {
   whatsappNumber: '393516777748',

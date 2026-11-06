@@ -28,8 +28,9 @@ const noOverflow = async page => assert.equal(await page.evaluate(() => document
         assert.equal(await page.locator('app-maker-text').getByRole('button', { name: 'Giallo', exact: true }).count(), 1);
         assert.equal(await page.locator('app-maker-text').getByRole('button', { name: 'Ciano', exact: true }).count(), 0);
         await page.getByRole('tab', { name: 'Sfondo', exact: true }).click();
-        await page.getByRole('combobox', { name: 'Copertura dello sfondo', exact: true }).click();
-        await page.getByRole('option', { name: 'Pasta di zucchero', exact: true }).click();
+        // Sugar paste is no longer offered: royal icing is the only covering.
+        assert.match(await page.locator('app-maker-sfondo .covering-note').innerText(), /ghiaccia reale/);
+        assert.equal(await page.getByRole('combobox', { name: 'Copertura dello sfondo', exact: true }).count(), 0);
         await page.locator('app-maker-sfondo').getByRole('button', { name: 'Giallo', exact: true }).click();
         const swatches = page.locator('app-maker-sfondo');
         assert.equal(await swatches.getByRole('button', { name: 'Bianco', exact: true }).count(), 1);
@@ -43,14 +44,13 @@ const noOverflow = async page => assert.equal(await page.evaluate(() => document
           await page.getByRole('button', { name: 'Riprendi biscotto salvato: Anna', exact: true }).click();
           assert.equal(await page.getByRole('radio', { name: 'Senza lattosio', exact: true }).isChecked(), true);
           await page.getByRole('tab', { name: 'Sfondo', exact: true }).click();
-          assert.match(await page.getByRole('combobox', { name: 'Copertura dello sfondo', exact: true }).innerText(), /Pasta di zucchero/);
           await page.getByRole('link', { name: 'Forma Cuore', exact: true }).click();
           assert.equal(await page.getByRole('radio', { name: 'Senza lattosio', exact: true }).isChecked(), true);
         }
         await page.getByRole('button', { name: 'Aggiungi al carrello', exact: true }).click();
         await page.locator('.design-summary').last().waitFor();
         assert.match(await page.locator('.design-summary').last().innerText(), /Senza lattosio/);
-        assert.match(await page.locator('.design-summary').last().innerText(), /Pasta di zucchero/);
+        assert.match(await page.locator('.design-summary').last().innerText(), /Ghiaccia reale/);
       }
       await page.getByRole('radio', { name: 'Ritiro in sede', exact: true }).check();
       // Name, email, phone and shipping address are collected once, in the payment form of the checkout.
@@ -60,9 +60,9 @@ const noOverflow = async page => assert.equal(await page.evaluate(() => document
       const request = page.getByRole('link', { name: 'Richiedi ordine su WhatsApp', exact: true });
       let message = await decodedMessage(request);
       assert.match(message, /Senza lattosio/);
-      assert.match(message, /Pasta di zucchero/);
-      assert.match(message, /50 biscotti/);
-      assert.match(message, /75,00/);
+      assert.match(message, /Ghiaccia reale/);
+      assert.match(message, /25 biscotti/);
+      assert.match(message, /62,50/);
       assert.match(message, /Via Roma, 78/);
       assert.match(message, /Fiocco giallo & confezioni singole/);
       assert.match(message, /da allegare/);
@@ -78,10 +78,10 @@ const noOverflow = async page => assert.equal(await page.evaluate(() => document
       await page.getByRole('radio', { name: 'Spedizione', exact: true }).check();
       assert.equal(await page.getByLabel('Indirizzo di spedizione (facoltativo)', { exact: true }).count(), 0);
       message = await decodedMessage(request);
-      assert.match(message, /81,00/);
+      assert.match(message, /68,50/);
       await noOverflow(page);
       await page.screenshot({ path: `artifacts/product-checkout-${width}.png`, fullPage: true });
-      await page.getByLabel('Quantità biscotto 1', { exact: true }).fill('9');
+      await page.getByLabel('Quantità biscotto 1', { exact: true }).fill('4');
       assert.ok(!await request.getAttribute('href'));
       assert.equal(await request.getAttribute('aria-disabled'), 'true');
       await page.goto(route('eventi'));

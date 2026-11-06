@@ -10,7 +10,7 @@ nome, email e telefono nei campi del sito, l'indirizzo di spedizione nell'Addres
 I dati della carta restano su Stripe e non passano dal sito.
 
 1. `POST /api/create-payment.php`: riceve ordine e contatti, ricalcola i prezzi dal listino
-   (15 EUR per 10 biscotti, 5 EUR per ogni biscotto in più, 6 EUR di spedizione), salva l'ordine
+   (minimo 5 biscotti: i primi 5 a 2,50 EUR l'uno, poi 2 EUR l'uno; 6 EUR di spedizione), salva l'ordine
    con le immagini in `api/data/orders/`, crea il **cliente** su Stripe (visibile in Clienti) e il
    PaymentIntent con descrizione e metadati leggibili nella Dashboard (es. "Ordine 1DED47C3 ·
    Cerchio ×12 · Ritiro 20/12/2026", consegna, data, note) e restituisce il client secret.

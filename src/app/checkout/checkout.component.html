@@ -56,13 +56,13 @@
 
           <mat-form-field appearance="outline"><mat-label>Quantità biscotto {{ i + 1 }}</mat-label>
 
-            <input matInput type="number" min="10" step="1" [value]="item.quantity" (input)="updateQuantity(item, $any($event.target).value)" [attr.aria-invalid]="quantityErrors.has(item.id)" [attr.aria-describedby]="quantityErrors.has(item.id) ? 'quantity-error-' + item.id : null" /></mat-form-field>
+            <input matInput type="number" min="5" step="1" [value]="item.quantity" (input)="updateQuantity(item, $any($event.target).value)" [attr.aria-invalid]="quantityErrors.has(item.id)" [attr.aria-describedby]="quantityErrors.has(item.id) ? 'quantity-error-' + item.id : null" /></mat-form-field>
 
           <button mat-icon-button (click)="updateQuantity(item, item.quantity + 1)" aria-label="Aumenta quantità biscotto {{ i + 1 }}"><mat-icon>add</mat-icon></button>
 
         </div>
 
-        <p *ngIf="quantityErrors.has(item.id)" [id]="'quantity-error-' + item.id" class="error-message" role="alert">Inserisci almeno 10 biscotti, in numero intero.</p>
+        <p *ngIf="quantityErrors.has(item.id)" [id]="'quantity-error-' + item.id" class="error-message" role="alert">Inserisci almeno 5 biscotti, in numero intero.</p>
 
         <p class="model-total">Totale biscotto: <strong>{{ cart.price(item.quantity) | currency:'EUR' }}</strong></p>
 
@@ -136,7 +136,7 @@
 
       </div>
 
-      <p class="price-note">Per ciascun biscotto personalizzato: 10 pezzi a {{ 15 | currency:'EUR' }}; ogni biscotto aggiuntivo a {{ 5 | currency:'EUR' }}. Spedizione unica per l'ordine.</p>
+      <p class="price-note">Per ciascun biscotto personalizzato: minimo 5 pezzi, i primi 5 a {{ 2.5 | currency:'EUR' }} l'uno, dal sesto {{ 2 | currency:'EUR' }} l'uno. Stesso prezzo con ghiaccia reale o stampa. Spedizione unica per l'ordine.</p>
 
       <dl class="totals">
 

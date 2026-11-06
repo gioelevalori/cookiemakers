@@ -86,14 +86,18 @@ $pay = function (array $order) use ($store): FakeStripe {
 $orderIdOf = fn (FakeStripe $stripe) => $stripe->intents[0]['metadata']['orderId'];
 
 test('prices follow the shop list', function () {
-    check(item_price_cents(10) === 1500);
-    check(item_price_cents(12) === 2500);
+    check(item_price_cents(5) === 1250);
+    check(item_price_cents(12) === 2650);
 });
 
 test('rejects invalid quantities, shapes and empty carts', function () {
-    throws(fn () => normalize_order(order(['items' => [item(['quantity' => 9])]])), OrderError::class);
+    throws(fn () => normalize_order(order(['items' => [item(['quantity' => 4])]])), OrderError::class);
     throws(fn () => normalize_order(order(['items' => [item(['shape' => 'stella'])]])), OrderError::class);
     throws(fn () => normalize_order(order(['items' => []])), OrderError::class);
+});
+
+test('switches the discontinued sugar paste to royal icing', function () {
+    check(normalize_order(order())['items'][0]['covering'] === 'royal-icing');
 });
 
 test('drops images that are not inline PNG, JPEG or WebP data', function () {
@@ -114,7 +118,7 @@ test('creates the Stripe customer and charges the server-side total', function (
     [$customer] = $stripe->customers;
     [$intent] = $stripe->intents;
     check($customer['email'] === 'mario@example.com' && $customer['name'] === 'Mario Rossi' && $customer['shipping']['address']['city'] === 'Cepagatti');
-    check($intent['amount'] === 3100 && $intent['currency'] === 'eur' && $intent['customer'] === 'cus_test_1', json_encode($intent));
+    check($intent['amount'] === 3250 && $intent['currency'] === 'eur' && $intent['customer'] === 'cus_test_1', json_encode($intent));
     check($intent['automatic_payment_methods'] === ['enabled' => 'true']);
     check(!isset($intent['shipping']), 'shipping must be left to the Address Element on confirmation');
     check($customer['shipping']['phone'] === '+39 333 0000000');
@@ -124,7 +128,7 @@ test('creates the Stripe customer and charges the server-side total', function (
 
 test('ignores client prices and charges pickup orders without shipping', function () use ($pay) {
     $stripe = $pay(order(['deliveryMethod' => 'pickup', 'amount' => 1, 'shipping' => null]));
-    check($stripe->intents[0]['amount'] === 2500 && !isset($stripe->customers[0]['shipping']));
+    check($stripe->intents[0]['amount'] === 2650 && !isset($stripe->customers[0]['shipping']));
     check(str_contains($stripe->intents[0]['description'], 'Ritiro'));
 });
 
@@ -148,7 +152,7 @@ test('emails the shop and the customer once with all cookie details', function (
     check(array_column($mailer->sent, 'to') === ['mycookiedelight@gmail.com', 'mario@example.com']);
     [$shop, $customer] = $mailer->sent;
     check($shop['replyTo'] === 'mario@example.com' && str_contains($shop['subject'], 'Mario Rossi'));
-    foreach (['Cerchio', '12 biscotti', 'Senza lattosio', 'Pasta di zucchero', '#FFD43B', 'Auguri', 'Giulia', 'CocoGothic · 28 px',
+    foreach (['Cerchio', '12 biscotti', 'Senza lattosio', 'Ghiaccia reale', '#FFD43B', 'Auguri', 'Giulia', 'CocoGothic · 28 px',
         'X 4 px, Y -10 px', 'foto.jpg', '+39 333 0000000', 'Via Roma 1, 65012 Cepagatti PE, IT', '2026-12-20', 'Senza fretta', '31,00 €', 'pi_test_1'] as $detail) {
         check(str_contains($shop['text'], $detail), "shop email missing $detail");
     }

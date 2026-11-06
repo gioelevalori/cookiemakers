@@ -2,7 +2,7 @@ import { ChangeDetectionStrategy, Component, DestroyRef, OnDestroy, inject } fro
 import { AbstractControl, FormBuilder, Validators } from '@angular/forms';
 import { ActivatedRoute } from '@angular/router';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { COOKIE_BUSINESS, whatsappUrl } from '../cookie-product';
+import { COOKIE_BUSINESS, MIN_COOKIES, whatsappUrl } from '../cookie-product';
 import { DeliveryService, validRequestedDate } from '../delivery.service';
 
 @Component({ standalone: false, selector: 'app-custom-request', changeDetection: ChangeDetectionStrategy.Eager,
@@ -19,7 +19,7 @@ export class CustomRequestComponent implements OnDestroy {
   readonly form = this.builder.nonNullable.group({
     occasion: ['', Validators.required], name: ['', Validators.maxLength(120)],
     date: ['', (control: AbstractControl) => validRequestedDate(control.value, this.delivery.today) ? null : { date: true }],
-    quantity: [10, [Validators.required, Validators.min(10), Validators.pattern(/^[0-9]+$/)]],
+    quantity: [MIN_COOKIES, [Validators.required, Validators.min(MIN_COOKIES), Validators.pattern(/^[0-9]+$/)]],
     description: ['', [Validators.required, Validators.minLength(10), Validators.maxLength(1000)]],
     colors: ['', Validators.maxLength(120)], packaging: ['da-concordare'], size: ['da-concordare'],
     ribbon: [false], card: [false], deliveryMethod: ['pickup']

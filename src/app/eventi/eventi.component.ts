@@ -1,6 +1,6 @@
 import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
 import { AbstractControl, FormBuilder, Validators } from '@angular/forms';
-import { COOKIE_BUSINESS, whatsappUrl } from '../cookie-product';
+import { COOKIE_BUSINESS, MIN_COOKIES, whatsappUrl } from '../cookie-product';
 import { DeliveryService, validRequestedDate } from '../delivery.service';
 
 @Component({
@@ -18,7 +18,7 @@ export class EventiComponent {
   readonly form = this.builder.nonNullable.group({
     occasion: ['Matrimonio', Validators.required],
     date: ['', (control: AbstractControl) => validRequestedDate(control.value, this.delivery.today) ? null : { date: true }],
-    quantity: [10, [Validators.required, Validators.min(10), (control: AbstractControl) => Number.isInteger(control.value) ? null : { integer: true }]],
+    quantity: [MIN_COOKIES, [Validators.required, Validators.min(MIN_COOKIES), (control: AbstractControl) => Number.isInteger(control.value) ? null : { integer: true }]],
     name: ['', Validators.maxLength(120)],
     deliveryMethod: ['pickup'],
     notes: ['', Validators.maxLength(1000)]

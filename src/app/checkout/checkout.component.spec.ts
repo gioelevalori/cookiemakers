@@ -39,16 +39,16 @@ describe('CheckoutComponent', () => {
     component.cart.add('cerchio', 'data:image/png;base64,test', draft);
     component.cart.add('cuore', 'data:image/png;base64,test', { ...draft, testoInput: 'Luca' });
     component.updateQuantity(component.cart.items[0], 12);
-    expect(component.counter).toBe(40);
-    expect(component.counter + component.shipping).toBe(46);
-    expect(component.cart.quantity).toBe(22);
+    expect(component.counter).toBe(39);
+    expect(component.counter + component.shipping).toBe(45);
+    expect(component.cart.quantity).toBe(17);
   });
   it('blocks checkout for invalid quantities without corrupting the saved cart', () => {
     component.cart.add('cerchio', 'data:image/png;base64,test', draft);
     const item = component.cart.items[0];
-    component.updateQuantity(item, 9);
+    component.updateQuantity(item, 4);
     expect(component.invalidOrder).toBeTrue();
-    expect(component.cart.items[0].quantity).toBe(10);
+    expect(component.cart.items[0].quantity).toBe(5);
     component.updateQuantity(item, 10.5);
     expect(component.invalidOrder).toBeTrue();
     component.updateQuantity(item, 12);
@@ -66,24 +66,24 @@ describe('CheckoutComponent', () => {
     component.cart.add('cerchio', 'data:image/png;base64,test', draft);
     component.firstFormGroup.patchValue({ deliveryMethod: 'pickup', notes: 'Per un matrimonio' });
     expect(component.shipping).toBe(0);
-    expect(component.counter + component.shipping).toBe(15);
+    expect(component.counter + component.shipping).toBe(12.5);
     expect(component.orderRequest.details.notes).toBe('Per un matrimonio');
     component.firstFormGroup.controls.deliveryMethod.setValue('shipping');
     expect(component.shipping).toBe(6);
   });
   it('encodes the complete multi-design inquiry for the bakery WhatsApp number', () => {
-    component.cart.add('cerchio', 'data:image/png;base64,test', { ...draft, recipe: 'lactose-free', covering: 'sugar-paste', selectedColorSfondo: '#FFD43B' });
+    component.cart.add('cerchio', 'data:image/png;base64,test', { ...draft, recipe: 'lactose-free', covering: 'royal-icing', selectedColorSfondo: '#FFD43B' });
     component.cart.add('cuore', 'data:image/png;base64,test', { ...draft, testoInput: 'A&B' });
     component.firstFormGroup.patchValue({ deliveryMethod: 'pickup', notes: 'Confezioni & fiocco' });
     const url = new URL(component.whatsappOrderUrl);
     expect(url.pathname).toBe('/393516777748');
     const message = url.searchParams.get('text')!;
     expect(message).toContain('Senza lattosio');
-    expect(message).toContain('Pasta di zucchero');
+    expect(message).toContain('Ghiaccia reale');
     expect(message).toContain('Via Roma, 78');
     expect(message).toContain('A&B');
     expect(message).toContain('Confezioni & fiocco');
-    expect(message).toContain('30,00');
+    expect(message).toContain('25,00');
     expect(message).toContain('da allegare');
   });
   it('checks out only the direct design while preserving the cart', async () => {
@@ -91,12 +91,12 @@ describe('CheckoutComponent', () => {
     component.cart.checkoutDirect('cuore', 'data:image/png;base64,direct', { ...draft, testoInput: 'Luca' });
     component.direct = true;
     component.updateQuantity(component.items[0], 12);
-    expect(component.counter).toBe(25);
+    expect(component.counter).toBe(26.5);
     const order = component.buildOrder();
     expect(order.items.length).toBe(1);
     expect(order.items[0].message).toBe('Luca');
     expect(order.items[0].quantity).toBe(12);
-    expect(component.cart.items[0].quantity).toBe(10);
+    expect(component.cart.items[0].quantity).toBe(5);
   });
   it('sends every model and its quantity to checkout', async () => {
     component.cart.add('cerchio', 'data:image/png;base64,test', draft);
@@ -105,7 +105,7 @@ describe('CheckoutComponent', () => {
     expect(order.items.length).toBe(2);
     expect(order.items[0].message).toBe('Anna');
     expect(order.items[1].font).toBe('');
-    expect(order.items.map(item => item.quantity)).toEqual([10, 10]);
+    expect(order.items.map(item => item.quantity)).toEqual([5, 5]);
   });
   it('sends the text lines, layout and original photo for the order email', async () => {
     component.cart.add('cerchio', 'data:image/png;base64,test', { ...draft, testoDueInput: 'Auguri', fontSize: 28, textPosition: { x: 4, y: -10 },

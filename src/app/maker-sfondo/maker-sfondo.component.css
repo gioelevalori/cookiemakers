@@ -32,3 +32,5 @@
 a{
   font-family: InkFree;
 }
+.covering-note { margin: 0 0 16px; font-size: 14px; color: #61766a; }
+.covering-note strong { color: #253b33; font-weight: 600; }

@@ -28,11 +28,17 @@ describe('Saved cookie designs', () => {
   });
   it('preserves recipe and covering through navigation and explicit saves', () => {
     const service = new CookieDesignService();
-    const options: CookieDraft = { ...draft, recipe: 'lactose-free', covering: 'sugar-paste' };
+    const options: CookieDraft = { ...draft, recipe: 'lactose-free', covering: 'royal-icing' };
     service.save(options, '/cerchio');
     expect(service.draft).toEqual(options);
     service.saveForLater(options, '/cerchio');
     expect(new CookieDesignService().getSavedDesigns()[0].draft).toEqual(options);
+  });
+
+  it('switches drafts saved with the discontinued sugar paste to royal icing', () => {
+    const service = new CookieDesignService();
+    service.save({ ...draft, covering: 'sugar-paste' } as unknown as CookieDraft, '/cerchio');
+    expect(service.draft?.covering).toBe('royal-icing');
   });
 
   it('keeps temporary editing handoffs out of persistent storage', () => {

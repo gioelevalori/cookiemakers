@@ -22,8 +22,8 @@ describe('CartService', () => {
     expect(restored.items[0].draft.testoInput).toBe('Anna');
     expect(restored.items[0].draft.textPosition.x).toBe(0);
     expect(restored.items[1].draft.testoInput).toBe('Luca');
-    expect(restored.quantity).toBe(22);
-    expect(restored.total).toBe(40);
+    expect(restored.quantity).toBe(17);
+    expect(restored.total).toBe(39);
   });
   it('updates an edited model instead of adding a duplicate, even after reload', () => {
     cart.add('cerchio', 'data:image/png;base64,test', draft);
@@ -54,10 +54,10 @@ describe('CartService', () => {
     const restored = new CartService(new CookieDesignService());
     expect(restored.items.length).toBe(1);
     expect(restored.items[0].draft.testoInput).toBe('Anna');
-    expect(restored.items[0].quantity).toBe(10);
+    expect(restored.items[0].quantity).toBe(5);
     expect(restored.directItem!.draft.testoInput).toBe('Luca');
     expect(restored.directItem!.quantity).toBe(12);
-    expect(restored.total).toBe(15);
+    expect(restored.total).toBe(12.5);
   });
   it('reports a storage failure and keeps all models in memory', () => {
     spyOn(Storage.prototype, 'setItem').and.throwError('quota');

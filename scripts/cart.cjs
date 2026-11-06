@@ -35,7 +35,7 @@ fs.mkdirSync('artifacts', { recursive: true });
       assert.match(await page.locator('.design-summary').nth(1).innerText(), /Luca/);
       await page.getByLabel('Quantità biscotto 2', { exact: true }).fill('13');
       assert.match(await page.locator('.grand-total').last().innerText(), /61,00/);
-      await page.getByLabel('Quantità biscotto 2', { exact: true }).fill('9');
+      await page.getByLabel('Quantità biscotto 2', { exact: true }).fill('4');
       assert.equal(await page.locator('.pay-button').isDisabled(), true);
       await page.getByLabel('Quantità biscotto 2', { exact: true }).fill('13');
       await page.reload();

@@ -12,23 +12,23 @@ describe('EditorOrderService', () => {
     const order = TestBed.inject(EditorOrderService);
     order.quantityControl.setValue(12);
     order.method = 'pickup';
-    expect(order.subtotal).toBe(25); expect(order.total).toBe(25);
+    expect(order.subtotal).toBe(26.5); expect(order.total).toBe(26.5);
     order.method = 'shipping';
-    expect(order.total).toBe(31);
+    expect(order.total).toBe(32.5);
     expect(TestBed.inject(OrderRequestService).details.deliveryMethod).toBe('shipping');
   });
   it('rejects invalid quantities and resets the editor', () => {
     const order = TestBed.inject(EditorOrderService);
-    for (const value of [9, 10.5, -1]) { order.quantityControl.setValue(value); expect(order.invalid).toBeTrue(); }
+    for (const value of [4, 5.5, -1]) { order.quantityControl.setValue(value); expect(order.invalid).toBeTrue(); }
     order.editingId = 'example'; order.reset();
-    expect(order.quantity).toBe(10); expect(order.invalid).toBeFalse(); expect(order.editingId).toBeNull();
+    expect(order.quantity).toBe(5); expect(order.invalid).toBeFalse(); expect(order.editingId).toBeNull();
   });
   it('carries the chosen quantity into both cart and direct order', () => {
     const cart = TestBed.inject(CartService);
     cart.add('cerchio', 'data:image/png;base64,test', draft, 12);
     cart.checkoutDirect('cuore', 'data:image/png;base64,test', draft, 14);
     expect(cart.items[0].quantity).toBe(12); expect(cart.directItem!.quantity).toBe(14);
-    expect(() => cart.add('cerchio', 'data:image/png;base64,test', draft, 9)).toThrow();
+    expect(() => cart.add('cerchio', 'data:image/png;base64,test', draft, 4)).toThrow();
     expect(cart.items.length).toBe(1);
   });
 });

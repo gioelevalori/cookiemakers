@@ -3,12 +3,13 @@ import { FormControl, Validators } from '@angular/forms';
 import { CartService } from './cart.service';
 import { OrderRequestService, DeliveryMethod } from './order-request.service';
 import { DeliveryService } from './delivery.service';
+import { MIN_COOKIES } from './cookie-product';
 
 @Injectable({ providedIn: 'root' })
 export class EditorOrderService {
   editingId: string | null = null;
-  readonly quantityControl = new FormControl(10, { nonNullable: true,
-    validators: [Validators.required, Validators.min(10), Validators.pattern(/^[0-9]+$/)] });
+  readonly quantityControl = new FormControl(MIN_COOKIES, { nonNullable: true,
+    validators: [Validators.required, Validators.min(MIN_COOKIES), Validators.pattern(/^[0-9]+$/)] });
   private readonly cart = inject(CartService);
   private readonly request = inject(OrderRequestService);
   readonly delivery = inject(DeliveryService);
@@ -20,5 +21,5 @@ export class EditorOrderService {
   get shipping(): number { return this.method === 'pickup' ? 0 : 6; }
   get total(): number { return this.subtotal + this.shipping; }
   get earliestDate(): string | null { return this.delivery.earliestDateFor(this.method); }
-  reset(): void { this.quantityControl.reset(10); this.editingId = null; }
+  reset(): void { this.quantityControl.reset(MIN_COOKIES); this.editingId = null; }
 }

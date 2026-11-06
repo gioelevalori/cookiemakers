@@ -4,19 +4,19 @@
 
 const SHAPES = ['rettangolo' => 'Rettangolo', 'cerchio' => 'Cerchio', 'quadrato' => 'Quadrato', 'esagono' => 'Esagono', 'cuore' => 'Cuore'];
 const RECIPES = ['classic' => 'Classica', 'lactose-free' => 'Senza lattosio'];
-const COVERINGS = ['royal-icing' => 'Ghiaccia reale', 'sugar-paste' => 'Pasta di zucchero'];
+const COVERINGS = ['royal-icing' => 'Ghiaccia reale'];
 const SHIPPING_CENTS = 600;
-const MIN_QUANTITY = 10;
+const MIN_QUANTITY = 5;
 const MAX_QUANTITY = 5000;
 const MAX_ITEMS = 20;
 const MAX_IMAGE_LENGTH = 12000000;
 
 class OrderError extends Exception {}
 
-/** 15 EUR for the first 10 cookies, 5 EUR for each additional cookie. */
+/** Same price for royal icing and wafer print: 2,50 EUR each for the first 5 cookies, then 2 EUR each. */
 function item_price_cents(int $quantity): int
 {
-    return 1500 + ($quantity - MIN_QUANTITY) * 500;
+    return MIN_QUANTITY * 250 + ($quantity - MIN_QUANTITY) * 200;
 }
 
 function order_totals(array $order): array

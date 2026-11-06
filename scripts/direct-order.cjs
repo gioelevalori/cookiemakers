@@ -52,7 +52,7 @@ fs.mkdirSync('artifacts', { recursive: true });
       await page.getByLabel('Quantità biscotto 1', { exact: true }).fill('12');
       await page.reload();
       assert.equal(await page.getByLabel('Quantità biscotto 1', { exact: true }).inputValue(), '12');
-      assert.match(await page.locator('.grand-total').last().innerText(), /31,00/);
+      assert.match(await page.locator('.grand-total').last().innerText(), /32,50/);
       await page.getByRole('link', { name: 'Scheda biscotto 1', exact: true }).click();
       await page.locator('.final-image').waitFor();
       assert.match(await page.locator('.specifications').innerText(), /Luca/);

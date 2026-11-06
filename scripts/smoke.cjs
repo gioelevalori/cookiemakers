@@ -100,9 +100,9 @@ async function main() {
         await page.locator('.preview').waitFor();
         assert.ok((await page.locator('.preview').getAttribute('src')).startsWith('data:image/png;base64,'));
         await page.getByRole('button', { name: 'Aumenta quantità biscotto 1', exact: true }).click();
-        assert.equal(await page.getByRole('spinbutton').inputValue(), '11');
-        assert.match(await page.locator('.grand-total').last().textContent(), /26,00/);
-        await page.getByRole('spinbutton').fill('9');
+        assert.equal(await page.getByRole('spinbutton').inputValue(), '6');
+        assert.match(await page.locator('.grand-total').last().textContent(), /20,50/);
+        await page.getByRole('spinbutton').fill('4');
         await page.getByRole('spinbutton').blur();
         assert.equal(await page.getByRole('button', { name: /^(Vai al pagamento|Prova pagamento Stripe)$/ }).isDisabled(), true);
         await page.getByRole('spinbutton').fill('10');

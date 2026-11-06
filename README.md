@@ -59,9 +59,10 @@ riepilogo dell'ordine. La build Aruba usa `/api/create-payment.php`. A pagamento
 riuscito il checkout mostra la conferma e svuota soltanto l'ordine pagato.
 Configurazione, test e pubblicazione in `api/README.md`.
 
-Il listino mostrato conserva i valori precedenti: 15 EUR per 10 biscotti,
-5 EUR per ciascun biscotto aggiuntivo e 6 EUR di spedizione. Verificare questi
-importi col cliente prima della pubblicazione.
+Listino confermato dalla cliente: minimo 5 biscotti per modello, i primi 5 a
+2,50 EUR l'uno e dal sesto 2 EUR l'uno, con lo stesso prezzo per ghiaccia reale
+e stampa; spedizione 6 EUR. Il minimo e `MIN_COOKIES` in `src/app/cookie-product.ts`,
+il prezzo e in `CartService.price` e, lato server, in `api/lib/order.php`.
 
 Il modulo contatti usa la configurazione EmailJS esistente, con validazione
 e gestione degli errori. L'invio reale e la validita del servizio non sono
@@ -144,8 +145,9 @@ le proporzioni. La data resta da confermare; il riepilogo non e una fattura.
 
 La palette condivisa di testo e sfondo include il giallo al posto del ciano,
 un grigio distinguibile dal bianco e conserva l'ultimo azzurro.
-Ogni biscotto puo usare l'impasto classico o senza lattosio e una copertura
-di ghiaccia reale o pasta di zucchero. I dati seguono cambi forma, bozze
+Ogni biscotto puo usare l'impasto classico o senza lattosio e la copertura
+in ghiaccia reale (la pasta di zucchero non e piu offerta: le bozze salvate con
+quella copertura passano alla ghiaccia reale). I dati seguono cambi forma, bozze
 salvate, carrello e PDF. La stampa e su cialda di zucchero.
 
 `src/app/cookie-product.ts` contiene palette, numero WhatsApp e sede di ritiro,

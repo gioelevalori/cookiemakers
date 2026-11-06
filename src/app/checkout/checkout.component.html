@@ -52,11 +52,11 @@
 
         <div class="quantity">
 
-          <button mat-icon-button (click)="updateQuantity(item, item.quantity - 1)" [disabled]="item.quantity <= 10" aria-label="Riduci quantità biscotto {{ i + 1 }}"><mat-icon>remove</mat-icon></button>
+          <button mat-icon-button (click)="updateQuantity(item, item.quantity - 1)" [disabled]="item.quantity <= minCookies" aria-label="Riduci quantità biscotto {{ i + 1 }}"><mat-icon>remove</mat-icon></button>
 
           <mat-form-field appearance="outline"><mat-label>Quantità biscotto {{ i + 1 }}</mat-label>
 
-            <input matInput type="number" min="5" step="1" [value]="item.quantity" (input)="updateQuantity(item, $any($event.target).value)" [attr.aria-invalid]="quantityErrors.has(item.id)" [attr.aria-describedby]="quantityErrors.has(item.id) ? 'quantity-error-' + item.id : null" /></mat-form-field>
+            <input matInput type="number" [min]="minCookies" step="1" [value]="item.quantity" (input)="updateQuantity(item, $any($event.target).value)" [attr.aria-invalid]="quantityErrors.has(item.id)" [attr.aria-describedby]="quantityErrors.has(item.id) ? 'quantity-error-' + item.id : null" /></mat-form-field>
 
           <button mat-icon-button (click)="updateQuantity(item, item.quantity + 1)" aria-label="Aumenta quantità biscotto {{ i + 1 }}"><mat-icon>add</mat-icon></button>
 

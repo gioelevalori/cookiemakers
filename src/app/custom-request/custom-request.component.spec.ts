@@ -12,7 +12,7 @@ describe('CustomRequestComponent', () => {
     expect(component.form.valid).toBeTrue();
     const message = new URL(component.requestUrl).searchParams.get('text')!;
     expect(message).toContain('Quantità: 20'); expect(message).toContain('Scatola regalo'); expect(message).toContain('Circa 6 cm'); expect(message).toContain('nastro coordinato'); expect(message).not.toContain('bigliettino');
-    component.form.controls.quantity.setValue(9);
+    component.form.controls.quantity.setValue(4);
     const event = jasmine.createSpyObj('event', ['preventDefault']); component.prepareRequest(event);
     expect(event.preventDefault).toHaveBeenCalled();
     fixture.destroy();

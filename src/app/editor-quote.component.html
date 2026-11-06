@@ -2,8 +2,8 @@
   <summary><h2>Quantità e consegna</h2><span *ngIf="!order.invalid">{{ order.total | currency:'EUR' }}</span><mat-icon aria-hidden="true">{{ expanded ? 'expand_less' : 'expand_more' }}</mat-icon></summary>
   <p class="quote-price-note">Minimo 5 pezzi. Personalizzazione e quantità restano modificabili.</p>
   <div class="quote-quantity">
-    <button mat-icon-button type="button" [disabled]="disabled || order.quantity <= 10" (click)="changeQuantity(-1)" aria-label="Riduci quantità nell'editor"><mat-icon>remove</mat-icon></button>
-    <mat-form-field appearance="outline"><mat-label>Quantità del tuo biscotto</mat-label><input matInput type="number" min="5" step="1" [formControl]="order.quantityControl" [readonly]="disabled" /><mat-error>Almeno 5 pezzi, in numero intero.</mat-error></mat-form-field>
+    <button mat-icon-button type="button" [disabled]="disabled || order.quantity <= minCookies" (click)="changeQuantity(-1)" aria-label="Riduci quantità nell'editor"><mat-icon>remove</mat-icon></button>
+    <mat-form-field appearance="outline"><mat-label>Quantità del tuo biscotto</mat-label><input matInput type="number" [min]="minCookies" step="1" [formControl]="order.quantityControl" [readonly]="disabled" /><mat-error>Almeno 5 pezzi, in numero intero.</mat-error></mat-form-field>
     <button mat-icon-button type="button" [disabled]="disabled" (click)="changeQuantity(1)" aria-label="Aumenta quantità nell'editor"><mat-icon>add</mat-icon></button>
   </div>
   <fieldset [disabled]="disabled"><legend>Come li ricevi?</legend><label><input type="radio" name="editorDelivery" [checked]="order.method === 'pickup'" (change)="order.method = 'pickup'" />Ritiro in sede</label><label><input type="radio" name="editorDelivery" [checked]="order.method === 'shipping'" (change)="order.method = 'shipping'" />Spedizione</label></fieldset>

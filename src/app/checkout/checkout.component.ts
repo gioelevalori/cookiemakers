@@ -6,7 +6,7 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { CartItem, CartService } from '../cart.service';
 import { CheckoutOrder, PAYMENT_RESULT_PARAM, StripeElement, StripeElements, StripeJs, StripeService } from '../stripe.service';
 import { DeliveryService, validRequestedDate } from '../delivery.service';
-import { COOKIE_BUSINESS, coveringLabel, recipeLabel, whatsappUrl } from '../cookie-product';
+import { COOKIE_BUSINESS, MIN_COOKIES, coveringLabel, recipeLabel, whatsappUrl } from '../cookie-product';
 import { OrderRequestService } from '../order-request.service';
 
 const PENDING_PAYMENT_KEY = 'cookie-pending-payment';
@@ -27,6 +27,7 @@ export class CheckoutComponent implements OnInit, OnDestroy {
   readonly delivery = inject(DeliveryService);
   readonly orderRequest = inject(OrderRequestService);
   readonly business = COOKIE_BUSINESS;
+  readonly minCookies = MIN_COOKIES;
   readonly recipeLabel = recipeLabel;
   readonly coveringLabel = coveringLabel;
   get shipping(): number { return this.firstFormGroup.controls.deliveryMethod.value === 'pickup' ? 0 : 6; }
